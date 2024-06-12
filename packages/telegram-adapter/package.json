@@ -1,0 +1,24 @@
+{
+  "name": "@rx-bot/telegram-adapter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node-telegram-bot-api": "^0.64.6",
+    "@types/react": "^18.3.3",
+    "node-telegram-bot-api": "^0.66.0",
+    "react": "^18.3.1"
+  },
+  "devDependencies": {
+    "@rx-bot/common": "workspace:*",
+    "@rx-bot/core": "workspace:*",
+    "@rx-bot/typescript-config": "workspace:*",
+    "typescript": "^5.4.5"
+  }
+}

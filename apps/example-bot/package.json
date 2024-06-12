@@ -1,0 +1,23 @@
+{
+  "name": "example-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "ts-node server.tsx"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@rx-bot/telegram-adapter": "workspace:*",
+    "@rx-bot/typescript-config": "workspace:*",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@types/react": "^18.3.3",
+    "fastify": "^4.27.0",
+    "react": "^18.3.1"
+  }
+}

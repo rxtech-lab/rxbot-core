@@ -1,0 +1,23 @@
+{
+  "name": "@rx-bot/core",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@rx-bot/common": "workspace:*",
+    "@rx-bot/typescript-config": "workspace:*",
+    "@types/react": "^18.3.3"
+  },
+  "devDependencies": {
+    "@types/react-reconciler": "^0.28.8",
+    "react": "^18.3.1",
+    "react-reconciler": "^0.29.2",
+    "typescript": "^5.4.5"
+  }
+}
