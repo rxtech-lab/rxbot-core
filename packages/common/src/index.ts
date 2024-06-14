@@ -1,2 +1,4 @@
 export * from "./container.interface";
 export * from "./renderer.interface";
+export * from "./hostconfig.interface";
+export * from "./react";

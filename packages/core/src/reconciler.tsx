@@ -1,6 +1,12 @@
 import Reconciler from "react-reconciler";
 import { createEmptyFiberRoot } from "./utils";
-import { Container, Renderer } from "@rx-bot/common";
+import {
+  Container,
+  InstanceProps,
+  Renderer,
+  InstanceType,
+  ReactInstanceType,
+} from "@rx-bot/common";
 import React from "react";
 
 const hostConfig = {
@@ -11,8 +17,11 @@ const hostConfig = {
   prepareForCommit: () => null,
   resetAfterCommit: () => {},
   // Creating an instance of the host element
-  //@ts-expect-error
-  createInstance: (type, props) => ({ type, props, children: [] }),
+  createInstance: (type: ReactInstanceType, props: InstanceProps) => ({
+    type,
+    props,
+    children: [],
+  }),
   //@ts-expect-error
   appendInitialChild: (parent, child) => {
     parent.children.push(child);
