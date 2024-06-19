@@ -11,21 +11,32 @@ export function App() {
       <hr />
       <p>Current state: {state}</p>
       <menu>
-        <button
-          onClick={() => {
-            console.log("clicked +1");
-            setState(state + 1);
-          }}
-        >
-          +1
-        </button>
-        <button
-          onClick={() => {
-            setState(state - 1);
-          }}
-        >
-          -1
-        </button>
+        <div>
+          <button
+            onClick={() => {
+              console.log("clicked +1");
+              setState(state + 1);
+            }}
+          >
+            +1
+          </button>
+          <button
+            onClick={() => {
+              setState(state - 1);
+            }}
+          >
+            -1
+          </button>
+        </div>
+        <div>
+          <button
+            onClick={() => {
+              setState(0);
+            }}
+          >
+            Reset
+          </button>
+        </div>
       </menu>
     </div>
   );

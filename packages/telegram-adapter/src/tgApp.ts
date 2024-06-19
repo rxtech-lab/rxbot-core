@@ -22,7 +22,7 @@ interface TGContainer extends Container {
   data: Update;
 }
 
-const renderElement = (
+export const renderElement = (
   element: Component,
 ): RenderedElement | RenderedElement[] => {
   if (!element) {
@@ -54,10 +54,16 @@ const renderElement = (
         },
       ];
     case InstanceType.Menu:
+      const elements = element.children
+        .map((child) => renderElement(child))
+        .map((child) => {
+          if (Array.isArray(child)) {
+            return child.flat();
+          }
+          return child;
+        });
       return {
-        inline_keyboard: [
-          element.children.map((child) => renderElement(child)).flat(),
-        ],
+        inline_keyboard: elements,
       } as RenderedElement;
     default:
       return children;
