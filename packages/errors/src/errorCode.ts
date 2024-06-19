@@ -8,4 +8,5 @@
  */
 export enum ErrorCode {
   UnsupportedComponent = 1001,
+  UnsupportedReactInstanceType = 1002,
 }

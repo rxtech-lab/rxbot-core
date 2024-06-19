@@ -4,7 +4,13 @@
  */
 export enum ReactInstanceType {
   Div = "div",
+  /**
+   * Button element maps to the `<button />` element in the html.
+   */
   Button = "button",
+  /**
+   * Text instance similar to the text instance in the [React reconciler](https://github.com/facebook/react/tree/main/packages/react-reconciler#createtextinstancetext-rootcontainer-hostcontext-internalhandle) package.
+   */
   Text = "text",
   List = "list",
   Option = "option",
@@ -39,5 +45,5 @@ export enum ReactInstanceType {
   TableColGroup = "colgroup",
   FieldSet = "fieldset",
   NewLine = "br",
-  Divider = "hr",
+  ThematicBreak = "hr",
 }

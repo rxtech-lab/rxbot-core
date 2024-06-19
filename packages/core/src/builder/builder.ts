@@ -1,11 +1,10 @@
 import {
   Container,
   HostContext,
-  Instance,
   InstanceProps,
-  InstanceType,
   ReactInstanceType,
 } from "@rx-bot/common";
+import { Component } from "../components";
 
 /**
  * Builder is a class that is responsible for building the instance of the host element.
@@ -14,6 +13,10 @@ import {
 export interface Builder {
   /**
    * Build the instance of the host element based on the type and props.
+   * This function is used at the beginning of the render phase and
+   * should map the instance type to any supported component.
+   *
+   * @see packages/core/src/builder/componentBuilder.ts
    * @param type InstanceType
    * @param props InstanceProps
    * @param rootContainer Container
@@ -24,5 +27,5 @@ export interface Builder {
     props: InstanceProps,
     rootContainer: Container,
     hostContext: HostContext,
-  ): Instance;
+  ): Component;
 }
