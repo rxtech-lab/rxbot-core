@@ -1,7 +1,6 @@
-import { BaseRenderer } from "@rx-bot/core";
-import { Container } from "@rx-bot/common";
+import { BaseRenderer, Component } from "@rx-bot/core";
+import { Container, InstanceType } from "@rx-bot/common";
 import TelegramBot, { Update } from "node-telegram-bot-api";
-import React from "react";
 
 export interface TelegramAppOpts {
   token: string;
@@ -14,7 +13,7 @@ type RenderedElement =
       callback_data: string;
     }
   | {
-      inline_keyboard: RenderedElement[][];
+      inline_keyboard: RenderedElement[][] | RenderedElement[];
     }
   | string;
 
@@ -24,43 +23,42 @@ interface TGContainer extends Container {
 }
 
 const renderElement = (
-  element: React.ReactElement & { children?: React.ReactElement[] },
-): RenderedElement[] => {
+  element: Component,
+): RenderedElement | RenderedElement[] => {
   if (!element) {
     return [""];
   }
-  if (element.type === "TEXT_ELEMENT") {
-    return element.props.nodeValue;
+  if (
+    element.type === InstanceType.Text ||
+    element.type === InstanceType.LineBreak
+  ) {
+    return element.props.nodeValue ?? ("" as any);
   }
 
   let children: RenderedElement[] = [];
   if (element.children) {
     children = element.children.map(renderElement).flat();
   }
-
   switch (element.type) {
-    case "div":
+    case InstanceType.Container:
       return children;
-    case "h1":
+    case InstanceType.Header:
       return [`<b>${children}</b>`];
-    case "p":
+    case InstanceType.Paragraph:
       return children;
-    case "button":
+    case InstanceType.Button:
       return [
         {
           text: element.props.children,
-          callback_data: element.props.callbackData,
+          callback_data: "somedata",
         },
       ];
-    case "menu":
-      return [
-        {
-          inline_keyboard: [
-            //@ts-expect-error
-            element.children.map((child) => renderElement(child)),
-          ],
-        },
-      ];
+    case InstanceType.Menu:
+      return {
+        inline_keyboard: [
+          element.children.map((child) => renderElement(child)).flat(),
+        ],
+      } as RenderedElement;
     default:
       return children;
   }
@@ -90,25 +88,17 @@ export class TelegramApp extends BaseRenderer<TGContainer> {
     if (container.data.callback_query) {
       return;
     }
-    //@ts-ignore
-    const message = renderElement(container.children[0]);
+
+    const message = renderElement(container.children[0] as any);
     const chatRoomId = container.chatroomId;
 
-    let textContent = "";
-    for (const m of message) {
-      if (typeof m === "string") {
-        textContent += m;
-      }
-      if ((m as any).text) {
-        textContent += (m as any).text;
-      }
-    }
-
-    const inline_keyboard = message.find((m) => (m as any).inline_keyboard);
-    if (inline_keyboard) {
+    const textContent = this.getMessageContent(message);
+    const hasInlineKeyboard = this.hasInlineKeyboard(message);
+    if (hasInlineKeyboard) {
+      const inlineKeyboard = this.getInlineKeyboard(message);
       await this.bot.sendMessage(chatRoomId, textContent, {
         reply_markup: {
-          inline_keyboard: (inline_keyboard as any).inline_keyboard[0],
+          inline_keyboard: inlineKeyboard as any,
         },
         parse_mode: "HTML",
       });
@@ -117,5 +107,36 @@ export class TelegramApp extends BaseRenderer<TGContainer> {
         parse_mode: "HTML",
       });
     }
+  }
+
+  private hasInlineKeyboard(
+    message: RenderedElement[] | RenderedElement,
+  ): boolean {
+    if (Array.isArray(message)) {
+      return message.some(this.hasInlineKeyboard);
+    }
+    return (message as any).inline_keyboard !== undefined;
+  }
+
+  private getInlineKeyboard(
+    message: RenderedElement[] | RenderedElement,
+  ): RenderedElement[] {
+    if (Array.isArray(message)) {
+      return message.flatMap(this.getInlineKeyboard);
+    }
+    return (message as any).inline_keyboard ?? [];
+  }
+
+  private getMessageContent(
+    element: RenderedElement[] | RenderedElement,
+  ): string {
+    if (Array.isArray(element)) {
+      return element.map(this.getMessageContent).join("");
+    }
+
+    if (typeof element === "string") {
+      return element;
+    }
+    return (element as any).text ?? "";
   }
 }

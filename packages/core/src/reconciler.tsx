@@ -4,80 +4,105 @@ import {
   Container,
   InstanceProps,
   Renderer,
-  InstanceType,
   ReactInstanceType,
 } from "@rx-bot/common";
 import React from "react";
+import { Component, Text } from "./components";
+import { ComponentBuilder } from "./builder/componentBuilder";
 
-const hostConfig = {
-  now: Date.now,
-  supportsMutation: true,
-  getRootHostContext: () => ({}),
-  getChildHostContext: () => ({}),
-  prepareForCommit: () => null,
-  resetAfterCommit: () => {},
-  // Creating an instance of the host element
-  createInstance: (type: ReactInstanceType, props: InstanceProps) => ({
-    type,
-    props,
-    children: [],
-  }),
-  //@ts-expect-error
-  appendInitialChild: (parent, child) => {
-    parent.children.push(child);
-  },
-  appendAllChildren: () => {},
-  finalizeInitialChildren: () => false,
-  //@ts-expect-error
-  appendChildToContainer: (container, child) => {
-    container.children.push(child);
-  },
-  prepareUpdate: () => true,
-  shouldSetTextContent: () => false,
-  //@ts-expect-error
-  createTextInstance: (text) => ({
-    type: "TEXT_ELEMENT",
-    props: { nodeValue: text },
-  }),
+export class BaseRenderer<T extends Container> implements Renderer<T> {
+  reconciler: Reconciler.Reconciler<Container, Component, any, any, any>;
 
-  // Update functions
-  //@ts-expect-error
-  appendChild: (parent, child) => {
-    parent.children.push(child);
-  },
-  clearContainer: () => {},
-  //@ts-expect-error
-  removeChild: (parent, child) => {
-    //@ts-expect-error
-    parent.children = parent.children.filter((c) => c !== child);
-  },
-  //@ts-expect-error
-  insertBefore: (parent, child, beforeChild) => {
-    const index = parent.children.indexOf(beforeChild);
-    parent.children.splice(index, 0, child);
-  },
-  //@ts-expect-error
-  commitUpdate: (instance, updatePayload, type, oldProps, newProps) => {
-    instance.props = newProps;
-  },
-  //@ts-expect-error
-  commitTextUpdate: (textInstance, oldText, newText) => {
-    textInstance.props.nodeValue = newText;
-  },
-  resetTextContent: () => {},
-};
+  constructor() {
+    const builder = new ComponentBuilder();
 
-//@ts-expect-error
-const ReconcilerInstance = Reconciler(hostConfig);
+    const hostConfig: Reconciler.HostConfig<
+      ReactInstanceType,
+      InstanceProps,
+      Container,
+      Component,
+      any,
+      any,
+      any,
+      any,
+      any,
+      any,
+      any,
+      any,
+      any
+    > = {
+      //@ts-expect-error
+      now: Date.now,
+      supportsMutation: true,
+      getRootHostContext: () => ({}),
+      getChildHostContext: () => ({}),
+      prepareForCommit: () => null,
+      resetAfterCommit: () => {},
+      // Creating an instance of the host element
+      createInstance(
+        type: ReactInstanceType,
+        props: InstanceProps,
+        rootContainer: Container,
+        hostContext: any,
+        internalHandle: Reconciler.OpaqueHandle,
+      ): Component {
+        return builder.build(type, props, rootContainer, hostContext);
+      },
+      appendInitialChild: (parent, child) => {
+        parent.children.push(child);
+      },
+      appendAllChildren: () => {},
+      finalizeInitialChildren: (
+        instance,
+        type,
+        props,
+        rootContainer,
+        hostContext,
+      ) => {
+        instance.finalizeBeforeMount();
+        return false;
+      },
+      appendChildToContainer: (container, child) => {
+        container.children.push(child);
+      },
+      prepareUpdate: () => true,
+      shouldSetTextContent: () => false,
+      createTextInstance: (text, rootContainer, hostContext, internalHandle) =>
+        new Text({
+          text: text,
+          context: hostContext,
+          container: rootContainer,
+          internalInstanceHandle: internalHandle,
+        }),
+      // Update functions
+      appendChild: (parent, child) => {
+        parent.appendChild(child);
+      },
+      clearContainer: () => {},
+      removeChild: (parent, child) => {
+        parent.removeChild(child);
+      },
+      insertBefore: (parent, child, beforeChild) => {
+        parent.insertBefore(child, beforeChild);
+      },
+      commitUpdate: (instance, updatePayload, type, oldProps, newProps) => {
+        instance.props = newProps;
+      },
+      commitTextUpdate: (textInstance, oldText, newText) => {
+        textInstance.props.nodeValue = newText;
+      },
+      resetTextContent: () => {},
+    };
 
-export abstract class BaseRenderer<T extends Container> implements Renderer<T> {
+    this.reconciler = Reconciler(hostConfig);
+  }
   async onRendered(container: T) {}
   async init() {}
   render(element: React.ReactElement, container: T) {
     if (!container._rootContainer) {
-      createEmptyFiberRoot(container, ReconcilerInstance);
+      createEmptyFiberRoot(container, this.reconciler);
     }
-    ReconcilerInstance.updateContainer(
+    this.reconciler.updateContainer(
       element,
       container._rootContainer,
       null,

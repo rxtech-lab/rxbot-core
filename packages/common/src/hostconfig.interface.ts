@@ -4,14 +4,27 @@
  * @file hostconfig.interface.ts
  */
 export enum InstanceType {
+  /**
+   * Container is the basic element similar to `div` in html.
+   */
+  Container = "Container",
+  /**
+   * Button is the basic ui component in html `<button />`
+   */
   Button = "Button",
+  /**
+   * Text is the basic text instance similar to `createTextInstance` in [React Reconciler package](https://github.com/facebook/react/tree/main/packages/react-reconciler#createtextinstancetext-rootcontainer-hostcontext-internalhandle).
+   */
   Text = "Text",
+  Paragraph = "Paragraph",
+  Header = "Header",
   List = "List",
   Option = "Option",
   Menu = "Menu",
   Audio = "Audio",
   Video = "Video",
   Image = "Image",
+  LineBreak = "LineBreak",
 }
 
 /**
@@ -22,20 +35,13 @@ export enum InstanceType {
  * ```
  * In the above example, `onClick` is a prop.
  */
-export type InstanceProps = Record<string, any>;
+export type InstanceProps = Record<string, any> & {
+  nodeValue?: string;
+};
 
 /**
  * HostContext is the context that is passed to the host element.
  */
 export type HostContext = Record<string, any>;
 
-/**
- * Instance is an abstract representation of a component in the chatbot.
- * Each Instance type will have its own Instance.
- * @fileOverview Go to `core` package to see the implementation of these instances.
- */
-export interface Instance {
-  type: InstanceType;
-  props: InstanceProps;
-  children: Instance[];
-}
+export type InternalHandle = any;

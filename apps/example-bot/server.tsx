@@ -3,6 +3,7 @@ import Fastify from "fastify";
 import { TelegramApp } from "@rx-bot/telegram-adapter";
 import React from "react";
 import { App } from "./app";
+import * as fs from "node:fs";
 
 const endpoint = "https://dev.metopia.co/api/telegram/chat";
 const apiKey = process.env.API_KEY!;
