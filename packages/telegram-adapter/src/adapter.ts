@@ -1,6 +1,8 @@
-import { BaseRenderer, Component } from "@rx-bot/core";
+import { Component } from "@rx-bot/core";
 import { Container, InstanceType } from "@rx-bot/common";
 import TelegramBot, { Update } from "node-telegram-bot-api";
+import { CallbackParser } from "./callbackParser";
+import { AdapterInterface } from "@rx-bot/common";
 
 export interface TelegramAppOpts {
   token: string;
@@ -24,6 +26,7 @@ interface TGContainer extends Container {
 
 export const renderElement = (
   element: Component,
+  parser: CallbackParser,
 ): RenderedElement | RenderedElement[] => {
   if (!element) {
     return [""];
@@ -37,7 +40,7 @@ export const renderElement = (
 
   let children: RenderedElement[] = [];
   if (element.children) {
-    children = element.children.map(renderElement).flat();
+    children = element.children.map((e) => renderElement(e, parser)).flat();
   }
   switch (element.type) {
     case InstanceType.Container:
@@ -47,21 +50,15 @@ export const renderElement = (
     case InstanceType.Paragraph:
       return children;
     case InstanceType.Button:
-      return [
-        {
-          text: element.props.children,
-          callback_data: "somedata",
-        },
-      ];
+      return {
+        text: element.props.children,
+        callback_data: parser.encode(element),
+      };
+
     case InstanceType.Menu:
-      const elements = element.children
-        .map((child) => renderElement(child))
-        .map((child) => {
-          if (Array.isArray(child)) {
-            return child.flat();
-          }
-          return child;
-        });
+      const elements = element.children.map((child) =>
+        renderElement(child, parser),
+      );
       return {
         inline_keyboard: elements,
       } as RenderedElement;
@@ -70,17 +67,28 @@ export const renderElement = (
   }
 };
 
-export class TelegramApp extends BaseRenderer<TGContainer> {
+export class TelegramAdapter
+  implements AdapterInterface<TGContainer, RenderedElement[] | RenderedElement>
+{
   bot: TelegramBot;
+  private readonly callbackParser = new CallbackParser();
 
   constructor(private readonly opts: TelegramAppOpts) {
-    super();
     this.bot = new TelegramBot(opts.token);
   }
 
   async init(): Promise<void> {
     await this.bot.setWebHook(this.opts.callbackUrl);
+  }
+
+  async componentOnMount(container: TGContainer): Promise<void> {
     this.bot.on("callback_query", (query) => {
+      const data = query.data!;
+      const component = this.callbackParser.decode(
+        data,
+        container.children as any,
+      );
+      component?.props.onClick?.();
       this.bot.sendMessage(
         query.message!.chat.id,
         `You clicked: ${query.data}`,
@@ -88,14 +96,17 @@ export class TelegramApp extends BaseRenderer<TGContainer> {
     });
   }
 
-  async onRendered(container: TGContainer): Promise<void> {
+  async adapt(container: TGContainer): Promise<RenderedElement[]> {
     this.bot.processUpdate(container.data);
 
     if (container.data.callback_query) {
-      return;
+      return [];
     }
 
-    const message = renderElement(container.children[0] as any);
+    const message = renderElement(
+      container.children[0] as any,
+      this.callbackParser,
+    );
     const chatRoomId = container.chatroomId;
 
     const textContent = this.getMessageContent(message);
@@ -113,6 +124,8 @@ export class TelegramApp extends BaseRenderer<TGContainer> {
         parse_mode: "HTML",
       });
     }
+
+    return message as any;
   }
 
   private hasInlineKeyboard(

@@ -12,6 +12,7 @@
   "devDependencies": {
     "@rx-bot/telegram-adapter": "workspace:*",
     "@rx-bot/typescript-config": "workspace:*",
+    "@rx-bot/core": "workspace:*",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   },

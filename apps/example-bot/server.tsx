@@ -1,15 +1,18 @@
 // Import the framework and instantiate it
 import Fastify from "fastify";
-import { TelegramApp } from "@rx-bot/telegram-adapter";
+import { TelegramAdapter } from "@rx-bot/telegram-adapter";
 import React from "react";
 import { App } from "./app";
-import * as fs from "node:fs";
+import { Renderer } from "@rx-bot/core";
 
 const endpoint = "https://dev.metopia.co/api/telegram/chat";
 const apiKey = process.env.API_KEY!;
-const app = new TelegramApp({
+const adapter = new TelegramAdapter({
   token: apiKey,
   callbackUrl: endpoint,
+});
+const render = new Renderer({
+  adapter: adapter,
 });
 
 const fastify = Fastify({
@@ -28,7 +31,7 @@ fastify.all("/api/telegram/chat", async function handler(request, reply) {
     chatroomId: chatroomId,
     data: data,
   };
-  app.render(<App />, container);
+  await render.render(<App />, container);
 
   return { hello: "world" };
 });
@@ -36,7 +39,7 @@ fastify.all("/api/telegram/chat", async function handler(request, reply) {
 // Run the server!
 (async () => {
   try {
-    await app.init();
+    await render.init();
     await fastify.listen({ port: 8080 });
   } catch (err) {
     fastify.log.error(err);
