@@ -4,7 +4,7 @@ import {
   InstanceProps,
   InstanceType,
 } from "@rx-bot/common";
-import { v4 as uuidV4 } from "uuid";
+import { v4 as uuidv4 } from "uuid";
 
 export interface ComponentOptions {
   props: InstanceProps;
@@ -20,7 +20,7 @@ export abstract class Component {
   /**
    * Unique identifier for the component.
    */
-  id: string = uuidV4();
+  id: string = uuidv4();
 
   /**
    * Properties of the component.

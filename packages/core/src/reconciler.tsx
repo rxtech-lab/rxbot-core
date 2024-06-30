@@ -3,19 +3,26 @@ import { createEmptyFiberRoot } from "./utils";
 import {
   Container,
   InstanceProps,
-  Renderer,
+  Renderer as RendererInterface,
   ReactInstanceType,
+  AdapterInterface,
 } from "@rx-bot/common";
 import React from "react";
 import { Component, Text } from "./components";
 import { ComponentBuilder } from "./builder/componentBuilder";
 
-export class BaseRenderer<T extends Container> implements Renderer<T> {
+interface RendererOptions {
+  adapter: AdapterInterface<any, any>;
+}
+
+export class Renderer<T extends Container> implements RendererInterface<T> {
   reconciler: Reconciler.Reconciler<Container, Component, any, any, any>;
+  adapter: AdapterInterface<any, any>;
+  private hasMountedAdapter: boolean = false;
 
-  constructor() {
+  constructor({ adapter }: RendererOptions) {
     const builder = new ComponentBuilder();
-
+    this.adapter = adapter;
     const hostConfig: Reconciler.HostConfig<
       ReactInstanceType,
       InstanceProps,
@@ -96,19 +103,30 @@ export class BaseRenderer<T extends Container> implements Renderer<T> {
 
     this.reconciler = Reconciler(hostConfig);
   }
-  async onRendered(container: T) {}
-  async init() {}
-  render(element: React.ReactElement, container: T) {
+
+  async init() {
+    await this.adapter.init();
+  }
+
+  async render(element: React.ReactElement, container: T) {
     if (!container._rootContainer) {
       createEmptyFiberRoot(container, this.reconciler);
     }
-    this.reconciler.updateContainer(
-      element,
-      container._rootContainer,
-      null,
-      async () => {
-        await this.onRendered(container);
-      },
-    );
+
+    await new Promise<void>((resolve) => {
+      this.reconciler.updateContainer(
+        element,
+        container._rootContainer,
+        null,
+        async () => {
+          if (!this.hasMountedAdapter) {
+            await this.adapter.componentOnMount(container);
+          }
+          resolve();
+        },
+      );
+    });
+    this.hasMountedAdapter = true;
+    return await this.adapter.adapt(container);
   }
 }
