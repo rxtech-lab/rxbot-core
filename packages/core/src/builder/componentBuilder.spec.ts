@@ -1,7 +1,11 @@
 import { ComponentBuilder } from "./componentBuilder";
 import { ReactInstanceType } from "@rx-bot/common";
 import { Button } from "../components";
-import { UnsupportedComponentError } from "@rx-bot/errors";
+import {
+  DuplicatedKeyPropsError,
+  MissingRequiredKeyPropsError,
+  UnsupportedReactComponentError,
+} from "@rx-bot/errors";
 
 describe("should be able to build component", () => {
   it("should be able to build button component", () => {
@@ -16,6 +20,27 @@ describe("should be able to build component", () => {
     expect(result).toBeInstanceOf(Button);
   });
 
+  it("should be able to build multiple button components", () => {
+    const builder = new ComponentBuilder();
+    const result = builder.build(
+      ReactInstanceType.Button,
+      {},
+      { children: [] },
+      {},
+    );
+    expect(result).toBeDefined();
+    expect(result).toBeInstanceOf(Button);
+
+    const result2 = builder.build(
+      ReactInstanceType.Button,
+      {},
+      { children: [] },
+      {},
+    );
+    expect(result2).toBeDefined();
+    expect(result2).toBeInstanceOf(Button);
+  });
+
   it("should throw error when building unsupported component", () => {
     const builder = new ComponentBuilder();
     expect(() =>
@@ -25,6 +50,51 @@ describe("should be able to build component", () => {
         { children: [] },
         {},
       ),
-    ).toThrow(UnsupportedComponentError);
+    ).toThrow(UnsupportedReactComponentError);
+  });
+
+  it("should throw error if instance type define the onClick props but not provide the required key props", () => {
+    const builder = new ComponentBuilder();
+    expect(() =>
+      builder.build(
+        ReactInstanceType.Button,
+        { onClick: () => {} },
+        { children: [] },
+        {},
+      ),
+    ).toThrow(MissingRequiredKeyPropsError);
+  });
+
+  it("should not throw error if instance type define the onClick props and provide the required key props", () => {
+    const builder = new ComponentBuilder();
+    expect(() =>
+      builder.build(
+        ReactInstanceType.Button,
+        { onClick: () => {}, key: "key" },
+        { children: [] },
+        {},
+      ),
+    ).not.toThrow();
+  });
+
+  it("should throw error if key is duplicated", () => {
+    const builder = new ComponentBuilder();
+    expect(() =>
+      builder.build(
+        ReactInstanceType.Button,
+        { onClick: () => {}, key: "key" },
+        { children: [] },
+        {},
+      ),
+    ).not.toThrow();
+
+    expect(() =>
+      builder.build(
+        ReactInstanceType.Button,
+        { onClick: () => {}, key: "key" },
+        { children: [] },
+        {},
+      ),
+    ).toThrow(DuplicatedKeyPropsError);
   });
 });

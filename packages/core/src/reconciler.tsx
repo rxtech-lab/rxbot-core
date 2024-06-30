@@ -53,7 +53,25 @@ export class Renderer<T extends Container> implements RendererInterface<T> {
         hostContext: any,
         internalHandle: Reconciler.OpaqueHandle,
       ): Component {
-        return builder.build(type, props, rootContainer, hostContext);
+        try {
+          return builder.build(
+            type,
+            {
+              ...props,
+              key: internalHandle.key,
+            },
+            rootContainer,
+            hostContext,
+          );
+        } catch (e) {
+          console.error(e);
+          return new Text({
+            internalInstanceHandle: internalHandle,
+            container: rootContainer,
+            context: hostContext,
+            text: "Unsupported component",
+          });
+        }
       },
       appendInitialChild: (parent, child) => {
         parent.children.push(child);
@@ -85,7 +103,9 @@ export class Renderer<T extends Container> implements RendererInterface<T> {
       appendChild: (parent, child) => {
         parent.appendChild(child);
       },
-      clearContainer: () => {},
+      clearContainer: () => {
+        builder.clear();
+      },
       removeChild: (parent, child) => {
         parent.removeChild(child);
       },

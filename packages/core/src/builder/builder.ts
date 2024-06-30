@@ -28,4 +28,9 @@ export interface Builder {
     rootContainer: Container,
     hostContext: HostContext,
   ): Component;
+
+  /**
+   * Clear the builder instance when the render phase is finished.
+   */
+  clear(): void;
 }

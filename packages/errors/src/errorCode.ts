@@ -9,4 +9,6 @@
 export enum ErrorCode {
   UnsupportedComponent = 1001,
   UnsupportedReactInstanceType = 1002,
+  MissingRequiredKeyProps = 1003,
+  DuplicateKeyProps = 1004,
 }

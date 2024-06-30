@@ -8,6 +8,8 @@ import {
 } from "@rx-bot/common";
 import { Button } from "../components";
 import {
+  DuplicatedKeyPropsError,
+  MissingRequiredKeyPropsError,
   UnsupportedComponentError,
   UnsupportedReactComponentError,
 } from "@rx-bot/errors";
@@ -28,6 +30,12 @@ interface Constructor<T> {
  * The target is to create the instance of the host element based on the instance type.
  */
 export class ComponentBuilder implements Builder {
+  /**
+   * List of keys that are used to check if the instance has the correct key props.
+   * @private
+   */
+  private keys: string[] = [];
+
   /**
    * Mapper that maps the instance type to the component.
    * Add new supported components here.
@@ -98,6 +106,9 @@ export class ComponentBuilder implements Builder {
       throw new UnsupportedComponentError(mappedInstanceType);
     }
 
+    // check if the instance has the correct key props
+    this.checkIfInstanceHasCorrectKeyProps(mappedInstanceType, props);
+
     return new Component({
       props,
       container,
@@ -120,5 +131,45 @@ export class ComponentBuilder implements Builder {
       throw new UnsupportedReactComponentError(instanceType);
     }
     return mappedInstanceType;
+  }
+
+  /**
+   * Check if the instance has the correct key props when `onClick` is provided.
+   * @param instanceType
+   * @param props
+   * @private
+   */
+  private checkIfInstanceHasCorrectKeyProps(
+    instanceType: InstanceType,
+    props: InstanceProps,
+  ) {
+    if (props.onClick === undefined) {
+      return;
+    }
+
+    if (!props.key) {
+      throw new MissingRequiredKeyPropsError(instanceType);
+    }
+
+    if (this.keys.includes(props.key)) {
+      throw new DuplicatedKeyPropsError(instanceType, props.key);
+    }
+    this.keys.push(props.key);
+  }
+
+  clear() {
+    this.reset();
+  }
+
+  /**
+   * Reset the builder when the new instance is created.
+   * @private
+   */
+  private reset() {
+    this.resetKeys();
+  }
+
+  private resetKeys() {
+    this.keys = [];
   }
 }

@@ -31,9 +31,14 @@ fastify.all("/api/telegram/chat", async function handler(request, reply) {
     chatroomId: chatroomId,
     data: data,
   };
-  await render.render(<App />, container);
 
-  return { hello: "world" };
+  try {
+    await render.render(<App />, container);
+    return { hello: "world" };
+  } catch (err) {
+    console.error(err);
+    return { error: err };
+  }
 });
 
 // Run the server!

@@ -13,6 +13,7 @@ export function App() {
       <menu>
         <div>
           <button
+            key={"button1"}
             onClick={() => {
               console.log("clicked +1");
               setState(state + 1);
@@ -21,6 +22,7 @@ export function App() {
             +1
           </button>
           <button
+            key={"button2"}
             onClick={() => {
               setState(state - 1);
             }}
@@ -30,6 +32,7 @@ export function App() {
         </div>
         <div>
           <button
+            key={"button3"}
             onClick={() => {
               setState(0);
             }}

@@ -5,14 +5,13 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
+    "test": "turbo test",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
     "prettier": "^3.2.5",
-    "turbo": "latest",
+    "turbo": "2.0.6",
     "typescript": "^5.4.5"
   },
-  "engines": {
-    "node": ">=18"
-  }
+  "packageManager": "pnpm@9.4.0"
 }
