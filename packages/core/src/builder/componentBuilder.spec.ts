@@ -20,6 +20,27 @@ describe("should be able to build component", () => {
     expect(result).toBeInstanceOf(Button);
   });
 
+  it("should be able to build multiple button components", () => {
+    const builder = new ComponentBuilder();
+    const result = builder.build(
+      ReactInstanceType.Button,
+      {},
+      { children: [] },
+      {},
+    );
+    expect(result).toBeDefined();
+    expect(result).toBeInstanceOf(Button);
+
+    const result2 = builder.build(
+      ReactInstanceType.Button,
+      {},
+      { children: [] },
+      {},
+    );
+    expect(result2).toBeDefined();
+    expect(result2).toBeInstanceOf(Button);
+  });
+
   it("should throw error when building unsupported component", () => {
     const builder = new ComponentBuilder();
     expect(() =>

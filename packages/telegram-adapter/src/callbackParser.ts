@@ -22,7 +22,7 @@ export class CallbackParser {
       throw new Error("No components found");
     }
     const data = JSON.parse(encodedData) as EncodeData;
-    const component = this.findComponentById(
+    const component = this.findComponentByKey(
       data.id,
       components[0],
       components,
@@ -33,8 +33,8 @@ export class CallbackParser {
     return component;
   }
 
-  private findComponentById(
-    id: string,
+  private findComponentByKey(
+    key: string,
     component: Component | undefined,
     components: Component[],
   ): Component | undefined {
@@ -42,13 +42,13 @@ export class CallbackParser {
       return undefined;
     }
 
-    if (component.id === id) {
+    if (component.id === key) {
       return component;
     }
 
     // find the component in the children
     for (const child of component.children) {
-      const found = this.findComponentById(id, child, components);
+      const found = this.findComponentByKey(key, child, components);
       if (found) {
         return found;
       }

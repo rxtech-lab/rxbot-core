@@ -143,7 +143,11 @@ export class ComponentBuilder implements Builder {
     instanceType: InstanceType,
     props: InstanceProps,
   ) {
-    if (props.onClick && !props.key) {
+    if (props.onClick === undefined) {
+      return;
+    }
+
+    if (!props.key) {
       throw new MissingRequiredKeyPropsError(instanceType);
     }
 
@@ -151,5 +155,21 @@ export class ComponentBuilder implements Builder {
       throw new DuplicatedKeyPropsError(instanceType, props.key);
     }
     this.keys.push(props.key);
+  }
+
+  clear() {
+    this.reset();
+  }
+
+  /**
+   * Reset the builder when the new instance is created.
+   * @private
+   */
+  private reset() {
+    this.resetKeys();
+  }
+
+  private resetKeys() {
+    this.keys = [];
   }
 }

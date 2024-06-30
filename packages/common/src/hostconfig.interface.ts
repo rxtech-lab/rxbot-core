@@ -38,6 +38,7 @@ export enum InstanceType {
 export type InstanceProps = Record<string, any> & {
   nodeValue?: string;
   onClick?: () => void;
+  key?: string;
 };
 
 /**
