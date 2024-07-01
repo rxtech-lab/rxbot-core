@@ -1,9 +1,9 @@
-import { Component } from "./Component";
-import { InstanceType } from "@rx-bot/common";
+import { BaseComponent } from "./Component";
+import { InstanceType } from "@rx-lab/common";
 
 /**
  * Button component will render a button element.
  */
-export class Button extends Component {
+export class Button extends BaseComponent {
   type = InstanceType.Button;
 }

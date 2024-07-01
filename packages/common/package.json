@@ -1,5 +1,5 @@
 {
-  "name": "@rx-bot/common",
+  "name": "@rx-lab/common",
   "version": "1.0.0",
   "description": "",
   "main": "./src/index.ts",
@@ -8,7 +8,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@rx-bot/typescript-config": "workspace:*",
+    "@rx-lab/typescript-config": "workspace:*",
     "@types/react": "^18.3.3",
     "react": "^18.3.1"
   },

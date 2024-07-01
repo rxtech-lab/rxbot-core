@@ -1,11 +1,11 @@
-import { Component } from "./Component";
-import { InstanceType } from "@rx-bot/common";
+import { BaseComponent } from "./Component";
+import { InstanceType } from "@rx-lab/common";
 import { LineBreak } from "./LineBreak";
 
 /**
  * Header component is used to create a header in the bot.
  */
-export class Header extends Component {
+export class Header extends BaseComponent {
   type = InstanceType.Header;
 
   finalizeBeforeMount() {

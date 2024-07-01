@@ -1,6 +1,6 @@
 import { ErrorCode } from "../errorCode";
 import { CustomError } from "./error";
-import { InstanceType } from "@rx-bot/common";
+import { InstanceType } from "@rx-lab/common";
 
 /**
  * Custom error class to indicate

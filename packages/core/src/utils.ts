@@ -1,5 +1,5 @@
 import { FiberRoot, Reconciler } from "react-reconciler";
-import { InstanceProps } from "@rx-bot/common";
+import { InstanceProps } from "@rx-lab/common";
 
 export const createEmptyFiberRoot = (
   container: FiberRoot,

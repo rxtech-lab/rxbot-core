@@ -1,5 +1,5 @@
 import { CustomError } from "./error";
-import { InstanceType } from "@rx-bot/common";
+import { InstanceType } from "@rx-lab/common";
 import { ErrorCode } from "../errorCode";
 
 export class DuplicatedKeyPropsError extends CustomError {

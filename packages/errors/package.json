@@ -1,5 +1,5 @@
 {
-  "name": "@rx-bot/errors",
+  "name": "@rx-lab/errors",
   "version": "1.0.0",
   "description": "",
   "main": "src/index.ts",
@@ -8,10 +8,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@rx-bot/common": "workspace:*"
+    "@rx-lab/common": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.4.5",
-    "@rx-bot/typescript-config": "workspace:*"
+    "@rx-lab/typescript-config": "workspace:*"
   }
 }

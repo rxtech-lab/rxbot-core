@@ -1,19 +1,20 @@
 import { Builder } from "./builder";
 import {
+  Component,
   Container,
   HostContext,
   InstanceProps,
   InstanceType,
   ReactInstanceType,
-} from "@rx-bot/common";
+} from "@rx-lab/common";
 import { Button } from "../components";
 import {
   DuplicatedKeyPropsError,
   MissingRequiredKeyPropsError,
   UnsupportedComponentError,
   UnsupportedReactComponentError,
-} from "@rx-bot/errors";
-import { Component, ComponentOptions } from "../components";
+} from "@rx-lab/errors";
+import { BaseComponent, ComponentOptions } from "../components";
 import { Menu } from "../components/Menu";
 import { Container as ContainerComponent } from "../components/Container";
 import { Header } from "../components/Header";
@@ -45,7 +46,8 @@ export class ComponentBuilder implements Builder {
     [InstanceType.Menu]: Menu,
     [InstanceType.Container]: ContainerComponent,
     [InstanceType.Header]: Header,
-    [InstanceType.LineBreak]: LineBreak as unknown as Constructor<Component>,
+    [InstanceType.LineBreak]:
+      LineBreak as unknown as Constructor<BaseComponent>,
   };
 
   /**

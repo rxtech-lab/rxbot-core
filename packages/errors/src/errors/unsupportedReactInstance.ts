@@ -1,6 +1,6 @@
 import { ErrorCode } from "../errorCode";
 import { CustomError } from "./error";
-import { ReactInstanceType } from "@rx-bot/common";
+import { ReactInstanceType } from "@rx-lab/common";
 
 /**
  * Custom error class to indicate
