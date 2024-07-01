@@ -1,13 +1,18 @@
 import { Component } from "@rx-bot/core";
-import { Container, InstanceType } from "@rx-bot/common";
+import { AdapterInterface, Container, InstanceType } from "@rx-bot/common";
 import TelegramBot, { Update } from "node-telegram-bot-api";
 import { CallbackParser } from "./callbackParser";
-import { AdapterInterface } from "@rx-bot/common";
 
-export interface TelegramAppOpts {
-  token: string;
-  callbackUrl: string;
-}
+export type TelegramAppOpts =
+  | {
+      token: string;
+      callbackUrl: string;
+    }
+  | {
+      token: string;
+      longPolling: boolean;
+      onMessage(message: TelegramBot.Message): Promise<void>;
+    };
 
 type RenderedElement =
   | {
@@ -22,6 +27,7 @@ type RenderedElement =
 interface TGContainer extends Container {
   chatroomId: number;
   data: Update;
+  messageId?: number;
 }
 
 export const renderElement = (
@@ -74,29 +80,44 @@ export class TelegramAdapter
   private readonly callbackParser = new CallbackParser();
 
   constructor(private readonly opts: TelegramAppOpts) {
-    this.bot = new TelegramBot(opts.token);
+    const supportLongPolling = "longPolling" in opts ? opts.longPolling : false;
+    this.bot = new TelegramBot(opts.token, {
+      polling: supportLongPolling,
+    });
   }
 
   async init(): Promise<void> {
-    await this.bot.setWebHook(this.opts.callbackUrl);
+    if ("callbackUrl" in this.opts) {
+      if (this.opts.callbackUrl === undefined) {
+        throw new Error("callbackUrl is required for webhook mode");
+      }
+      await this.bot.setWebHook(this.opts.callbackUrl);
+    } else {
+      this.bot.on("message", (msg) => {
+        if ("onMessage" in this.opts) {
+          this.opts.onMessage(msg);
+        }
+      });
+    }
   }
 
   async componentOnMount(container: TGContainer): Promise<void> {
+    //TODO: should move this callback to init function in the future.
     this.bot.on("callback_query", (query) => {
       const data = query.data!;
+      container.messageId = query.message?.message_id;
       const component = this.callbackParser.decode(
         data,
         container.children as any,
       );
       component?.props.onClick?.();
-      this.bot.sendMessage(
-        query.message!.chat.id,
-        `You clicked: ${query.data}`,
-      );
     });
   }
 
-  async adapt(container: TGContainer): Promise<RenderedElement[]> {
+  async adapt(
+    container: TGContainer,
+    isUpdate: boolean,
+  ): Promise<RenderedElement[]> {
     this.bot.processUpdate(container.data);
 
     if (container.data.callback_query) {
@@ -111,18 +132,30 @@ export class TelegramAdapter
 
     const textContent = this.getMessageContent(message);
     const hasInlineKeyboard = this.hasInlineKeyboard(message);
+    let options: TelegramBot.SendMessageOptions = {};
     if (hasInlineKeyboard) {
       const inlineKeyboard = this.getInlineKeyboard(message);
-      await this.bot.sendMessage(chatRoomId, textContent, {
+      options = {
         reply_markup: {
           inline_keyboard: inlineKeyboard as any,
         },
         parse_mode: "HTML",
+      };
+    } else {
+      options = {
+        parse_mode: "HTML",
+      };
+    }
+
+    if (isUpdate) {
+      await this.bot.editMessageText(textContent, {
+        reply_markup: options.reply_markup as any,
+        chat_id: chatRoomId,
+        message_id: container.messageId,
+        ...options,
       });
     } else {
-      await this.bot.sendMessage(chatRoomId, textContent, {
-        parse_mode: "HTML",
-      });
+      await this.bot.sendMessage(chatRoomId, textContent, options);
     }
 
     return message as any;

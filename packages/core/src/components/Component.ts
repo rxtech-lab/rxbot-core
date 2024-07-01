@@ -1,10 +1,12 @@
 import {
   Container,
+  ContainerType,
   HostContext,
   InstanceProps,
   InstanceType,
 } from "@rx-bot/common";
 import { v4 as uuid } from "uuid";
+import { isPropsEqual } from "../utils";
 
 export interface ComponentOptions {
   props: InstanceProps;
@@ -40,6 +42,22 @@ export abstract class Component {
   constructor(opts: ComponentOptions) {
     this.props = opts.props;
     this.id = opts.props.key ?? uuid();
+  }
+
+  /**
+   * Check if the component is the root component.
+   */
+  get isRoot() {
+    return (this.parent as unknown as Container).type === ContainerType.ROOT;
+  }
+
+  /**
+   * Append a child to the component.
+   * @param container Container
+   */
+  appendAsContainerChildren(container: Container) {
+    this.parent = container as any;
+    container.children.push(this as any);
   }
 
   /**
@@ -87,4 +105,17 @@ export abstract class Component {
    * Leave it empty if you don't need to do anything.
    */
   finalizeBeforeMount() {}
+
+  /**
+   * Function will be called when the component is set to be updated.
+   * @return `true` if the component has been updated, `false` otherwise.
+   */
+  commitUpdate(oldProps: InstanceProps, newProps: InstanceProps): boolean {
+    const isEqual = isPropsEqual(oldProps, newProps);
+    if (!isEqual) {
+      this.props = newProps;
+      return true;
+    }
+    return false;
+  }
 }
