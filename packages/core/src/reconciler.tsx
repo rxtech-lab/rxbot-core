@@ -74,7 +74,7 @@ export class Renderer<T extends Container> implements RendererInterface<T> {
         }
       },
       appendInitialChild: (parent, child) => {
-        parent.children.push(child);
+        parent.appendChild(child);
       },
       appendAllChildren: () => {},
       finalizeInitialChildren: (
@@ -87,8 +87,8 @@ export class Renderer<T extends Container> implements RendererInterface<T> {
         instance.finalizeBeforeMount();
         return false;
       },
-      appendChildToContainer: (container, child) => {
-        container.children.push(child);
+      appendChildToContainer: (container, child: Component) => {
+        child.appendAsContainerChildren(container);
       },
       prepareUpdate: () => true,
       shouldSetTextContent: () => false,
@@ -112,8 +112,18 @@ export class Renderer<T extends Container> implements RendererInterface<T> {
       insertBefore: (parent, child, beforeChild) => {
         parent.insertBefore(child, beforeChild);
       },
-      commitUpdate: (instance, updatePayload, type, oldProps, newProps) => {
-        instance.props = newProps;
+      commitUpdate: async (
+        instance,
+        updatePayload,
+        type,
+        oldProps,
+        newProps,
+        internalHandle,
+      ) => {
+        instance.commitUpdate(oldProps, newProps);
+        if (instance.isRoot) {
+          await this.update(instance.parent as any);
+        }
       },
       commitTextUpdate: (textInstance, oldText, newText) => {
         textInstance.props.nodeValue = newText;
@@ -128,6 +138,11 @@ export class Renderer<T extends Container> implements RendererInterface<T> {
     await this.adapter.init();
   }
 
+  /**
+   * Render the element to the corresponding adapter.
+   * @param element
+   * @param container
+   */
   async render(element: React.ReactElement, container: T) {
     if (!container._rootContainer) {
       createEmptyFiberRoot(container, this.reconciler);
@@ -147,6 +162,14 @@ export class Renderer<T extends Container> implements RendererInterface<T> {
       );
     });
     this.hasMountedAdapter = true;
-    return await this.adapter.adapt(container);
+    return await this.adapter.adapt(container, false);
+  }
+
+  /**
+   * Update the container to reflect the changes.
+   * @param container
+   */
+  async update(container: T) {
+    await this.adapter.adapt(container, true);
   }
 }

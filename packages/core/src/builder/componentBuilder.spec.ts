@@ -1,5 +1,5 @@
 import { ComponentBuilder } from "./componentBuilder";
-import { ReactInstanceType } from "@rx-bot/common";
+import { ContainerType, ReactInstanceType } from "@rx-bot/common";
 import { Button } from "../components";
 import {
   DuplicatedKeyPropsError,
@@ -13,7 +13,7 @@ describe("should be able to build component", () => {
     const result = builder.build(
       ReactInstanceType.Button,
       {},
-      { children: [] },
+      { children: [], type: ContainerType.ROOT },
       {},
     );
     expect(result).toBeDefined();
@@ -25,7 +25,7 @@ describe("should be able to build component", () => {
     const result = builder.build(
       ReactInstanceType.Button,
       {},
-      { children: [] },
+      { children: [], type: ContainerType.ROOT },
       {},
     );
     expect(result).toBeDefined();
@@ -34,7 +34,7 @@ describe("should be able to build component", () => {
     const result2 = builder.build(
       ReactInstanceType.Button,
       {},
-      { children: [] },
+      { children: [], type: ContainerType.ROOT },
       {},
     );
     expect(result2).toBeDefined();
@@ -47,7 +47,7 @@ describe("should be able to build component", () => {
       builder.build(
         "UnsupportedComponent" as ReactInstanceType,
         {},
-        { children: [] },
+        { children: [], type: ContainerType.ROOT },
         {},
       ),
     ).toThrow(UnsupportedReactComponentError);
@@ -59,7 +59,7 @@ describe("should be able to build component", () => {
       builder.build(
         ReactInstanceType.Button,
         { onClick: () => {} },
-        { children: [] },
+        { children: [], type: ContainerType.ROOT },
         {},
       ),
     ).toThrow(MissingRequiredKeyPropsError);
@@ -71,7 +71,7 @@ describe("should be able to build component", () => {
       builder.build(
         ReactInstanceType.Button,
         { onClick: () => {}, key: "key" },
-        { children: [] },
+        { children: [], type: ContainerType.ROOT },
         {},
       ),
     ).not.toThrow();
@@ -83,7 +83,7 @@ describe("should be able to build component", () => {
       builder.build(
         ReactInstanceType.Button,
         { onClick: () => {}, key: "key" },
-        { children: [] },
+        { children: [], type: ContainerType.ROOT },
         {},
       ),
     ).not.toThrow();
@@ -92,7 +92,7 @@ describe("should be able to build component", () => {
       builder.build(
         ReactInstanceType.Button,
         { onClick: () => {}, key: "key" },
-        { children: [] },
+        { children: [], type: ContainerType.ROOT },
         {},
       ),
     ).toThrow(DuplicatedKeyPropsError);
