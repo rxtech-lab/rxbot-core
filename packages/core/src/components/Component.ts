@@ -1,10 +1,11 @@
 import {
   Container,
-  ContainerType,
+  Component,
   HostContext,
   InstanceProps,
   InstanceType,
-} from "@rx-bot/common";
+  ContainerType,
+} from "@rx-lab/common";
 import { v4 as uuid } from "uuid";
 import { isPropsEqual } from "../utils";
 
@@ -17,7 +18,7 @@ export interface ComponentOptions {
 /**
  * Base component that all components should extend.
  */
-export abstract class Component {
+export abstract class BaseComponent implements Component {
   children: Component[] = [];
   /**
    * Unique identifier for the component.

@@ -3,7 +3,7 @@ import {
   HostContext,
   InstanceProps,
   ReactInstanceType,
-} from "@rx-bot/common";
+} from "@rx-lab/common";
 import { Component } from "../components";
 
 /**

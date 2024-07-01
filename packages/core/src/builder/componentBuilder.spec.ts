@@ -1,11 +1,11 @@
 import { ComponentBuilder } from "./componentBuilder";
-import { ContainerType, ReactInstanceType } from "@rx-bot/common";
+import { ContainerType, ReactInstanceType } from "@rx-lab/common";
 import { Button } from "../components";
 import {
   DuplicatedKeyPropsError,
   MissingRequiredKeyPropsError,
   UnsupportedReactComponentError,
-} from "@rx-bot/errors";
+} from "@rx-lab/errors";
 
 describe("should be able to build component", () => {
   it("should be able to build button component", () => {

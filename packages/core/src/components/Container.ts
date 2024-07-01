@@ -1,3 +1,3 @@
-import { Component } from "./Component";
+import { BaseComponent } from "./Component";
 
-export class Container extends Component {}
+export class Container extends BaseComponent {}

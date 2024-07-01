@@ -1,5 +1,5 @@
 {
-  "name": "@rx-bot/telegram-adapter",
+  "name": "@rx-lab/telegram-adapter",
   "version": "1.0.0",
   "description": "",
   "main": "src/index.ts",
@@ -14,9 +14,9 @@
     "react": "^18.3.1"
   },
   "devDependencies": {
-    "@rx-bot/common": "workspace:*",
-    "@rx-bot/core": "workspace:*",
-    "@rx-bot/typescript-config": "workspace:*",
+    "@rx-lab/common": "workspace:*",
+    "@rx-lab/core": "workspace:*",
+    "@rx-lab/typescript-config": "workspace:*",
     "typescript": "^5.4.5"
   }
 }
