@@ -1,5 +1,5 @@
 {
-  "name": "rx-tgbot",
+  "name": "@rx-lab/core",
   "private": true,
   "scripts": {
     "build": "turbo build",
