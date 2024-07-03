@@ -1,7 +1,7 @@
-import { TelegramAdapter } from "@rx-bot/telegram-adapter";
+import { TelegramAdapter } from "@rx-lab/telegram-adapter";
 import React from "react";
 import { App } from "./app";
-import { Renderer } from "@rx-bot/core";
+import { Renderer } from "@rx-lab/core";
 
 const apiKey = process.env.API_KEY!;
 const adapter = new TelegramAdapter({

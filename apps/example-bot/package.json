@@ -13,6 +13,7 @@
     "@rx-lab/telegram-adapter": "workspace:*",
     "@rx-lab/typescript-config": "workspace:*",
     "@rx-lab/core": "workspace:*",
+    "@rx-lab/storage": "workspace:*",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   },

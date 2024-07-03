@@ -1,5 +1,9 @@
-import { Component } from "@rx-bot/core";
-import { AdapterInterface, Container, InstanceType } from "@rx-bot/common";
+import {
+  AdapterInterface,
+  Container,
+  InstanceType,
+  Component,
+} from "@rx-lab/common";
 import TelegramBot, { Update } from "node-telegram-bot-api";
 import { CallbackParser } from "./callbackParser";
 

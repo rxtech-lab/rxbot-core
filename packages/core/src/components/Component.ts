@@ -4,7 +4,7 @@ import {
   HostContext,
   InstanceProps,
   InstanceType,
-  ContainerType,
+  ComponentInterface,
 } from "@rx-lab/common";
 import { v4 as uuid } from "uuid";
 import { isPropsEqual } from "../utils";
@@ -18,7 +18,7 @@ export interface ComponentOptions {
 /**
  * Base component that all components should extend.
  */
-export abstract class BaseComponent implements Component {
+export class BaseComponent extends Component {
   children: Component[] = [];
   /**
    * Unique identifier for the component.
@@ -41,63 +41,9 @@ export abstract class BaseComponent implements Component {
   parent: Component | null = null;
 
   constructor(opts: ComponentOptions) {
+    super();
     this.props = opts.props;
     this.id = opts.props.key ?? uuid();
-  }
-
-  /**
-   * Check if the component is the root component.
-   */
-  get isRoot() {
-    return (this.parent as unknown as Container).type === ContainerType.ROOT;
-  }
-
-  /**
-   * Append a child to the component.
-   * @param container Container
-   */
-  appendAsContainerChildren(container: Container) {
-    this.parent = container as any;
-    container.children.push(this as any);
-  }
-
-  /**
-   * Append child to the component instance.
-   * @param child Child component
-   */
-  appendChild(child: Component) {
-    child.parent = this;
-    this.children.push(child);
-  }
-
-  /**
-   * Remove child from the component instance.
-   * @param child
-   */
-  removeChild(child: Component) {
-    child.parent = null;
-    const index = this.children.indexOf(child);
-    this.children.splice(index, 1);
-  }
-
-  /**
-   * Insert `child` before the `beforeChild` component.
-   * @param child
-   * @param beforeChild
-   */
-  insertBefore(child: Component, beforeChild: Component) {
-    child.parent = this;
-    const index = this.children.indexOf(beforeChild);
-    this.children.splice(index, 0, child);
-  }
-
-  /**
-   * Insert `child` after the `afterChild` component.
-   */
-  insertAfter(child: Component, afterChild: Component) {
-    child.parent = this;
-    const index = this.children.indexOf(afterChild);
-    this.children.splice(index + 1, 0, child);
   }
 
   /**

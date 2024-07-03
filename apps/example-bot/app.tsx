@@ -1,7 +1,18 @@
 import React from "react";
+import { StorageProvider } from "@rx-lab/storage";
+import { useState, MemoryStorage } from "@rx-lab/storage/memory";
 
+const client = new MemoryStorage({} as any);
 export function App() {
-  const [state, setState] = React.useState(0);
+  return (
+    <StorageProvider client={client}>
+      <Home />
+    </StorageProvider>
+  );
+}
+
+function Home() {
+  const [state, setState] = useState("counter", 0);
 
   return (
     <div>
@@ -15,7 +26,6 @@ export function App() {
           <button
             key={"button1"}
             onClick={() => {
-              console.log("clicked +1");
               setState(state + 1);
             }}
           >
