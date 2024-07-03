@@ -1,4 +1,4 @@
-import { Component } from "@rx-bot/core";
+import { Component } from "@rx-lab/common";
 
 interface EncodeData {
   id: string;

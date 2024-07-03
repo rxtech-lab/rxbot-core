@@ -25,4 +25,28 @@ export interface StorageInterface {
    * @param key
    */
   restoreState<T>(key: string): Promise<T | undefined>;
+
+  subscribe(key: string, callback: () => void): () => void;
+}
+
+export abstract class Storage implements StorageInterface {
+  listeners: Map<string, () => void> = new Map();
+
+  abstract restoreComponentTree(key: string): Promise<Component | undefined>;
+
+  abstract restoreState<T>(key: string): Promise<T | undefined>;
+
+  abstract saveComponentTree(
+    rootContainer: Component,
+    key: string,
+  ): Promise<void>;
+
+  abstract saveState<T>(key: string, state: T): Promise<void>;
+
+  subscribe(key: string, callback: () => void): () => void {
+    this.listeners.set(key, callback);
+    return () => {
+      this.listeners.delete(key);
+    };
+  }
 }

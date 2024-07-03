@@ -6,9 +6,9 @@ import {
   Renderer as RendererInterface,
   ReactInstanceType,
   AdapterInterface,
-} from "@rx-bot/common";
+} from "@rx-lab/common";
 import React from "react";
-import { Component, Text } from "./components";
+import { BaseComponent, Text } from "./components";
 import { ComponentBuilder } from "./builder/componentBuilder";
 
 interface RendererOptions {
@@ -16,7 +16,7 @@ interface RendererOptions {
 }
 
 export class Renderer<T extends Container> implements RendererInterface<T> {
-  reconciler: Reconciler.Reconciler<Container, Component, any, any, any>;
+  reconciler: Reconciler.Reconciler<Container, BaseComponent, any, any, any>;
   adapter: AdapterInterface<any, any>;
   private hasMountedAdapter: boolean = false;
 
@@ -27,7 +27,7 @@ export class Renderer<T extends Container> implements RendererInterface<T> {
       ReactInstanceType,
       InstanceProps,
       Container,
-      Component,
+      BaseComponent,
       any,
       any,
       any,
@@ -52,7 +52,7 @@ export class Renderer<T extends Container> implements RendererInterface<T> {
         rootContainer: Container,
         hostContext: any,
         internalHandle: Reconciler.OpaqueHandle,
-      ): Component {
+      ): BaseComponent {
         try {
           return builder.build(
             type,
@@ -87,7 +87,7 @@ export class Renderer<T extends Container> implements RendererInterface<T> {
         instance.finalizeBeforeMount();
         return false;
       },
-      appendChildToContainer: (container, child: Component) => {
+      appendChildToContainer: (container, child: BaseComponent) => {
         child.appendAsContainerChildren(container);
       },
       prepareUpdate: () => true,

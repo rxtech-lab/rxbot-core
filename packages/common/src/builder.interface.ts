@@ -1,10 +1,7 @@
-import {
-  Container,
-  HostContext,
-  InstanceProps,
-  ReactInstanceType,
-} from "@rx-lab/common";
-import { Component } from "../components";
+import { ReactInstanceType } from "./react";
+import { HostContext, InstanceProps } from "./hostconfig.interface";
+import { Container } from "./container.interface";
+import { Component, ComponentInterface } from "./component.interface";
 
 /**
  * Builder is a class that is responsible for building the instance of the host element.
@@ -33,4 +30,10 @@ export interface Builder {
    * Clear the builder instance when the render phase is finished.
    */
   clear(): void;
+
+  /**
+   * Restore the component from the JSON data.
+   * @param data
+   */
+  buildFromJson(data: ComponentInterface): Component;
 }

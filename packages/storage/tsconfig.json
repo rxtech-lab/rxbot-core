@@ -1,0 +1,7 @@
+{
+ "extends": "../typescript-config/base.json",
+  "compilerOptions": {
+    "lib": ["es2017"],
+    "jsx": "react"
+  }
+}
