@@ -5,8 +5,8 @@
 import React from "react";
 import { StorageProvider } from "../storage.context";
 import { MemoryStorage } from "./memory";
-import { useState } from "./state";
 import { act, fireEvent, render } from "@testing-library/react";
+import { useState } from "../state";
 
 function Component() {
   const [counter, setCounter] = useState("some-key", 0);
