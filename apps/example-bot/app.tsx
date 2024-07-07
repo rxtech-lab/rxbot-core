@@ -1,6 +1,7 @@
 import React from "react";
 import { StorageProvider } from "@rx-lab/storage";
-import { useState, MemoryStorage } from "@rx-lab/storage/memory";
+import { useState } from "@rx-lab/storage";
+import { MemoryStorage } from "@rx-lab/storage/memory";
 
 const client = new MemoryStorage({} as any);
 export function App() {

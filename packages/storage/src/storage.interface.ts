@@ -1,4 +1,4 @@
-import { Component } from "@rx-lab/common";
+import { Builder, Component } from "@rx-lab/common";
 
 export interface StorageInterface {
   /**
@@ -31,6 +31,12 @@ export interface StorageInterface {
 
 export abstract class Storage implements StorageInterface {
   listeners: Map<string, () => void> = new Map();
+
+  builder: Builder;
+
+  constructor(builder: Builder) {
+    this.builder = builder;
+  }
 
   abstract restoreComponentTree(key: string): Promise<Component | undefined>;
 

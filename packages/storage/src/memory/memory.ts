@@ -8,8 +8,8 @@ export class MemoryStorage extends Storage {
   private componentTreeMap = new Map<string, ComponentInterface>();
   private stateMap = new Map<string, any>();
 
-  constructor(private readonly builder: Builder) {
-    super();
+  constructor(builder: Builder) {
+    super(builder);
   }
 
   async restoreComponentTree(key: string): Promise<Component | undefined> {
