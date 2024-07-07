@@ -1,8 +1,11 @@
 import { TelegramAdapter } from "@rx-lab/telegram-adapter";
-import React from "react";
 import { App } from "./app";
 import { Renderer } from "@rx-lab/core";
+import dotenv from "dotenv";
 
+dotenv.config();
+
+console.log("Starting bot with key: ", process.env.API_KEY);
 const apiKey = process.env.API_KEY!;
 const adapter = new TelegramAdapter({
   token: apiKey,

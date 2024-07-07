@@ -10,16 +10,17 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@rx-lab/core": "workspace:*",
+    "@rx-lab/file-storage": "workspace:*",
+    "@rx-lab/storage": "workspace:*",
     "@rx-lab/telegram-adapter": "workspace:*",
     "@rx-lab/typescript-config": "workspace:*",
-    "@rx-lab/core": "workspace:*",
-    "@rx-lab/storage": "workspace:*",
-    "@rx-lab/file-storage": "workspace:*",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   },
   "dependencies": {
     "@types/react": "^18.3.3",
+    "dotenv": "^16.4.5",
     "fastify": "^4.27.0",
     "react": "^18.3.1"
   }
