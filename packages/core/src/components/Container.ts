@@ -1,3 +1,3 @@
 import { BaseComponent } from "./Component";
 
-export class Container extends BaseComponent {}
+export class Container extends BaseComponent<any> {}

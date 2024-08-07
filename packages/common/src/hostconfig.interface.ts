@@ -25,6 +25,7 @@ export enum InstanceType {
   Video = "Video",
   Image = "Image",
   LineBreak = "LineBreak",
+  Suspendable = "Suspendable",
 }
 
 /**

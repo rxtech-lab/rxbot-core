@@ -5,7 +5,7 @@ export enum ContainerType {
 }
 
 export interface Container {
-  children: React.ReactElement[];
+  children: any[];
   _rootContainer?: React.ReactElement;
   type: string;
 }

@@ -46,4 +46,5 @@ export enum ReactInstanceType {
   FieldSet = "fieldset",
   NewLine = "br",
   ThematicBreak = "hr",
+  Suspendable = "suspendable",
 }

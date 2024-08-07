@@ -10,7 +10,6 @@ import {
 } from "@rx-lab/common";
 import { BaseComponent, Button, ComponentOptions } from "../components";
 import {
-  DuplicatedKeyPropsError,
   MissingRequiredKeyPropsError,
   UnsupportedComponentError,
   UnsupportedReactComponentError,
@@ -19,11 +18,12 @@ import { Menu } from "../components/Menu";
 import { Container as ContainerComponent } from "../components/Container";
 import { Header } from "../components/Header";
 import { LineBreak } from "../components/LineBreak";
+import { Suspendable } from "../components/Internal";
 
 type InstanceTypeKeys = keyof typeof InstanceType;
 
 interface Constructor<T> {
-  new (opts: ComponentOptions): T;
+  new (opts: ComponentOptions<any>): T;
 }
 
 /**
@@ -46,8 +46,10 @@ export class ComponentBuilder implements Builder {
     [InstanceType.Menu]: Menu,
     [InstanceType.Container]: ContainerComponent,
     [InstanceType.Header]: Header,
-    [InstanceType.LineBreak]:
-      LineBreak as unknown as Constructor<BaseComponent>,
+    [InstanceType.LineBreak]: LineBreak as unknown as Constructor<
+      BaseComponent<any>
+    >,
+    [InstanceType.Suspendable]: Suspendable,
   };
 
   /**
@@ -71,6 +73,7 @@ export class ComponentBuilder implements Builder {
     [ReactInstanceType.H6]: InstanceType.Header,
     [ReactInstanceType.NewLine]: InstanceType.LineBreak,
     [ReactInstanceType.ThematicBreak]: InstanceType.LineBreak,
+    [ReactInstanceType.Suspendable]: InstanceType.Suspendable,
   };
 
   build(
@@ -154,7 +157,7 @@ export class ComponentBuilder implements Builder {
     }
 
     if (this.keys.includes(props.key)) {
-      throw new DuplicatedKeyPropsError(instanceType, props.key);
+      // throw new DuplicatedKeyPropsError(instanceType, props.key);
     }
     this.keys.push(props.key);
   }

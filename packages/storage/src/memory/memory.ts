@@ -21,6 +21,7 @@ export class MemoryStorage extends Storage {
   }
 
   async restoreState<T>(key: string): Promise<T | undefined> {
+    await new Promise((resolve) => setTimeout(resolve, 5000));
     return this.stateMap.get(key);
   }
 
@@ -32,6 +33,8 @@ export class MemoryStorage extends Storage {
   }
 
   async saveState<T>(key: string, state: T): Promise<void> {
+    // Simulate a delay to make it more realistic
+    await new Promise((resolve) => setTimeout(resolve, 5000));
     this.stateMap.set(key, state);
     const listener = this.listeners.get(key);
     listener?.();
