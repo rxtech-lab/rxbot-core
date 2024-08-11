@@ -1,13 +1,8 @@
-// File: custom-jsx.d.ts
-
-import React from "react";
-
 interface SuspendableProps {
+  children: any;
   shouldSuspend: boolean;
-  children?: React.ReactNode;
 }
 
-// Extend JSX.IntrinsicElements to include the minimal 'suspendable'
 declare global {
   namespace JSX {
     interface IntrinsicElements {
@@ -15,3 +10,5 @@ declare global {
     }
   }
 }
+
+export {};

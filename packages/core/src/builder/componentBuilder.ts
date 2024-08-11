@@ -10,6 +10,7 @@ import {
 } from "@rx-lab/common";
 import { BaseComponent, Button, ComponentOptions } from "../components";
 import {
+  DuplicatedKeyPropsError,
   MissingRequiredKeyPropsError,
   UnsupportedComponentError,
   UnsupportedReactComponentError,
@@ -157,7 +158,7 @@ export class ComponentBuilder implements Builder {
     }
 
     if (this.keys.includes(props.key)) {
-      // throw new DuplicatedKeyPropsError(instanceType, props.key);
+      throw new DuplicatedKeyPropsError(instanceType, props.key);
     }
     this.keys.push(props.key);
   }

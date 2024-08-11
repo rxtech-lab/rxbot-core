@@ -2,9 +2,15 @@
   "name": "@rx-lab/router",
   "version": "1.0.0",
   "description": "",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src/global.d.ts"
+  ],
   "scripts": {
-    "test": "jest"
+    "test": "jest --passWithNoTests",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",

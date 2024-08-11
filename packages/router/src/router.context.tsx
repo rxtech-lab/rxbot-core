@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useState,
   useRef,
+  useContext,
 } from "react";
 import { Logger } from "@rx-lab/common";
 
@@ -99,8 +100,15 @@ export function RouterProvider({ children }: { children: ReactNode }) {
   Logger.log(`RouterProvider isLoading: ${isLoading}`, "red");
   return (
     <RouterContext.Provider value={contextValue}>
-      {/*@ts-ignore*/}
       <suspendable shouldSuspend={isLoading}>{children}</suspendable>
     </RouterContext.Provider>
   );
+}
+
+export function useRouter() {
+  const context = useContext(RouterContext);
+  if (context === undefined) {
+    throw new Error("useRouter must be used within a RouterProvider");
+  }
+  return context;
 }

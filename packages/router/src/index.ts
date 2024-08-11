@@ -1,3 +1,2 @@
-export { RouterProvider, RouterContext } from "./router.context";
-export { useRouter } from "./router.hooks.";
+export { RouterProvider, RouterContext, useRouter } from "./router.context";
 export { isRouterComponent } from "./router.utils";
