@@ -2,13 +2,16 @@ import React from "react";
 import { StorageProvider } from "@rx-lab/storage";
 import { useState } from "@rx-lab/storage";
 import { MemoryStorage } from "@rx-lab/storage/memory";
+import { RouterProvider } from "@rx-lab/router";
 
 const client = new MemoryStorage({} as any);
 export function App() {
   return (
-    <StorageProvider client={client}>
-      <Home />
-    </StorageProvider>
+    <RouterProvider>
+      <StorageProvider client={client}>
+        <Home />
+      </StorageProvider>
+    </RouterProvider>
   );
 }
 

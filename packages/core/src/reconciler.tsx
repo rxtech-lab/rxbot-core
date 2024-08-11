@@ -1,22 +1,46 @@
 import Reconciler from "react-reconciler";
+import ReactReconciler from "react-reconciler";
 import { createEmptyFiberRoot } from "./utils";
 import {
+  AdapterInterface,
   Container,
   InstanceProps,
-  Renderer as RendererInterface,
+  InstanceType,
+  Logger,
   ReactInstanceType,
-  AdapterInterface,
+  Renderer as RendererInterface,
 } from "@rx-lab/common";
 import React from "react";
 import { BaseComponent, Text } from "./components";
 import { ComponentBuilder } from "./builder/componentBuilder";
+import { Suspendable } from "./components/Internal";
 
 interface RendererOptions {
   adapter: AdapterInterface<any, any>;
 }
 
+// recursively find the first suspendable instance
+function getSuspendableInstance(
+  children: BaseComponent<any>[],
+): Suspendable | undefined {
+  for (const child of children) {
+    if (child.type === InstanceType.Suspendable) {
+      return child;
+    }
+    if (child.children.length > 0) {
+      return getSuspendableInstance(child.children);
+    }
+  }
+}
+
 export class Renderer<T extends Container> implements RendererInterface<T> {
-  reconciler: Reconciler.Reconciler<Container, BaseComponent, any, any, any>;
+  reconciler: Reconciler.Reconciler<
+    Container,
+    BaseComponent<any>,
+    any,
+    any,
+    any
+  >;
   adapter: AdapterInterface<any, any>;
   private hasMountedAdapter: boolean = false;
 
@@ -27,7 +51,7 @@ export class Renderer<T extends Container> implements RendererInterface<T> {
       ReactInstanceType,
       InstanceProps,
       Container,
-      BaseComponent,
+      BaseComponent<any>,
       any,
       any,
       any,
@@ -52,7 +76,7 @@ export class Renderer<T extends Container> implements RendererInterface<T> {
         rootContainer: Container,
         hostContext: any,
         internalHandle: Reconciler.OpaqueHandle,
-      ): BaseComponent {
+      ): BaseComponent<any> {
         try {
           return builder.build(
             type,
@@ -87,7 +111,14 @@ export class Renderer<T extends Container> implements RendererInterface<T> {
         instance.finalizeBeforeMount();
         return false;
       },
-      appendChildToContainer: (container, child: BaseComponent) => {
+      commitMount(
+        instance: BaseComponent<any>,
+        type: ReactInstanceType,
+        props: InstanceProps,
+        internalInstanceHandle: ReactReconciler.OpaqueHandle,
+      ) {},
+
+      appendChildToContainer: (container, child: BaseComponent<any>) => {
         child.appendAsContainerChildren(container);
       },
       prepareUpdate: () => true,
@@ -129,6 +160,8 @@ export class Renderer<T extends Container> implements RendererInterface<T> {
         textInstance.props.nodeValue = newText;
       },
       resetTextContent: () => {},
+      detachDeletedInstance(node: BaseComponent<any>) {},
+      removeChildFromContainer(container: Container, child: any) {},
     };
 
     this.reconciler = Reconciler(hostConfig);
@@ -136,6 +169,27 @@ export class Renderer<T extends Container> implements RendererInterface<T> {
 
   async init() {
     await this.adapter.init();
+  }
+
+  /**
+   * Check if the render is suspended.
+   * @param container
+   * @private
+   */
+  private isSuspended(container: T) {
+    const suspendableInstance = getSuspendableInstance(
+      container?.children ?? [],
+    );
+    if (!suspendableInstance) {
+      throw new Error("No suspendable instance found");
+    }
+
+    if (suspendableInstance.props.shouldSuspend) {
+      Logger.log(`Render is suspended`);
+      return true;
+    }
+
+    return false;
   }
 
   /**
@@ -162,6 +216,10 @@ export class Renderer<T extends Container> implements RendererInterface<T> {
       );
     });
     this.hasMountedAdapter = true;
+    if (this.isSuspended(container)) {
+      return;
+    }
+
     return await this.adapter.adapt(container, false);
   }
 
@@ -170,6 +228,10 @@ export class Renderer<T extends Container> implements RendererInterface<T> {
    * @param container
    */
   async update(container: T) {
+    if (this.isSuspended(container)) {
+      return;
+    }
+
     await this.adapter.adapt(container, true);
   }
 }

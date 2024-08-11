@@ -38,3 +38,5 @@ yarn-error.log*
 *.pem
 .idea
 .vscode
+packit.ts
+packit.yaml

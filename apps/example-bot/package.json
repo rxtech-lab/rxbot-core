@@ -15,6 +15,7 @@
     "@rx-lab/storage": "workspace:*",
     "@rx-lab/telegram-adapter": "workspace:*",
     "@rx-lab/typescript-config": "workspace:*",
+    "@rx-lab/router": "workspace:*",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   },

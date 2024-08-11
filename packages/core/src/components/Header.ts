@@ -5,7 +5,7 @@ import { LineBreak } from "./LineBreak";
 /**
  * Header component is used to create a header in the bot.
  */
-export class Header extends BaseComponent {
+export class Header extends BaseComponent<any> {
   type = InstanceType.Header;
 
   finalizeBeforeMount() {

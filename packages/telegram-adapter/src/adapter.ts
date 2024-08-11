@@ -3,6 +3,7 @@ import {
   Container,
   InstanceType,
   Component,
+  Logger,
 } from "@rx-lab/common";
 import TelegramBot, { Update } from "node-telegram-bot-api";
 import { CallbackParser } from "./callbackParser";
@@ -124,6 +125,10 @@ export class TelegramAdapter
   ): Promise<RenderedElement[]> {
     this.bot.processUpdate(container.data);
 
+    if (container.children.length === 0) {
+      return [];
+    }
+
     if (container.data.callback_query) {
       return [];
     }
@@ -151,12 +156,13 @@ export class TelegramAdapter
       };
     }
 
-    if (isUpdate) {
+    Logger.log(`Sending message`, "blue");
+    if (isUpdate && container.messageId) {
       await this.bot.editMessageText(textContent, {
+        ...options,
         reply_markup: options.reply_markup as any,
         chat_id: chatRoomId,
         message_id: container.messageId,
-        ...options,
       });
     } else {
       await this.bot.sendMessage(chatRoomId, textContent, options);

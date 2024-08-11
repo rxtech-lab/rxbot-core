@@ -4,13 +4,12 @@ import {
   HostContext,
   InstanceProps,
   InstanceType,
-  ComponentInterface,
 } from "@rx-lab/common";
 import { v4 as uuid } from "uuid";
 import { isPropsEqual } from "../utils";
 
-export interface ComponentOptions {
-  props: InstanceProps;
+export interface ComponentOptions<Props extends InstanceProps> {
+  props: Props;
   container: Container;
   hostContext: HostContext;
 }
@@ -18,7 +17,7 @@ export interface ComponentOptions {
 /**
  * Base component that all components should extend.
  */
-export class BaseComponent extends Component {
+export class BaseComponent<Props extends InstanceProps> extends Component {
   children: Component[] = [];
   /**
    * Unique identifier for the component.
@@ -28,7 +27,7 @@ export class BaseComponent extends Component {
   /**
    * Properties of the component.
    */
-  props: InstanceProps;
+  props: Props;
 
   /**
    * Type of the component. Useful in the renderer to identify the type of the component.
@@ -40,7 +39,7 @@ export class BaseComponent extends Component {
    */
   parent: Component | null = null;
 
-  constructor(opts: ComponentOptions) {
+  constructor(opts: ComponentOptions<Props>) {
     super();
     this.props = opts.props;
     this.id = opts.props.key ?? uuid();
@@ -57,7 +56,7 @@ export class BaseComponent extends Component {
    * Function will be called when the component is set to be updated.
    * @return `true` if the component has been updated, `false` otherwise.
    */
-  commitUpdate(oldProps: InstanceProps, newProps: InstanceProps): boolean {
+  commitUpdate(oldProps: Props, newProps: Props): boolean {
     const isEqual = isPropsEqual(oldProps, newProps);
     if (!isEqual) {
       this.props = newProps;
