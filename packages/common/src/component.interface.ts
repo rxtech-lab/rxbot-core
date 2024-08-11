@@ -26,14 +26,17 @@ export abstract class Component {
    * Check if the component is the root component.
    */
   get isRoot() {
-    return (this.parent as unknown as Container).type === ContainerType.ROOT;
+    return (
+      (this.parent as unknown as Container<any, any>).type ===
+      ContainerType.ROOT
+    );
   }
 
   /**
    * Append a child to the component.
    * @param container Container
    */
-  appendAsContainerChildren(container: Container) {
+  appendAsContainerChildren(container: Container<any, any>) {
     this.parent = container as any;
     container.children.push(this as any);
   }

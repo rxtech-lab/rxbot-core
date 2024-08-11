@@ -14,18 +14,23 @@ const initializedMap = new Map<string, boolean>();
 export function useState<T>(key: string, initialState: T) {
   const { client } = useContext(StorageContext);
   const [localState, setLocalState] = useReactState<T>(initialState);
-  const { registerLoading } = useRouter();
+  const { registerLoading, chatroomInfo } = useRouter();
+
+  // construct the key using chatroom info
+  const storedKey = chatroomInfo.messageId
+    ? `${chatroomInfo.id}-${chatroomInfo.messageId}-${key}`
+    : `${chatroomInfo.id}-${key}`;
 
   // Effect to load initial state from async storage
   useEffect(() => {
-    Logger.log(`Loading initial state for key ${key}`);
-    if (initializedMap.has(key)) {
+    Logger.log(`Loading initial state for key ${storedKey}`);
+    if (initializedMap.has(storedKey)) {
       return;
     }
     const loadInitialState = async () => {
-      const storedState = await client.restoreState(key);
+      const storedState = await client.restoreState(storedKey);
       Logger.log(
-        `Restored state for key ${key}: ${JSON.stringify(storedState)}`,
+        `Restored state for key ${storedKey}: ${JSON.stringify(storedState)}`,
       );
       if (storedState !== undefined) {
         setLocalState(storedState as T);
@@ -42,8 +47,8 @@ export function useState<T>(key: string, initialState: T) {
       (onStoreChange) => {
         return client.subscribe(key, () => {
           const loadNewState = async () => {
-            Logger.log(`Loading new state for key ${key}`);
-            const newState = await client.restoreState(key);
+            Logger.log(`Loading new state for key ${storedKey}`);
+            const newState = await client.restoreState(storedKey);
             setLocalState(newState as T);
             onStoreChange();
           };
@@ -51,7 +56,7 @@ export function useState<T>(key: string, initialState: T) {
           registerLoading(loadNewState());
         });
       },
-      [client, key, registerLoading],
+      [client, storedKey, registerLoading],
     ),
     () => localState,
     () => initialState,
@@ -59,19 +64,19 @@ export function useState<T>(key: string, initialState: T) {
 
   const setState = useCallback(
     (newState: T) => {
-      Logger.log(`Saving state for key ${key}`);
+      Logger.log(`Saving state for key ${storedKey}`);
       registerLoading(
         client
-          .saveState(key, newState)
+          .saveState(storedKey, newState)
           .then(() => {
-            setLocalState(newState); // Update local state immediately
+            setLocalState(newState);
           })
           .catch((error) => {
             console.error("Failed to save state:", error);
           }),
       );
     },
-    [client, key, registerLoading],
+    [client, storedKey, registerLoading],
   );
 
   return [state, setState] as const;

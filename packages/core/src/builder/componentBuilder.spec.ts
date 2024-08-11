@@ -13,7 +13,12 @@ describe("should be able to build component", () => {
     const result = builder.build(
       ReactInstanceType.Button,
       {},
-      { children: [], type: ContainerType.ROOT },
+      {
+        chatroomInfo: undefined,
+        message: undefined,
+        children: [],
+        type: ContainerType.ROOT,
+      },
       {},
     );
     expect(result).toBeDefined();
@@ -25,7 +30,12 @@ describe("should be able to build component", () => {
     const result = builder.build(
       ReactInstanceType.Button,
       {},
-      { children: [], type: ContainerType.ROOT },
+      {
+        chatroomInfo: undefined,
+        message: undefined,
+        children: [],
+        type: ContainerType.ROOT,
+      },
       {},
     );
     expect(result).toBeDefined();
@@ -34,7 +44,12 @@ describe("should be able to build component", () => {
     const result2 = builder.build(
       ReactInstanceType.Button,
       {},
-      { children: [], type: ContainerType.ROOT },
+      {
+        chatroomInfo: undefined,
+        message: undefined,
+        children: [],
+        type: ContainerType.ROOT,
+      },
       {},
     );
     expect(result2).toBeDefined();
@@ -47,7 +62,12 @@ describe("should be able to build component", () => {
       builder.build(
         "UnsupportedComponent" as ReactInstanceType,
         {},
-        { children: [], type: ContainerType.ROOT },
+        {
+          chatroomInfo: undefined,
+          message: undefined,
+          children: [],
+          type: ContainerType.ROOT,
+        },
         {},
       ),
     ).toThrow(UnsupportedReactComponentError);
@@ -59,7 +79,12 @@ describe("should be able to build component", () => {
       builder.build(
         ReactInstanceType.Button,
         { onClick: () => {} },
-        { children: [], type: ContainerType.ROOT },
+        {
+          chatroomInfo: undefined,
+          message: undefined,
+          children: [],
+          type: ContainerType.ROOT,
+        },
         {},
       ),
     ).toThrow(MissingRequiredKeyPropsError);
@@ -71,7 +96,12 @@ describe("should be able to build component", () => {
       builder.build(
         ReactInstanceType.Button,
         { onClick: () => {}, key: "key" },
-        { children: [], type: ContainerType.ROOT },
+        {
+          chatroomInfo: undefined,
+          message: undefined,
+          children: [],
+          type: ContainerType.ROOT,
+        },
         {},
       ),
     ).not.toThrow();
@@ -83,7 +113,12 @@ describe("should be able to build component", () => {
       builder.build(
         ReactInstanceType.Button,
         { onClick: () => {}, key: "key" },
-        { children: [], type: ContainerType.ROOT },
+        {
+          chatroomInfo: undefined,
+          message: undefined,
+          children: [],
+          type: ContainerType.ROOT,
+        },
         {},
       ),
     ).not.toThrow();
@@ -92,7 +127,12 @@ describe("should be able to build component", () => {
       builder.build(
         ReactInstanceType.Button,
         { onClick: () => {}, key: "key" },
-        { children: [], type: ContainerType.ROOT },
+        {
+          chatroomInfo: undefined,
+          message: undefined,
+          children: [],
+          type: ContainerType.ROOT,
+        },
         {},
       ),
     ).toThrow(DuplicatedKeyPropsError);

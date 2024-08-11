@@ -22,7 +22,7 @@ export interface Builder {
   build(
     type: ReactInstanceType,
     props: InstanceProps,
-    rootContainer: Container,
+    rootContainer: Container<any, any>,
     hostContext: HostContext,
   ): Component;
 

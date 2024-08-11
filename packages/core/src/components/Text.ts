@@ -8,7 +8,7 @@ import {
 
 export interface TextProps {
   text: string;
-  container: Container;
+  container: Container<any, any>;
   context: HostContext;
   internalInstanceHandle: InternalHandle;
 }

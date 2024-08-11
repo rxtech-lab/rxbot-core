@@ -10,7 +10,7 @@ import { isPropsEqual } from "../utils";
 
 export interface ComponentOptions<Props extends InstanceProps> {
   props: Props;
-  container: Container;
+  container: Container<any, any>;
   hostContext: HostContext;
 }
 

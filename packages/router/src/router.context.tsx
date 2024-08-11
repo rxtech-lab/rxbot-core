@@ -7,23 +7,31 @@ import React, {
   useRef,
   useContext,
 } from "react";
-import { Logger } from "@rx-lab/common";
+import { BaseChatroomInfo, Logger } from "@rx-lab/common";
 
 // Types and interfaces
 type RouteChangeCallback = () => void;
 type Queue = (() => void)[];
 
-interface RouterContextType {
+interface RouterProps<ChatroomInfo, Message> {
+  children: ReactNode;
+  chatroomInfo: ChatroomInfo;
+  message: Message;
+}
+
+interface RouterContextType<ChatroomInfo extends BaseChatroomInfo, Message> {
   addToQueue: (callback: RouteChangeCallback) => void;
   isQueueEmpty: () => boolean;
   notifyRouteChange: () => void;
   registerLoading: (promise: Promise<void>) => void;
+  chatroomInfo: ChatroomInfo;
+  message: Message;
 }
 
 // Create the context
-export const RouterContext = createContext<RouterContextType | undefined>(
-  undefined,
-);
+export const RouterContext = createContext<
+  RouterContextType<BaseChatroomInfo, any> | undefined
+>(undefined);
 
 // Debounce function
 function debounce<F extends (...args: any[]) => void>(
@@ -40,7 +48,11 @@ function debounce<F extends (...args: any[]) => void>(
 }
 
 // RouterProvider component
-export function RouterProvider({ children }: { children: ReactNode }) {
+export function RouterProvider<ChatroomInfo extends BaseChatroomInfo, Message>({
+  children,
+  chatroomInfo,
+  message,
+}: RouterProps<ChatroomInfo, Message>) {
   const [queue, setQueue] = useState<Queue>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [pendingPromises, setPendingPromises] = useState<Promise<void>[]>([]);
@@ -58,7 +70,6 @@ export function RouterProvider({ children }: { children: ReactNode }) {
   }, [queue]);
 
   const registerLoading = useCallback((promise: Promise<void>) => {
-    Logger.log(`Registering loading promise: ${promise}`);
     setIsLoading(true);
     setPendingPromises((prev) => [...prev, promise]);
   }, []);
@@ -86,15 +97,16 @@ export function RouterProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    Logger.log(`pending promises: ${pendingPromises.length}`);
     debouncedEffect.current(pendingPromises);
   }, [pendingPromises]);
 
-  const contextValue: RouterContextType = {
+  const contextValue: RouterContextType<ChatroomInfo, Message> = {
     addToQueue,
     isQueueEmpty,
     notifyRouteChange,
     registerLoading,
+    chatroomInfo: chatroomInfo,
+    message: message,
   };
 
   Logger.log(`RouterProvider isLoading: ${isLoading}`, "red");

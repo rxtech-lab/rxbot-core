@@ -1,7 +1,7 @@
 import React from "react";
 import { Container } from "./container.interface";
 
-export interface Renderer<T extends Container> {
-  init: () => Promise<void>;
-  render: (element: React.ReactElement, container: T) => any;
+export interface Renderer<T extends Container<any, any>> {
+  init: (element: React.ReactElement) => Promise<void>;
+  render: (container: T) => any;
 }
