@@ -1,26 +1,19 @@
 import React from "react";
-import { StorageProvider } from "@rx-lab/storage";
 import { useState } from "@rx-lab/storage";
-import { MemoryStorage } from "@rx-lab/storage/memory";
-import { RouterProvider } from "@rx-lab/router";
+import { useRouter } from "@rx-lab/router";
 
-const client = new MemoryStorage({} as any);
 export function App() {
-  return (
-    <RouterProvider>
-      <StorageProvider client={client}>
-        <Home />
-      </StorageProvider>
-    </RouterProvider>
-  );
+  return <Home />;
 }
 
 function Home() {
   const [state, setState] = useState("counter", 0);
+  const { chatroomInfo } = useRouter();
 
   return (
     <div>
       <h1>Welcome to the Telegram Bot!</h1>
+      <h1>ChatroomInfo: {chatroomInfo.messageId}</h1>
       <hr />
       <p>Choose an option</p>
       <hr />

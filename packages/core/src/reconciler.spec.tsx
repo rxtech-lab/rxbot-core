@@ -2,16 +2,18 @@ import React from "react";
 import { Renderer } from "./reconciler";
 import { AdapterInterface, Container } from "@rx-lab/common";
 import "@rx-lab/router/src/global.d.ts";
+import { MemoryStorage } from "@rx-lab/storage/memory";
+import * as process from "node:process";
 
 // Mock adapter
-class MockAdapter implements AdapterInterface<Container, any> {
+class MockAdapter implements AdapterInterface<Container<any, any>, any> {
   messages: string[] = [];
 
   async init(): Promise<void> {}
 
   async componentOnMount(): Promise<void> {}
 
-  async adapt(container: Container, isUpdate: boolean): Promise<any> {
+  async adapt(container: Container<any, any>, isUpdate: boolean): Promise<any> {
     if (container.children.length > 0) {
       this.messages.push("Container has children");
     }
@@ -19,9 +21,10 @@ class MockAdapter implements AdapterInterface<Container, any> {
   }
 }
 
+process.env.NODE_ENV = "development";
 describe("Reconciler(Suspendable)", () => {
   let mockAdapter: MockAdapter;
-  let renderer: Renderer<Container>;
+  let renderer: Renderer<Container<any, any>>;
 
   // Mock component that can suspend
   function SuspendableComponent() {
@@ -32,6 +35,7 @@ describe("Reconciler(Suspendable)", () => {
     mockAdapter = new MockAdapter();
     renderer = new Renderer({
       adapter: mockAdapter,
+      storage: new MemoryStorage({} as any),
     });
   });
 
@@ -42,26 +46,33 @@ describe("Reconciler(Suspendable)", () => {
       </suspendable>
     );
 
-    await renderer.render(<App />, {
+    await renderer.init(<App />);
+    await renderer.render({
+      chatroomInfo: undefined,
+      message: undefined,
       type: "ROOT",
       children: [],
-    } as Container);
+    });
 
     expect(mockAdapter.messages).toHaveLength(0);
   });
 
-  it("should send message when app is suspended", async () => {
+  it("should send message when app is not suspended", async () => {
     const App = () => (
       <suspendable shouldSuspend={false}>
         <SuspendableComponent />
       </suspendable>
     );
 
-    await renderer.render(<App />, {
+    await renderer.init(<App />);
+    await renderer.render({
       type: "ROOT",
       children: [],
-    } as Container);
+      chatroomInfo: undefined,
+      message: undefined,
+    });
 
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     expect(mockAdapter.messages).toHaveLength(1);
   });
 });

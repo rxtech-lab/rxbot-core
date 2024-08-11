@@ -80,7 +80,7 @@ export class ComponentBuilder implements Builder {
   build(
     reactInstanceType: ReactInstanceType,
     props: InstanceProps,
-    rootContainer: Container,
+    rootContainer: Container<any, any>,
     hostContext: HostContext,
   ): Component {
     const mappedInstanceType = this.getInstanceType(reactInstanceType);
@@ -104,7 +104,7 @@ export class ComponentBuilder implements Builder {
   private getComponent(
     mappedInstanceType: InstanceType,
     props: InstanceProps,
-    container: Container,
+    container: Container<any, any>,
     hostContext: HostContext,
   ) {
     const Component = this.componentMapper[mappedInstanceType];

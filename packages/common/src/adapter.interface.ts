@@ -1,5 +1,12 @@
+export interface ReconcilerApi<Container> {
+  renderApp: (
+    container: Container,
+    callback: (container: Container) => Promise<void>,
+  ) => Promise<Container>;
+}
+
 export interface AdapterInterface<Container, AdaptElement> {
-  init: () => Promise<void>;
+  init: (api: ReconcilerApi<Container>) => Promise<void>;
   componentOnMount: (container: Container) => Promise<void>;
   /**
    * Adapt the container to the corresponding element.

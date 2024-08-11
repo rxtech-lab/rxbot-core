@@ -14,9 +14,12 @@ import React from "react";
 import { BaseComponent, Text } from "./components";
 import { ComponentBuilder } from "./builder/componentBuilder";
 import { Suspendable } from "./components/Internal";
+import { RouterProvider } from "@rx-lab/router";
+import { Storage, StorageProvider } from "@rx-lab/storage";
 
 interface RendererOptions {
   adapter: AdapterInterface<any, any>;
+  storage: Storage;
 }
 
 // recursively find the first suspendable instance
@@ -33,24 +36,34 @@ function getSuspendableInstance(
   }
 }
 
-export class Renderer<T extends Container> implements RendererInterface<T> {
+const MAXIMUM_SUSPENSE_RETRIES = 10;
+const DEFAULT_WAIT_TIME = 1000; // 1 second
+
+export class Renderer<T extends Container<any, any>>
+  implements RendererInterface<T>
+{
   reconciler: Reconciler.Reconciler<
-    Container,
+    Container<any, any>,
     BaseComponent<any>,
     any,
     any,
     any
   >;
   adapter: AdapterInterface<any, any>;
-  private hasMountedAdapter: boolean = false;
+  storage: Storage;
+  private element: React.ReactElement | undefined;
 
-  constructor({ adapter }: RendererOptions) {
+  listeners: Map<AdapterInterface<any, any>, (container: T) => Promise<void>> =
+    new Map();
+
+  constructor({ adapter, storage }: RendererOptions) {
     const builder = new ComponentBuilder();
     this.adapter = adapter;
+    this.storage = storage;
     const hostConfig: Reconciler.HostConfig<
       ReactInstanceType,
       InstanceProps,
-      Container,
+      Container<any, any>,
       BaseComponent<any>,
       any,
       any,
@@ -73,7 +86,7 @@ export class Renderer<T extends Container> implements RendererInterface<T> {
       createInstance(
         type: ReactInstanceType,
         props: InstanceProps,
-        rootContainer: Container,
+        rootContainer: Container<any, any>,
         hostContext: any,
         internalHandle: Reconciler.OpaqueHandle,
       ): BaseComponent<any> {
@@ -153,7 +166,7 @@ export class Renderer<T extends Container> implements RendererInterface<T> {
       ) => {
         instance.commitUpdate(oldProps, newProps);
         if (instance.isRoot) {
-          await this.update(instance.parent as any);
+          await this.onUpdate(instance.parent as any);
         }
       },
       commitTextUpdate: (textInstance, oldText, newText) => {
@@ -161,14 +174,21 @@ export class Renderer<T extends Container> implements RendererInterface<T> {
       },
       resetTextContent: () => {},
       detachDeletedInstance(node: BaseComponent<any>) {},
-      removeChildFromContainer(container: Container, child: any) {},
+      removeChildFromContainer(container: Container<any, any>, child: any) {},
     };
 
     this.reconciler = Reconciler(hostConfig);
   }
 
-  async init() {
-    await this.adapter.init();
+  async init(element: React.ReactElement) {
+    this.element = element;
+
+    await this.adapter.init({
+      renderApp: (container, callback) => {
+        this.listeners.set(this.adapter, callback);
+        return this.render(container);
+      },
+    });
   }
 
   /**
@@ -193,45 +213,57 @@ export class Renderer<T extends Container> implements RendererInterface<T> {
   }
 
   /**
-   * Render the element to the corresponding adapter.
-   * @param element
-   * @param container
+   * Helper function to render the app asynchronously.
+   * @param container The container to render the app in
+   * @private
    */
-  async render(element: React.ReactElement, container: T) {
+  async render(container: T) {
     if (!container._rootContainer) {
       createEmptyFiberRoot(container, this.reconciler);
     }
 
+    // wrap the element with the router and storage providers so that
+    // the components can access the router and storage
+    const wrappedElement = (
+      <RouterProvider
+        chatroomInfo={container.chatroomInfo}
+        message={container.message}
+      >
+        <StorageProvider client={this.storage}>{this.element}</StorageProvider>
+      </RouterProvider>
+    );
+
     await new Promise<void>((resolve) => {
       this.reconciler.updateContainer(
-        element,
+        wrappedElement,
         container._rootContainer,
         null,
         async () => {
-          if (!this.hasMountedAdapter) {
-            await this.adapter.componentOnMount(container);
-          }
+          await this.adapter.componentOnMount(container);
           resolve();
         },
       );
     });
-    this.hasMountedAdapter = true;
-    if (this.isSuspended(container)) {
-      return;
-    }
 
-    return await this.adapter.adapt(container, false);
+    return container;
   }
 
   /**
    * Update the container to reflect the changes.
    * @param container
    */
-  async update(container: T) {
+  private async update(container: T) {
     if (this.isSuspended(container)) {
       return;
     }
-
     await this.adapter.adapt(container, true);
+  }
+
+  async onUpdate(container: T) {
+    await this.update(container);
+
+    for (const listener of this.listeners.values()) {
+      await listener(container);
+    }
   }
 }

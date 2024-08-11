@@ -4,6 +4,8 @@ import {
   InstanceType,
   Component,
   Logger,
+  BaseChatroomInfo,
+  ReconcilerApi,
 } from "@rx-lab/common";
 import TelegramBot, { Update } from "node-telegram-bot-api";
 import { CallbackParser } from "./callbackParser";
@@ -29,10 +31,15 @@ type RenderedElement =
     }
   | string;
 
-interface TGContainer extends Container {
-  chatroomId: number;
-  data: Update;
-  messageId?: number;
+export interface TGChatroomInfo extends BaseChatroomInfo {}
+
+export interface TGMessage extends TelegramBot.Update {}
+
+export interface TGContainer extends Container<TGChatroomInfo, TGMessage> {}
+
+interface InternalTGContainer extends TGContainer {
+  // internal field used to store the message id for updating the message
+  updateMessageId?: number;
 }
 
 export const renderElement = (
@@ -57,7 +64,7 @@ export const renderElement = (
     case InstanceType.Container:
       return children;
     case InstanceType.Header:
-      return [`<b>${children}</b>`];
+      return [`<b>${children}\n</b>`];
     case InstanceType.Paragraph:
       return children;
     case InstanceType.Button:
@@ -91,7 +98,9 @@ export class TelegramAdapter
     });
   }
 
-  async init(): Promise<void> {
+  // TODO: Only works when user send a message to the bot
+  //  Need to handle the case that when user click on the button, message is updated
+  async init(api: ReconcilerApi<TGContainer>): Promise<void> {
     if ("callbackUrl" in this.opts) {
       if (this.opts.callbackUrl === undefined) {
         throw new Error("callbackUrl is required for webhook mode");
@@ -104,32 +113,72 @@ export class TelegramAdapter
         }
       });
     }
-  }
 
-  async componentOnMount(container: TGContainer): Promise<void> {
-    //TODO: should move this callback to init function in the future.
-    this.bot.on("callback_query", (query) => {
+    //FIXME: If user click on the button multiple times at the same time,
+    // the message only updated once and throw an error
+    this.bot.on("callback_query", async (query) => {
+      Logger.log("Get callback query", "red");
       const data = query.data!;
-      container.messageId = query.message?.message_id;
-      const component = this.callbackParser.decode(
-        data,
-        container.children as any,
+      const container: InternalTGContainer = {
+        type: "ROOT",
+        children: [],
+        chatroomInfo: {
+          id: query.message?.chat.id as number,
+          messageId: query.message?.message_id,
+        },
+        message: query.message as any,
+        hasUpdated: false,
+        //@ts-ignore
+        id: new Date().getTime(),
+      };
+      // in order for old message to be updated
+      // we need to render the app with the old message
+      const updatedContainer = await api.renderApp(
+        container,
+        async (container: InternalTGContainer) => {
+          if (container.hasUpdated || container.hasUpdated === undefined) {
+            return;
+          }
+
+          if (container.children[0].props.shouldSuspend) {
+            return;
+          }
+
+          const component = this.callbackParser.decode(
+            data,
+            container.children as any,
+          );
+          component?.props.onClick?.();
+          container.hasUpdated = true;
+          Logger.log("Callback query", "blue");
+        },
       );
-      component?.props.onClick?.();
+      (updatedContainer as InternalTGContainer).updateMessageId =
+        query.message?.message_id;
     });
   }
 
+  async componentOnMount(container: InternalTGContainer): Promise<void> {}
+
   async adapt(
-    container: TGContainer,
+    container: InternalTGContainer,
     isUpdate: boolean,
   ): Promise<RenderedElement[]> {
-    this.bot.processUpdate(container.data);
+    if (!isUpdate) this.bot.processUpdate(container.message);
 
+    // if hasUpdated is set to false, it means that the message is not updated,
+    // so we don't need to send any message
+    if (container.hasUpdated !== undefined && !container.hasUpdated) {
+      return [];
+    }
+
+    // if no children in the container
+    // don't send any message
     if (container.children.length === 0) {
       return [];
     }
 
-    if (container.data.callback_query) {
+    if (container.message.callback_query) {
       return [];
     }
 
@@ -137,7 +186,15 @@ export class TelegramAdapter
       container.children[0] as any,
       this.callbackParser,
     );
-    const chatRoomId = container.chatroomId;
+    if (Array.isArray(message) && message.length === 0) {
+      return [];
+    }
+
+    Logger.log(
+      `IsSuspense: ${container.children[0].props.shouldSuspend}`,
+      "red",
+    );
+    const chatRoomId = container.chatroomInfo.id;
 
     const textContent = this.getMessageContent(message);
     const hasInlineKeyboard = this.hasInlineKeyboard(message);
@@ -157,18 +214,23 @@ export class TelegramAdapter
     }
 
     Logger.log(`Sending message`, "blue");
-    if (isUpdate && container.messageId) {
-      await this.bot.editMessageText(textContent, {
-        ...options,
-        reply_markup: options.reply_markup as any,
-        chat_id: chatRoomId,
-        message_id: container.messageId,
-      });
-    } else {
-      await this.bot.sendMessage(chatRoomId, textContent, options);
-    }
+    try {
+      if (isUpdate && container.updateMessageId) {
+        await this.bot.editMessageText(textContent, {
+          ...options,
+          reply_markup: options.reply_markup as any,
+          chat_id: chatRoomId,
+          message_id: container.updateMessageId as number,
+        });
+      } else {
+        await this.bot.sendMessage(chatRoomId, textContent, options);
+      }
 
-    return message as any;
+      return message as any;
+    } catch (err: any) {
+      Logger.log(`Error sending message: ${err.message}`);
+      return [];
+    }
   }
 
   private hasInlineKeyboard(

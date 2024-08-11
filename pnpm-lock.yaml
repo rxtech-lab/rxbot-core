@@ -36,6 +36,9 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
     devDependencies:
+      '@rx-lab/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@rx-lab/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -91,6 +94,9 @@ importers:
       '@rx-lab/router':
         specifier: workspace:*
         version: link:../router
+      '@rx-lab/storage':
+        specifier: workspace:*
+        version: link:../storage
       '@rx-lab/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
