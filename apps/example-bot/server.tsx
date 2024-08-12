@@ -2,7 +2,7 @@ import { TelegramAdapter, TGContainer } from "@rx-lab/telegram-adapter";
 import { App } from "./app";
 import { Renderer } from "@rx-lab/core";
 import dotenv from "dotenv";
-import { MemoryStorage } from "@rx-lab/storage/memory";
+import { FileStorage } from "@rx-lab/file-storage";
 
 dotenv.config();
 
@@ -36,7 +36,7 @@ const adapter = new TelegramAdapter({
   },
 });
 
-const client = new MemoryStorage({} as any);
+const client = new FileStorage();
 const render = new Renderer({
   adapter: adapter,
   storage: client,

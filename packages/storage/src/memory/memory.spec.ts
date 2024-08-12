@@ -22,14 +22,9 @@ describe("MemoryStorage", () => {
     const mockBuilder = {
       buildFromJson: jest.fn().mockImplementation((component) => component),
     };
-    memoryStorage = new MemoryStorage(mockBuilder as any);
+    memoryStorage = new MemoryStorage();
     mockComponent = new MockComponent();
     mockState = { key: "value" };
-  });
-
-  test("should store component tree in memory", async () => {
-    await memoryStorage.saveComponentTree(mockComponent, "testKey");
-    expect(await memoryStorage.restoreComponentTree("testKey")).toBeDefined();
   });
 
   test("should store state in memory", async () => {

@@ -35,7 +35,7 @@ describe("Reconciler(Suspendable)", () => {
     mockAdapter = new MockAdapter();
     renderer = new Renderer({
       adapter: mockAdapter,
-      storage: new MemoryStorage({} as any),
+      storage: new MemoryStorage(),
     });
   });
 
