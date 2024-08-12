@@ -1,18 +1,4 @@
-import { Builder, Component } from "@rx-lab/common";
-
 export interface StorageInterface {
-  /**
-   * Save the component tree to the storage.
-   * @param rootContainer - root component of the tree.
-   * @param key - key to save the component tree with.
-   */
-  saveComponentTree(rootContainer: Component, key: string): Promise<void>;
-
-  /**
-   * Get the component tree from the storage.
-   */
-  restoreComponentTree(key: string): Promise<Component | undefined>;
-
   /**
    * Save the state to the storage.
    * @param key
@@ -32,20 +18,9 @@ export interface StorageInterface {
 export abstract class Storage implements StorageInterface {
   listeners: Map<string, () => void> = new Map();
 
-  builder: Builder;
-
-  constructor(builder: Builder) {
-    this.builder = builder;
-  }
-
-  abstract restoreComponentTree(key: string): Promise<Component | undefined>;
+  constructor() {}
 
   abstract restoreState<T>(key: string): Promise<T | undefined>;
-
-  abstract saveComponentTree(
-    rootContainer: Component,
-    key: string,
-  ): Promise<void>;
 
   abstract saveState<T>(key: string, state: T): Promise<void>;
 
