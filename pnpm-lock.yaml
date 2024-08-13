@@ -233,9 +233,6 @@ importers:
       '@rx-lab/common':
         specifier: workspace:*
         version: link:../common
-      '@rx-lab/storage':
-        specifier: workspace:*
-        version: link:../storage
       '@rx-lab/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
