@@ -1,9 +1,9 @@
 import fs from "fs";
 import type {
   AdapterInterface,
+  ImportedRoute,
   MatchedRoute,
   Menu,
-  Route,
   RouteInfo,
   RouteMetadata,
   StorageInterface,
@@ -15,7 +15,7 @@ import { matchRoute, parseQuery } from "./router.utils";
  * Will also import the metadata if available.
  * @param info
  */
-export async function importRoute(info: RouteInfo): Promise<Route> {
+export async function importRoute(info: RouteInfo): Promise<ImportedRoute> {
   const component = await import(info.filePath);
   const metadata: RouteMetadata = component.metadata ?? {};
   return {
@@ -24,8 +24,8 @@ export async function importRoute(info: RouteInfo): Promise<Route> {
     subRoutes: await Promise.all(
       (info.subRoutes ?? []).map((subRoute) => importRoute(subRoute)),
     ),
-    component: component.default,
     metadata: metadata,
+    component: component.default,
     isAsync: info.isAsync,
   };
 }
@@ -36,7 +36,7 @@ export async function importRoute(info: RouteInfo): Promise<Route> {
  * @param path The path to match.
  */
 export async function matchRouteWithPath(
-  routes: Route[],
+  routes: RouteInfo[],
   path: string,
 ): Promise<MatchedRoute | null> {
   const [pathname, search] = path.split("?");
@@ -44,9 +44,10 @@ export async function matchRouteWithPath(
 
   for (const route of routes) {
     const match = matchRoute(route.route, pathname);
+    const importedRoute = await importRoute(route);
     if (match) {
       return {
-        ...route,
+        ...importedRoute,
         params: match,
         query,
       };
@@ -69,7 +70,7 @@ interface RouterOptions {
 }
 
 export class Router {
-  routes: Route[] = [];
+  routes: RouteInfo[] = [];
   adapter: AdapterInterface<any, any, any>;
 
   constructor({ adapter }: RouterOptions) {
@@ -78,22 +79,16 @@ export class Router {
 
   async init(fromFile: string) {
     // read the file and parse the routes
-    const routes = JSON.parse(
-      fs.readFileSync(fromFile, "utf-8"),
-    ) as RouteInfo[];
-
-    // import the routes
-    this.routes = await Promise.all(routes.map((route) => importRoute(route)));
+    this.routes = JSON.parse(fs.readFileSync(fromFile, "utf-8")) as RouteInfo[];
     await this.updateMenu();
   }
 
   async initFromRoutes(routes: RouteInfo[]) {
-    this.routes = await Promise.all(routes.map((route) => importRoute(route)));
-    console.log("Routes: ", this.routes);
+    this.routes = routes;
     await this.updateMenu();
   }
 
-  private generateMenu(routes: Route[]): Menu[] {
+  private generateMenu(routes: RouteInfo[]): Menu[] {
     return routes.map((route) => {
       return {
         href: route.route,

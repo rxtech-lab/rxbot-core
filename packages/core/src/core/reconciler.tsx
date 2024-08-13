@@ -18,6 +18,7 @@ import { type BaseComponent, Text } from "../components";
 import type { Suspendable } from "../components/Internal";
 import { ComponentBuilder } from "../components/builder/componentBuilder";
 import { createEmptyFiberRoot } from "./utils";
+import { WrappedElement } from "./wrappedElement";
 
 interface RendererOptions {
   adapter: AdapterInterface<any, any, any>;
@@ -236,12 +237,12 @@ export class Renderer<T extends Container<any, any>>
     // wrap the element with the router and storage providers so that
     // the components can access the router and storage
     const wrappedElement = (
-      <RouterProvider
+      <WrappedElement
+        element={this.element}
+        storage={this.storage}
         chatroomInfo={container.chatroomInfo}
         message={container.message}
-      >
-        <StorageProvider client={this.storage}>{this.element}</StorageProvider>
-      </RouterProvider>
+      />
     );
 
     await new Promise<void>((resolve) => {

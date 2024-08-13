@@ -63,14 +63,26 @@ const router = new Router({
       {
         route: "/",
         filePath: `${cwd}/app/page.tsx`,
+        metadata: {
+          title: "Home",
+          description: "This is the home page",
+        },
         subRoutes: [
           {
             route: "/home",
             filePath: `${cwd}/app/home/page.tsx`,
+            metadata: {
+              title: "Home",
+              description: "This is the home page",
+            },
           },
           {
             route: "/counter",
             filePath: `${cwd}/app/counter/page.tsx`,
+            metadata: {
+              title: "Counter",
+              description: "This is the counter page",
+            },
           },
         ],
       },

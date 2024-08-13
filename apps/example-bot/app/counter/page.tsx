@@ -9,7 +9,7 @@ export const metadata: RouteMetadata = {
   includeInMenu: true,
 };
 
-export default async function Page() {
+export default function Page() {
   const [state, setState] = useState("counter", 0);
   const { chatroomInfo } = useRouter();
 

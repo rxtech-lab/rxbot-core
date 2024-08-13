@@ -1,4 +1,4 @@
-import type { Route } from "@rx-lab/common";
+import { RouteInfo } from "@rx-lab/common";
 import { Router, importRoute, matchRouteWithPath } from "./router";
 
 const clientComponents = ["../tests/client/test-component1.tsx"];
@@ -11,6 +11,7 @@ describe("ImportRoute", () => {
       const route = await importRoute({
         route: "/",
         filePath: component,
+        metadata: {},
       });
       expect(route).toBeTruthy();
       expect(route.route).toBe("/");
@@ -21,32 +22,28 @@ describe("ImportRoute", () => {
 });
 
 describe("matchRouteWithPath", () => {
-  const routes: Route[] = [
+  const routes: RouteInfo[] = [
     {
       route: "/user/[id]",
-      filePath: "/app/user/[id].tsx",
+      filePath: clientComponents[0],
       metadata: {},
-      component: {} as any,
     },
     {
       route: "/blog/[slug]",
-      filePath: "/app/blog/[slug].tsx",
+      filePath: clientComponents[0],
       metadata: {},
-      component: {} as any,
       subRoutes: [
         {
           route: "/blog/[slug]/comments",
-          filePath: "/app/blog/[slug]/comments.tsx",
+          filePath: clientComponents[0],
           metadata: {},
-          component: {} as any,
         },
       ],
     },
     {
       route: "/about",
-      filePath: "/app/about.tsx",
+      filePath: clientComponents[0],
       metadata: {},
-      component: {} as any,
     },
   ];
 
@@ -111,10 +108,12 @@ describe("should be able to render", () => {
       {
         route: "/client",
         filePath: clientComponents[0],
+        metadata: {},
       },
       {
         route: "/server",
         filePath: serverComponents[0],
+        metadata: {},
       },
     ]);
 

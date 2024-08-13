@@ -34,23 +34,20 @@ export interface RouteInfo {
    * Whether the route is async or not.
    */
   isAsync?: boolean;
-}
-
-export interface Route extends Exclude<RouteInfo, "subRoutes"> {
   /**
    * The metadata of the route.
    */
   metadata: RouteMetadata;
+}
 
+export interface ImportedRoute extends RouteInfo {
   /**
    * Component
    */
   component: () => ClientComponent | ServerComponent;
-
-  subRoutes?: Route[];
 }
 
-export interface MatchedRoute extends Route {
+export interface MatchedRoute extends ImportedRoute {
   /**
    * The params of the route.
    * For example, if the route is `/user/[id]` and the path is `/user/1`, the params will be `{ id: "1" }`.

@@ -1,5 +1,8 @@
 {
   "include": ["src/**/*"],
   "exclude": ["**/*.spec.ts"],
-  "extends": "../typescript-config/react-library.json"
+  "extends": "../typescript-config/react-library.json",
+  "compilerOptions": {
+    "outDir": "dist"
+  }
 }
