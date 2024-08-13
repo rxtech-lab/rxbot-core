@@ -37,7 +37,7 @@ export interface RouteInfo {
   /**
    * The metadata of the route.
    */
-  metadata: RouteMetadata;
+  metadata?: RouteMetadata;
 }
 
 export interface ImportedRoute extends RouteInfo {

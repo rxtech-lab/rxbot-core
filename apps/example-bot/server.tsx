@@ -1,10 +1,10 @@
+import path from "path";
 import { Logger } from "@rx-lab/common";
-import { Renderer } from "@rx-lab/core";
+import { Compiler, Renderer } from "@rx-lab/core";
 import { FileStorage } from "@rx-lab/file-storage";
 import { Router } from "@rx-lab/router";
 import { type TGContainer, TelegramAdapter } from "@rx-lab/telegram-adapter";
 import dotenv from "dotenv";
-import Page from "./app/page";
 
 dotenv.config();
 
@@ -56,38 +56,18 @@ const router = new Router({
   storage: client,
 });
 
+const compiler = new Compiler({
+  rootDir: path.join(__dirname, "app"),
+  destinationDir: path.join(__dirname, ".rx-lab"),
+});
+
 (async () => {
   try {
-    const cwd = process.cwd();
-    await router.initFromRoutes([
-      {
-        route: "/",
-        filePath: `${cwd}/app/page.tsx`,
-        metadata: {
-          title: "Home",
-          description: "This is the home page",
-        },
-        subRoutes: [
-          {
-            route: "/home",
-            filePath: `${cwd}/app/home/page.tsx`,
-            metadata: {
-              title: "Home",
-              description: "This is the home page",
-            },
-          },
-          {
-            route: "/counter",
-            filePath: `${cwd}/app/counter/page.tsx`,
-            metadata: {
-              title: "Counter",
-              description: "This is the counter page",
-            },
-          },
-        ],
-      },
-    ]);
-    await render.setComponent(<Page />);
+    const routeInfo = await compiler.compile();
+    await router.initFromRoutes(routeInfo);
+
+    const rootComponent = await router.render("/");
+    await render.setComponent(rootComponent.component as any);
     await render.init();
     console.log("Bot is running");
   } catch (err: any) {
