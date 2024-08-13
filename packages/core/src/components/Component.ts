@@ -1,12 +1,12 @@
 import {
-  Container,
+  type Container,
   Component,
-  HostContext,
-  InstanceProps,
+  type HostContext,
+  type InstanceProps,
   InstanceType,
 } from "@rx-lab/common";
 import { v4 as uuid } from "uuid";
-import { isPropsEqual } from "../utils";
+import { isPropsEqual } from "../core/utils";
 
 export interface ComponentOptions<Props extends InstanceProps> {
   props: Props;

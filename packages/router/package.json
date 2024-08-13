@@ -4,10 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "src/global.d.ts"
-  ],
+  "files": ["dist", "src/global.d.tsx"],
   "scripts": {
     "test": "jest --passWithNoTests",
     "build": "tsc"
@@ -24,7 +21,9 @@
     "jest-environment-jsdom": "^29.7.0",
     "ts-jest": "^29.1.4",
     "typescript": "^5.5.3",
-    "@rx-lab/common": "workspace:*"
+    "@rx-lab/common": "workspace:*",
+    "@rx-lab/storage": "workspace:*",
+    "@rx-lab/typescript-config": "workspace:*"
   },
   "dependencies": {
     "@types/react": "^18.3.3",

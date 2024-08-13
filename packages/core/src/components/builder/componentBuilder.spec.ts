@@ -1,6 +1,6 @@
 import { ComponentBuilder } from "./componentBuilder";
 import { ContainerType, ReactInstanceType } from "@rx-lab/common";
-import { Button } from "../components";
+import { Button } from "../index";
 import {
   DuplicatedKeyPropsError,
   MissingRequiredKeyPropsError,

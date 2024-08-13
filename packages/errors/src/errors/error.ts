@@ -1,4 +1,4 @@
-import { ErrorCode } from "../errorCode";
+import type { ErrorCode } from "../errorCode";
 
 export class CustomError extends Error {
   code: ErrorCode;

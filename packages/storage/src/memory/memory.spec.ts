@@ -1,8 +1,8 @@
 import { MemoryStorage } from "./memory";
-import { Component, InstanceProps, InstanceType } from "@rx-lab/common";
+import { Component, type InstanceProps, InstanceType } from "@rx-lab/common";
 
 class MockComponent extends Component {
-  id: string = "mock";
+  id = "mock";
   props: InstanceProps = {};
   type: InstanceType = InstanceType.Container;
 

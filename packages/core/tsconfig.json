@@ -2,6 +2,6 @@
   "extends": "../typescript-config/base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "outDir": "dist",
+    "outDir": "dist"
   }
 }

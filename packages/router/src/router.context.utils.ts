@@ -1,5 +1,5 @@
 import { RouterProvider } from "./router.context";
 
-export function isRouterComponent(ComponentType: any) {
+export function isRouterContextComponent(ComponentType: any) {
   return ComponentType === RouterProvider && ComponentType.isRouterComponent;
 }

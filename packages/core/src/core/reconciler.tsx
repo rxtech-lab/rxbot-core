@@ -1,25 +1,27 @@
-import Reconciler from "react-reconciler";
-import ReactReconciler from "react-reconciler";
-import { createEmptyFiberRoot } from "./utils";
 import {
-  AdapterInterface,
-  Container,
-  InstanceProps,
+  type AdapterInterface,
+  type ClientComponent,
+  type Container,
+  type InstanceProps,
   InstanceType,
   Logger,
-  ReactInstanceType,
-  Renderer as RendererInterface,
+  type ReactInstanceType,
+  type Renderer as RendererInterface,
+  StorageInterface,
 } from "@rx-lab/common";
-import React from "react";
-import { BaseComponent, Text } from "./components";
-import { ComponentBuilder } from "./builder/componentBuilder";
-import { Suspendable } from "./components/Internal";
 import { RouterProvider } from "@rx-lab/router";
-import { Storage, StorageProvider } from "@rx-lab/storage";
+import { StorageProvider } from "@rx-lab/storage";
+import type React from "react";
+import Reconciler from "react-reconciler";
+import type ReactReconciler from "react-reconciler";
+import { type BaseComponent, Text } from "../components";
+import type { Suspendable } from "../components/Internal";
+import { ComponentBuilder } from "../components/builder/componentBuilder";
+import { createEmptyFiberRoot } from "./utils";
 
 interface RendererOptions {
-  adapter: AdapterInterface<any, any>;
-  storage: Storage;
+  adapter: AdapterInterface<any, any, any>;
+  storage: StorageInterface;
 }
 
 // recursively find the first suspendable instance
@@ -36,9 +38,6 @@ function getSuspendableInstance(
   }
 }
 
-const MAXIMUM_SUSPENSE_RETRIES = 10;
-const DEFAULT_WAIT_TIME = 1000; // 1 second
-
 export class Renderer<T extends Container<any, any>>
   implements RendererInterface<T>
 {
@@ -49,12 +48,14 @@ export class Renderer<T extends Container<any, any>>
     any,
     any
   >;
-  adapter: AdapterInterface<any, any>;
-  storage: Storage;
+  adapter: AdapterInterface<any, any, any>;
+  storage: StorageInterface;
   private element: React.ReactElement | undefined;
 
-  listeners: Map<AdapterInterface<any, any>, (container: T) => Promise<void>> =
-    new Map();
+  listeners: Map<
+    AdapterInterface<any, any, any>,
+    (container: T) => Promise<void>
+  > = new Map();
 
   constructor({ adapter, storage }: RendererOptions) {
     const builder = new ComponentBuilder();
@@ -180,15 +181,25 @@ export class Renderer<T extends Container<any, any>>
     this.reconciler = Reconciler(hostConfig);
   }
 
-  async init(element: React.ReactElement) {
-    this.element = element;
-
+  /**
+   * Initialize the renderer.
+   */
+  async init() {
+    // initialize the adapter
     await this.adapter.init({
       renderApp: (container, callback) => {
         this.listeners.set(this.adapter, callback);
         return this.render(container);
       },
     });
+  }
+
+  /**
+   * Set the component to render.
+   * @param component Must be a valid client component.
+   */
+  async setComponent(component: ClientComponent) {
+    this.element = component;
   }
 
   /**

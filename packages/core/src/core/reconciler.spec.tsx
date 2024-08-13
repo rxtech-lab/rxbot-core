@@ -1,9 +1,9 @@
+import type { AdapterInterface, Container } from "@rx-lab/common";
 import React from "react";
 import { Renderer } from "./reconciler";
-import { AdapterInterface, Container } from "@rx-lab/common";
-import "@rx-lab/router/src/global.d.ts";
-import { MemoryStorage } from "@rx-lab/storage/memory";
+import "packages/router/src/global.d.tsx";
 import * as process from "node:process";
+import { MemoryStorage } from "@rx-lab/storage/memory";
 
 // Mock adapter
 class MockAdapter implements AdapterInterface<Container<any, any>, any> {

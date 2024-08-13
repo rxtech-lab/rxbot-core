@@ -40,3 +40,6 @@ yarn-error.log*
 .vscode
 packit.ts
 packit.yaml
+*.d.ts
+*.js
+*.map
