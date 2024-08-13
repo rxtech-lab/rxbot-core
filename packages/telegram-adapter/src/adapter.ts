@@ -217,6 +217,10 @@ export class TelegramAdapter
     return (element as any).text ?? "";
   }
 
+  //TODO: Add a way for adapter to parse the menu.
+  // Sometimes, in telegram, nested menu is not supported
+  // we need to replace any slash after the first slash with a underscore,
+  // otherwise, 400 error will be thrown
   async setMenus(menus: Menu[]): Promise<void> {
     const commands: TelegramBot.BotCommand[] = menus
       .flatMap((menu) => {

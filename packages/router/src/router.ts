@@ -89,14 +89,17 @@ export class Router {
   }
 
   private generateMenu(routes: RouteInfo[]): Menu[] {
-    return routes.map((route) => {
-      return {
-        href: route.route,
-        name: route.metadata.title ?? "",
-        description: route.metadata.description,
-        children: this.generateMenu(route.subRoutes ?? []),
-      };
-    });
+    return routes
+      .filter((r) => r.metadata)
+      .filter((r) => r.metadata.includeInMenu ?? true)
+      .map((route) => {
+        return {
+          href: route.route,
+          name: route.metadata.title ?? "",
+          description: route.metadata.description,
+          children: this.generateMenu(route.subRoutes ?? []),
+        };
+      });
   }
 
   private async updateMenu() {
