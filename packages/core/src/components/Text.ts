@@ -1,9 +1,9 @@
 import { BaseComponent } from "./Component";
 import {
-  HostContext,
+  type HostContext,
   InstanceType,
-  Container,
-  InternalHandle,
+  type Container,
+  type InternalHandle,
 } from "@rx-lab/common";
 
 export interface TextProps {

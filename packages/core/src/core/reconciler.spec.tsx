@@ -1,12 +1,12 @@
+import type { AdapterInterface, Container, Menu } from "@rx-lab/common";
 import React from "react";
 import { Renderer } from "./reconciler";
-import { AdapterInterface, Container } from "@rx-lab/common";
-import "@rx-lab/router/src/global.d.ts";
-import { MemoryStorage } from "@rx-lab/storage/memory";
+import "@rx-lab/router/src/global.d";
 import * as process from "node:process";
+import { MemoryStorage } from "@rx-lab/storage/memory";
 
 // Mock adapter
-class MockAdapter implements AdapterInterface<Container<any, any>, any> {
+class MockAdapter implements AdapterInterface<Container<any, any>, any, any> {
   messages: string[] = [];
 
   async init(): Promise<void> {}
@@ -18,6 +18,14 @@ class MockAdapter implements AdapterInterface<Container<any, any>, any> {
       this.messages.push("Container has children");
     }
     return container.children;
+  }
+
+  getCurrentRoute(message: any): Promise<string | undefined> {
+    return Promise.resolve(undefined);
+  }
+
+  setMenus(menus: Menu[]): Promise<void> {
+    return Promise.resolve(undefined);
   }
 }
 
@@ -46,7 +54,8 @@ describe("Reconciler(Suspendable)", () => {
       </suspendable>
     );
 
-    await renderer.init(<App />);
+    await renderer.setComponent(App as any);
+    await renderer.init();
     await renderer.render({
       chatroomInfo: undefined,
       message: undefined,
@@ -64,7 +73,8 @@ describe("Reconciler(Suspendable)", () => {
       </suspendable>
     );
 
-    await renderer.init(<App />);
+    await renderer.setComponent(App as any);
+    await renderer.init();
     await renderer.render({
       type: "ROOT",
       children: [],

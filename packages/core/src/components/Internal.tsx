@@ -1,4 +1,4 @@
-import { BaseComponent, ComponentOptions } from "./Component";
+import { BaseComponent, type ComponentOptions } from "./Component";
 import { InstanceType } from "@rx-lab/common";
 
 interface SuspendableProps {

@@ -1,7 +1,8 @@
-import React from "react";
-import { Container } from "./container.interface";
+import type { Container } from "./container.interface";
+import type { ClientComponent } from "./router.interface";
 
 export interface Renderer<T extends Container<any, any>> {
-  init: (element: React.ReactElement) => Promise<void>;
+  setComponent: (element: ClientComponent) => void;
+  init: () => Promise<void>;
   render: (container: T) => any;
 }

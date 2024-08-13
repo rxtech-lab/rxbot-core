@@ -1,12 +1,15 @@
-import React from "react";
-import { useState } from "@rx-lab/storage";
+import { RouteMetadata } from "@rx-lab/common";
 import { useRouter } from "@rx-lab/router";
+import { useState } from "@rx-lab/storage";
+import React from "react";
 
-export function App() {
-  return <Home />;
-}
+export const metadata: RouteMetadata = {
+  title: "Counter",
+  description: "This is a counter",
+  includeInMenu: true,
+};
 
-function Home() {
+export default function Page() {
   const [state, setState] = useState("counter", 0);
   const { chatroomInfo } = useRouter();
 

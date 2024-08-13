@@ -6,3 +6,5 @@ export * from "./adapter.interface";
 export * from "./component.interface";
 export * from "./builder.interface";
 export * from "./logger";
+export * from "./router.interface";
+export * from "./storage.interface";

@@ -1,25 +1,25 @@
 import {
-  Builder,
-  Component,
-  ComponentInterface,
-  Container,
-  HostContext,
-  InstanceProps,
+  type Builder,
+  type Component,
+  type ComponentInterface,
+  type Container,
+  type HostContext,
+  type InstanceProps,
   InstanceType,
   ReactInstanceType,
 } from "@rx-lab/common";
-import { BaseComponent, Button, ComponentOptions } from "../components";
+import { type BaseComponent, Button, type ComponentOptions } from "../index";
 import {
   DuplicatedKeyPropsError,
   MissingRequiredKeyPropsError,
   UnsupportedComponentError,
   UnsupportedReactComponentError,
 } from "@rx-lab/errors";
-import { Menu } from "../components/Menu";
-import { Container as ContainerComponent } from "../components/Container";
-import { Header } from "../components/Header";
-import { LineBreak } from "../components/LineBreak";
-import { Suspendable } from "../components/Internal";
+import { Menu } from "../Menu";
+import { Container as ContainerComponent } from "../Container";
+import { Header } from "../Header";
+import { LineBreak } from "../LineBreak";
+import { Suspendable } from "../Internal";
 
 type InstanceTypeKeys = keyof typeof InstanceType;
 

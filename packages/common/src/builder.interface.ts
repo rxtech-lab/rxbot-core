@@ -1,7 +1,7 @@
-import { ReactInstanceType } from "./react";
-import { HostContext, InstanceProps } from "./hostconfig.interface";
-import { Container } from "./container.interface";
-import { Component, ComponentInterface } from "./component.interface";
+import type { ReactInstanceType } from "./react";
+import type { HostContext, InstanceProps } from "./hostconfig.interface";
+import type { Container } from "./container.interface";
+import type { Component, ComponentInterface } from "./component.interface";
 
 /**
  * Builder is a class that is responsible for building the instance of the host element.

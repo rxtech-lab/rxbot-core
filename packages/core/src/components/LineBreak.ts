@@ -1,4 +1,4 @@
-import { Text, TextProps } from "./Text";
+import { Text, type TextProps } from "./Text";
 import { InstanceType } from "@rx-lab/common";
 
 interface LineBreakProps extends Omit<TextProps, "text"> {}

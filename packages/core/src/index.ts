@@ -1,2 +1,2 @@
-export { Renderer } from "./reconciler";
+export { Renderer } from "./core/reconciler";
 export * from "./components";

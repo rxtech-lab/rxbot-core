@@ -1,14 +1,15 @@
 import {
-  AdapterInterface,
-  Container,
-  InstanceType,
-  Component,
+  type AdapterInterface,
+  type BaseChatroomInfo,
+  type Container,
   Logger,
-  BaseChatroomInfo,
-  ReconcilerApi,
+  type Menu,
+  type ReconcilerApi,
 } from "@rx-lab/common";
 import TelegramBot, { Update } from "node-telegram-bot-api";
 import { CallbackParser } from "./callbackParser";
+import { renderElement } from "./renderer";
+import { DEFAULT_ROOT_PATH, RenderedElement } from "./types";
 
 export type TelegramAppOpts =
   | {
@@ -21,16 +22,6 @@ export type TelegramAppOpts =
       onMessage(message: TelegramBot.Message): Promise<void>;
     };
 
-type RenderedElement =
-  | {
-      text: string;
-      callback_data: string;
-    }
-  | {
-      inline_keyboard: RenderedElement[][] | RenderedElement[];
-    }
-  | string;
-
 export interface TGChatroomInfo extends BaseChatroomInfo {}
 
 export interface TGMessage extends TelegramBot.Update {}
@@ -42,51 +33,13 @@ interface InternalTGContainer extends TGContainer {
   updateMessageId?: number;
 }
 
-export const renderElement = (
-  element: Component,
-  parser: CallbackParser,
-): RenderedElement | RenderedElement[] => {
-  if (!element) {
-    return [""];
-  }
-  if (
-    element.type === InstanceType.Text ||
-    element.type === InstanceType.LineBreak
-  ) {
-    return element.props.nodeValue ?? ("" as any);
-  }
-
-  let children: RenderedElement[] = [];
-  if (element.children) {
-    children = element.children.map((e) => renderElement(e, parser)).flat();
-  }
-  switch (element.type) {
-    case InstanceType.Container:
-      return children;
-    case InstanceType.Header:
-      return [`<b>${children}\n</b>`];
-    case InstanceType.Paragraph:
-      return children;
-    case InstanceType.Button:
-      return {
-        text: element.props.children,
-        callback_data: parser.encode(element),
-      };
-
-    case InstanceType.Menu:
-      const elements = element.children.map((child) =>
-        renderElement(child, parser),
-      );
-      return {
-        inline_keyboard: elements,
-      } as RenderedElement;
-    default:
-      return children;
-  }
-};
-
 export class TelegramAdapter
-  implements AdapterInterface<TGContainer, RenderedElement[] | RenderedElement>
+  implements
+    AdapterInterface<
+      TGContainer,
+      RenderedElement[] | RenderedElement,
+      TelegramBot.Message
+    >
 {
   bot: TelegramBot;
   private readonly callbackParser = new CallbackParser();
@@ -262,5 +215,51 @@ export class TelegramAdapter
       return element;
     }
     return (element as any).text ?? "";
+  }
+
+  async setMenus(menus: Menu[]): Promise<void> {
+    const commands: TelegramBot.BotCommand[] = menus
+      .flatMap((menu) => {
+        const subCommands = this.getSubCommands(menu);
+        return [
+          {
+            command: menu.href,
+            description: menu.description ?? "",
+          },
+          ...subCommands,
+        ];
+      })
+      .filter((m) => m.command !== DEFAULT_ROOT_PATH);
+
+    await this.bot.setMyCommands(commands);
+  }
+
+  private getSubCommands(menu: Menu): TelegramBot.BotCommand[] {
+    return (
+      menu.children?.flatMap((child) => {
+        const subCommands = this.getSubCommands(child);
+        return [
+          {
+            command: child.href,
+            description: child.description ?? "",
+          },
+          ...subCommands,
+        ];
+      }) ?? []
+    );
+  }
+
+  async getCurrentRoute(
+    message: TelegramBot.Message,
+  ): Promise<string | undefined> {
+    if (!message.entities) {
+      return;
+    }
+
+    for (const entity of message.entities) {
+      if (entity.type === "bot_command") {
+        return message.text?.slice(entity.offset, entity.length);
+      }
+    }
   }
 }

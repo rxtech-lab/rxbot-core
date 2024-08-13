@@ -40,3 +40,7 @@ yarn-error.log*
 .vscode
 packit.ts
 packit.yaml
+*.d.ts
+*.js
+*.map
+!packages/router/src/global.d.ts

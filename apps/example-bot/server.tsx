@@ -1,8 +1,10 @@
-import { TelegramAdapter, TGContainer } from "@rx-lab/telegram-adapter";
-import { App } from "./app";
+import { Logger } from "@rx-lab/common";
 import { Renderer } from "@rx-lab/core";
-import dotenv from "dotenv";
 import { FileStorage } from "@rx-lab/file-storage";
+import { Router } from "@rx-lab/router";
+import { type TGContainer, TelegramAdapter } from "@rx-lab/telegram-adapter";
+import dotenv from "dotenv";
+import Page from "./app/page";
 
 dotenv.config();
 
@@ -13,6 +15,7 @@ if (!apiKey) {
   );
 }
 console.log("Starting bot with key: ", apiKey);
+
 const adapter = new TelegramAdapter({
   token: apiKey,
   longPolling: true,
@@ -29,7 +32,14 @@ const adapter = new TelegramAdapter({
     };
 
     try {
+      const route = await adapter.getCurrentRoute(message);
+      if (route) {
+        const result = await router.render(route);
+        await render.setComponent(result.component as any);
+      }
+      // render default component
       await render.render(container);
+      console.log("Rendered default component");
     } catch (err) {
       console.error(err);
     }
@@ -41,12 +51,47 @@ const render = new Renderer({
   adapter: adapter,
   storage: client,
 });
+const router = new Router({
+  adapter: adapter,
+  storage: client,
+});
 
 (async () => {
   try {
-    await render.init(<App />);
+    const cwd = process.cwd();
+    await router.initFromRoutes([
+      {
+        route: "/",
+        filePath: `${cwd}/app/page.tsx`,
+        metadata: {
+          title: "Home",
+          description: "This is the home page",
+        },
+        subRoutes: [
+          {
+            route: "/home",
+            filePath: `${cwd}/app/home/page.tsx`,
+            metadata: {
+              title: "Home",
+              description: "This is the home page",
+            },
+          },
+          {
+            route: "/counter",
+            filePath: `${cwd}/app/counter/page.tsx`,
+            metadata: {
+              title: "Counter",
+              description: "This is the counter page",
+            },
+          },
+        ],
+      },
+    ]);
+    await render.setComponent(<Page />);
+    await render.init();
     console.log("Bot is running");
-  } catch (err) {
+  } catch (err: any) {
+    Logger.log(err.toString(), "red");
     process.exit(1);
   }
 })();

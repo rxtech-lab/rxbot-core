@@ -1,5 +1,5 @@
+import { StorageInterface } from "@rx-lab/common";
 import React from "react";
-import { StorageInterface } from "./storage.interface";
 
 export interface StorageContextInterface {
   /**
@@ -21,7 +21,6 @@ export function StorageProvider({ children, client }: Props) {
   const value: StorageContextInterface = {
     client,
   };
-
   return (
     <StorageContext.Provider value={value}>{children}</StorageContext.Provider>
   );
