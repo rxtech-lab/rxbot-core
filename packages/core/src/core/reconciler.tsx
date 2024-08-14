@@ -9,13 +9,11 @@ import {
   type Renderer as RendererInterface,
   StorageInterface,
 } from "@rx-lab/common";
-import { RouterProvider } from "@rx-lab/router";
-import { StorageProvider } from "@rx-lab/storage";
 import type React from "react";
 import Reconciler from "react-reconciler";
 import type ReactReconciler from "react-reconciler";
 import { type BaseComponent, Text } from "../components";
-import type { Suspendable } from "../components/Internal";
+import type { Suspendable } from "../components";
 import { ComponentBuilder } from "../components/builder/componentBuilder";
 import { createEmptyFiberRoot } from "./utils";
 import { WrappedElement } from "./wrappedElement";

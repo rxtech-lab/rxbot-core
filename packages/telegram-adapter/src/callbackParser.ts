@@ -17,20 +17,36 @@ export class CallbackParser {
     return JSON.stringify(data);
   }
 
-  decode(encodedData: string, components: Component[]): Component | undefined {
+  /**
+   * Decode the encoded data to the component.
+   * Sometimes, the encoded data is not a json, a link or a string, so we need to return it.
+   * @param encodedData
+   * @param components
+   */
+  decode(
+    encodedData: string,
+    components: Component[],
+  ): Component | string | undefined {
     if (components.length === 0) {
       throw new Error("No components found");
     }
-    const data = JSON.parse(encodedData) as EncodeData;
-    const component = this.findComponentByKey(
-      data.id,
-      components[0],
-      components,
-    );
-    if (!component) {
-      return undefined;
+    try {
+      const data = JSON.parse(encodedData) as EncodeData;
+      const component = this.findComponentByKey(
+        data.id,
+        components[0],
+        components,
+      );
+      if (!component) {
+        return undefined;
+      }
+      return component;
+    } catch (e: any) {
+      // catch SyntaxError: Unexpected token '/', "/home" is not valid JSON
+      if ("is not valid JSON" in e) {
+        return encodedData;
+      }
     }
-    return component;
   }
 
   private findComponentByKey(

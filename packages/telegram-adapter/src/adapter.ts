@@ -102,6 +102,12 @@ export class TelegramAdapter
             data,
             container.children as any,
           );
+          // handle command button
+          if (typeof component === "string") {
+            //TODO: add router function to push the route
+            // const route = this.parseRoute(component);
+            return;
+          }
           component?.props.onClick?.();
           container.hasUpdated = true;
           Logger.log("Callback query", "blue");
