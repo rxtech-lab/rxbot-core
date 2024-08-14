@@ -1,6 +1,6 @@
 import { RouterProvider } from "@rx-lab/router";
 import { StorageProvider } from "@rx-lab/storage";
-import type React from "react";
+import React from "react";
 
 interface Props {
   element: any;

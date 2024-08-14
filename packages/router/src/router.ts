@@ -108,7 +108,8 @@ export class Router {
   }
 
   async render(path: string) {
-    const matchedRoute = await matchRouteWithPath(this.routes, path);
+    const parsedRoute = this.adapter.parseRoute(path);
+    const matchedRoute = await matchRouteWithPath(this.routes, parsedRoute);
     if (!matchedRoute) {
       throw new Error("Route not found");
     }

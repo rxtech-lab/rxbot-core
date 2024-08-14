@@ -27,6 +27,10 @@ class MockAdapter implements AdapterInterface<Container<any, any>, any, any> {
   setMenus(menus: Menu[]): Promise<void> {
     return Promise.resolve(undefined);
   }
+
+  parseRoute(route: string): string {
+    return "";
+  }
 }
 
 process.env.NODE_ENV = "development";
