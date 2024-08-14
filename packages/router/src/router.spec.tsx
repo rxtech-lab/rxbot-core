@@ -94,7 +94,9 @@ describe("should be able to render", () => {
     parseRoute: jest.fn().mockReturnValue("/client"),
   };
 
-  const mockStorage = {};
+  const mockStorage = {
+    restoreRoute: jest.fn(),
+  };
 
   afterEach(() => {
     jest.clearAllMocks();

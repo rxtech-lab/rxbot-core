@@ -12,5 +12,11 @@ export interface StorageInterface {
    */
   restoreState<T>(key: string): Promise<T | undefined>;
 
-  subscribe(key: string, callback: () => void): () => void;
+  subscribeStateChange(key: string, callback: () => void): () => void;
+
+  subscribeRouteChange(key: string, callback: () => void): () => void;
+
+  saveRoute(key: string, path: string): Promise<void>;
+
+  restoreRoute(key: string): Promise<string | undefined>;
 }

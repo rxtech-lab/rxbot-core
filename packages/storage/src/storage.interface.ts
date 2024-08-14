@@ -1,7 +1,11 @@
 import type { StorageInterface } from "@rx-lab/common";
 
+export const STATE_KEY = "state";
+export const ROUTE_KEY = "route";
+
 export abstract class Storage implements StorageInterface {
-  listeners: Map<string, () => void> = new Map();
+  stateChangeListeners: Map<string, () => void> = new Map();
+  routeChangeListeners: Map<string, () => void> = new Map();
 
   constructor() {}
 
@@ -9,10 +13,21 @@ export abstract class Storage implements StorageInterface {
 
   abstract saveState<T>(key: string, state: T): Promise<void>;
 
-  subscribe(key: string, callback: () => void): () => void {
-    this.listeners.set(key, callback);
+  subscribeStateChange(key: string, callback: () => void): () => void {
+    this.stateChangeListeners.set(`${STATE_KEY}-${key}`, callback);
     return () => {
-      this.listeners.delete(key);
+      this.stateChangeListeners.delete(`${STATE_KEY}-${key}`);
     };
   }
+
+  subscribeRouteChange(key: string, callback: () => void): () => void {
+    this.stateChangeListeners.set(`${ROUTE_KEY}-${key}`, callback);
+    return () => {
+      this.stateChangeListeners.delete(`${ROUTE_KEY}-${key}`);
+    };
+  }
+
+  abstract restoreRoute(key: string): Promise<string | undefined>;
+
+  abstract saveRoute(key: string, path: string): Promise<void>;
 }

@@ -72,9 +72,11 @@ interface RouterOptions {
 export class Router {
   routes: RouteInfo[] = [];
   adapter: AdapterInterface<any, any, any>;
+  storage: StorageInterface;
 
-  constructor({ adapter }: RouterOptions) {
+  constructor({ adapter, storage }: RouterOptions) {
     this.adapter = adapter;
+    this.storage = storage;
   }
 
   async init(fromFile: string) {
@@ -107,8 +109,13 @@ export class Router {
     await this.adapter.setMenus(menu);
   }
 
-  async render(path: string) {
-    const parsedRoute = this.adapter.parseRoute(path);
+  async navigateTo(key: string, path: string) {
+    await this.storage.saveRoute(key, path);
+  }
+
+  async render(key: string) {
+    const currentRoute = (await this.storage.restoreRoute(key)) ?? "/";
+    const parsedRoute = this.adapter.parseRoute(currentRoute);
     const matchedRoute = await matchRouteWithPath(this.routes, parsedRoute);
     if (!matchedRoute) {
       throw new Error("Route not found");

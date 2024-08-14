@@ -1,10 +1,10 @@
-import { Storage } from "@rx-lab/storage";
+import { ROUTE_KEY, STATE_KEY, Storage } from "@rx-lab/storage";
 
-import fs from "fs";
+import * as fs from "node:fs";
 
 type StoredState = { [key: string]: any };
 
-const stateFile = "state.json";
+const OUTPUT_FILE_NAME = "state.json";
 
 export class FileStorage extends Storage {
   private checkIfFileExists(filename: string): Promise<boolean> {
@@ -38,10 +38,10 @@ export class FileStorage extends Storage {
   }
 
   private async readState(): Promise<StoredState> {
-    await this.createFileIfNotExists(stateFile, {});
+    await this.createFileIfNotExists(OUTPUT_FILE_NAME, {});
 
     return new Promise((resolve, reject) => {
-      fs.readFile(stateFile, (err, data) => {
+      fs.readFile(OUTPUT_FILE_NAME, (err, data) => {
         if (err) {
           reject(err);
         } else {
@@ -65,14 +65,27 @@ export class FileStorage extends Storage {
 
   async restoreState<T>(key: string): Promise<T | undefined> {
     const state = await this.readState();
-    return state[key];
+    return state[`${STATE_KEY}-${key}`];
   }
 
   async saveState<T>(key: string, state: T): Promise<void> {
     const storedState = await this.readState();
-    storedState[key] = state;
+    storedState[`${STATE_KEY}-${key}`] = state;
     await this.writeState(storedState);
-    const listener = this.listeners.get(key);
+    const listener = this.stateChangeListeners.get(key);
+    listener?.();
+  }
+
+  async restoreRoute(key: string): Promise<string | undefined> {
+    const state = await this.readState();
+    return state[`${ROUTE_KEY}-${key}`];
+  }
+
+  async saveRoute(key: string, path: string): Promise<void> {
+    const storedState = await this.readState();
+    storedState[`${ROUTE_KEY}-${key}`] = path;
+    await this.writeState(storedState);
+    const listener = this.routeChangeListeners.get(key);
     listener?.();
   }
 }
