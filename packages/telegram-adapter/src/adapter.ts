@@ -2,12 +2,12 @@ import {
   type AdapterInterface,
   type BaseChatroomInfo,
   type Container,
+  type CoreApi,
   Logger,
   type Menu,
-  type ReconcilerApi,
 } from "@rx-lab/common";
 import TelegramBot from "node-telegram-bot-api";
-import { CallbackParser } from "./callbackParser";
+import { CallbackParser, CallbackType } from "./callbackParser";
 import { renderElement } from "./renderer";
 import { DEFAULT_ROOT_PATH, RenderedElement } from "./types";
 import { convertRouteToTGRoute, convertTGRouteToRoute } from "./utils";
@@ -54,7 +54,7 @@ export class TelegramAdapter
 
   // TODO: Only works when user send a message to the bot
   //  Need to handle the case that when user click on the button, message is updated
-  async init(api: ReconcilerApi<TGContainer>): Promise<void> {
+  async init(api: CoreApi<TGContainer>): Promise<void> {
     if ("callbackUrl" in this.opts) {
       if (this.opts.callbackUrl === undefined) {
         throw new Error("callbackUrl is required for webhook mode");
@@ -98,14 +98,33 @@ export class TelegramAdapter
             return;
           }
 
-          const component = this.callbackParser.decode(
+          const [callbackType, component] = this.callbackParser.decode(
             data,
             container.children as any,
           );
           // handle command button
-          if (typeof component === "string") {
-            //TODO: add router function to push the route
-            // const route = this.parseRoute(component);
+          // if the component is a string, it means that it is a route,
+          // so we need to redirect to the route
+          if (callbackType === CallbackType.onCommand) {
+            const route = this.parseRoute(component.route);
+            Logger.log(`Redirecting to ${route}`, "blue");
+            container.hasUpdated = true;
+            // if component is set to render new message
+            // we need to reset the updateMessageId
+            if (component.renderNewMessage) {
+              container.updateMessageId = undefined;
+            }
+
+            try {
+              await api.redirectTo(container, route, {
+                shouldRender: true,
+              });
+            } catch (err: any) {
+              Logger.log(
+                `Error redirecting to ${route}: ${err.message}`,
+                "red",
+              );
+            }
             return;
           }
           component?.props.onClick?.();
@@ -272,5 +291,9 @@ export class TelegramAdapter
 
   parseRoute(route: string): string {
     return convertTGRouteToRoute(route);
+  }
+
+  getRouteKey(message: TGContainer): string {
+    return `${message.chatroomInfo.id}`;
   }
 }

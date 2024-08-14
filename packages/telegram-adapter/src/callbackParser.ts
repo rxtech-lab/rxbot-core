@@ -1,15 +1,30 @@
 import type { Component } from "@rx-lab/common";
+import { CommandButtonCallback } from "./types";
 
 interface EncodeData {
   id: string;
   type: string;
 }
 
+export enum CallbackType {
+  onClick = "onClick",
+  onCommand = "onCommand",
+}
+
+export type DecodeType =
+  | [undefined, undefined]
+  | [CallbackType.onCommand, CommandButtonCallback]
+  | [CallbackType.onClick, Component];
+
 /**
  * CallbackParser is responsible for parsing and encoding the callback data for the telegram bot.
  */
 export class CallbackParser {
-  encode(element: Component): string {
+  encode(element: Component | CommandButtonCallback): string {
+    if ("route" in element) {
+      return JSON.stringify(element);
+    }
+
     const data: EncodeData = {
       id: element.id,
       type: "onClick",
@@ -23,30 +38,25 @@ export class CallbackParser {
    * @param encodedData
    * @param components
    */
-  decode(
-    encodedData: string,
-    components: Component[],
-  ): Component | string | undefined {
+  decode(encodedData: string, components: Component[]): DecodeType {
     if (components.length === 0) {
       throw new Error("No components found");
     }
-    try {
-      const data = JSON.parse(encodedData) as EncodeData;
-      const component = this.findComponentByKey(
-        data.id,
-        components[0],
-        components,
-      );
-      if (!component) {
-        return undefined;
-      }
-      return component;
-    } catch (e: any) {
-      // catch SyntaxError: Unexpected token '/', "/home" is not valid JSON
-      if ("is not valid JSON" in e) {
-        return encodedData;
-      }
+
+    const data = JSON.parse(encodedData);
+    if ("route" in data) {
+      return [CallbackType.onCommand, data];
     }
+
+    const component = this.findComponentByKey(
+      data.id,
+      components[0],
+      components,
+    );
+    if (!component) {
+      return [undefined, undefined];
+    }
+    return [CallbackType.onClick, component];
   }
 
   private findComponentByKey(

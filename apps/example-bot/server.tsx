@@ -1,6 +1,6 @@
 import path from "path";
 import { Logger } from "@rx-lab/common";
-import { Compiler, Renderer } from "@rx-lab/core";
+import { Compiler, Core } from "@rx-lab/core";
 import { FileStorage } from "@rx-lab/file-storage";
 import { Router } from "@rx-lab/router";
 import { type TGContainer, TelegramAdapter } from "@rx-lab/telegram-adapter";
@@ -30,16 +30,15 @@ const adapter = new TelegramAdapter({
       },
       message: message as any,
     };
-    const key = `${chatroomId}`;
+    const routeKey = adapter.getRouteKey(container);
     try {
       const routeFromMessage = await adapter.getCurrentRoute(message);
       if (routeFromMessage) {
-        await router.navigateTo(key, routeFromMessage);
+        await router.navigateTo(routeKey, routeFromMessage);
       }
-      const result = await router.render(key);
-      await render.setComponent(result.component as any);
+      await core.renderFromStoredRoute(routeKey);
       // render default component
-      await render.render(container);
+      await core.render(container);
       console.log("Rendered default component");
     } catch (err) {
       console.error(err);
@@ -48,13 +47,14 @@ const adapter = new TelegramAdapter({
 });
 
 const client = new FileStorage();
-const render = new Renderer({
-  adapter: adapter,
-  storage: client,
-});
 const router = new Router({
   adapter: adapter,
   storage: client,
+});
+const core = new Core({
+  adapter: adapter,
+  storage: client,
+  router: router,
 });
 
 const compiler = new Compiler({
@@ -67,9 +67,8 @@ const compiler = new Compiler({
     const routeInfo = await compiler.compile();
     await router.initFromRoutes(routeInfo);
 
-    const rootComponent = await router.render("/");
-    await render.setComponent(rootComponent.component as any);
-    await render.init();
+    await core.renderFromStoredRoute("/");
+    await core.init();
     console.log("Bot is running");
   } catch (err: any) {
     // log error trace

@@ -9,3 +9,8 @@ export type RenderedElement =
   | string;
 
 export const DEFAULT_ROOT_PATH = "/";
+
+export type CommandButtonCallback = {
+  route: string;
+  renderNewMessage?: boolean;
+};

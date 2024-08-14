@@ -1,7 +1,7 @@
 import { type Component, InstanceType } from "@rx-lab/common";
 import { CommandComponent } from "@rx-lab/core";
 import type { CallbackParser } from "./callbackParser";
-import type { RenderedElement } from "./types";
+import type { CommandButtonCallback, RenderedElement } from "./types";
 import { convertRouteToTGRoute } from "./utils";
 
 export const renderElement = (
@@ -27,9 +27,13 @@ export const renderElement = (
       const commandElement = element as CommandComponent;
 
       if (commandElement.props.variant === "button") {
+        const callbackData: CommandButtonCallback = {
+          route: convertRouteToTGRoute(commandElement.props.command),
+          renderNewMessage: commandElement.props.renderNewMessage,
+        };
         return {
           text: commandElement.props.children,
-          callback_data: convertRouteToTGRoute(commandElement.props.command),
+          callback_data: parser.encode(callbackData),
         };
       }
       return [convertRouteToTGRoute(commandElement.props.command)];
