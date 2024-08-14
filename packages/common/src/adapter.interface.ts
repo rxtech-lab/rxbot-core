@@ -1,4 +1,8 @@
-export interface ReconcilerApi<Container> {
+interface RedirectOptions {
+  shouldRender: boolean;
+}
+
+export interface CoreApi<Container> {
   /**
    * Renders the application and handles state updates.
    * This method should be called when a state change occurs that requires re-rendering.
@@ -20,6 +24,27 @@ export interface ReconcilerApi<Container> {
     container: Container,
     callback: (container: Container) => Promise<void>,
   ) => Promise<Container>;
+
+  /**
+   * Redirects the user to the specified path.
+   * This will first store the current path and re-render the application at the new path if re-rendering is set to true.
+   *
+   * @param container The container object representing the current state of the UI.
+   * @param path The path to redirect to.
+   * @param options Options for the redirect operation.
+   *
+   * @example
+   * await reconcilerApi.redirectTo("somekey","/home", { shouldRender: true }); // Redirects to the home page and re-renders the application
+   *
+   * @example
+   * await reconcilerApi.redirectTo("somekey","/settings", { shouldRender: false }); // Redirects to the settings page without re-rendering
+   *
+   */
+  redirectTo: (
+    container: Container,
+    path: string,
+    options: RedirectOptions,
+  ) => Promise<void>;
 }
 
 export interface Menu {
@@ -58,7 +83,7 @@ export interface AdapterInterface<Container, AdaptElement, Message> {
    *   }
    * });
    */
-  init: (api: ReconcilerApi<Container>) => Promise<void>;
+  init: (api: CoreApi<Container>) => Promise<void>;
 
   /**
    * Lifecycle method called when a component is mounted.
@@ -136,4 +161,10 @@ export interface AdapterInterface<Container, AdaptElement, Message> {
    * console.log(standardRoute); // Outputs: "/settings/profile/edit"
    */
   parseRoute: (route: string) => string;
+
+  /**
+   * Retrieves the route key for the given message.
+   * @param message
+   */
+  getRouteKey: (message: Container) => string;
 }

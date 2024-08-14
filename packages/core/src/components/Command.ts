@@ -11,6 +11,7 @@ export interface CommandProps {
     command?: string;
     children: string;
     variant?: "button" | "text";
+    renderNewMessage?: boolean;
   };
   container: Container<any, any>;
   context: HostContext;

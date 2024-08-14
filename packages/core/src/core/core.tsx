@@ -9,6 +9,7 @@ import {
   type Renderer as RendererInterface,
   StorageInterface,
 } from "@rx-lab/common";
+import { Router } from "@rx-lab/router";
 import type React from "react";
 import Reconciler from "react-reconciler";
 import type ReactReconciler from "react-reconciler";
@@ -21,6 +22,7 @@ import { WrappedElement } from "./wrappedElement";
 interface RendererOptions {
   adapter: AdapterInterface<any, any, any>;
   storage: StorageInterface;
+  router: Router;
 }
 
 // recursively find the first suspendable instance
@@ -37,7 +39,7 @@ function getSuspendableInstance(
   }
 }
 
-export class Renderer<T extends Container<any, any>>
+export class Core<T extends Container<any, any>>
   implements RendererInterface<T>
 {
   reconciler: Reconciler.Reconciler<
@@ -49,6 +51,7 @@ export class Renderer<T extends Container<any, any>>
   >;
   adapter: AdapterInterface<any, any, any>;
   storage: StorageInterface;
+  router: Router;
   private element: React.ReactElement | undefined;
 
   listeners: Map<
@@ -56,10 +59,11 @@ export class Renderer<T extends Container<any, any>>
     (container: T) => Promise<void>
   > = new Map();
 
-  constructor({ adapter, storage }: RendererOptions) {
+  constructor({ adapter, storage, router }: RendererOptions) {
     const builder = new ComponentBuilder();
     this.adapter = adapter;
     this.storage = storage;
+    this.router = router;
     const hostConfig: Reconciler.HostConfig<
       ReactInstanceType,
       InstanceProps,
@@ -190,14 +194,28 @@ export class Renderer<T extends Container<any, any>>
         this.listeners.set(this.adapter, callback);
         return this.render(container);
       },
+      redirectTo: async (container, path, options) => {
+        // store the new path
+        const key = this.adapter.getRouteKey(container);
+        await this.router.navigateTo(key, path);
+        if (options.shouldRender) {
+          await this.renderFromStoredRoute(key);
+          await this.render(container);
+        }
+      },
     });
+  }
+
+  async renderFromStoredRoute(key: string) {
+    const component = await this.router.render(key);
+    await this.setComponent(component.component as any);
   }
 
   /**
    * Set the component to render.
    * @param component Must be a valid client component.
    */
-  async setComponent(component: ClientComponent) {
+  private async setComponent(component: ClientComponent) {
     this.element = component;
   }
 
@@ -259,7 +277,7 @@ export class Renderer<T extends Container<any, any>>
   }
 
   /**
-   * Update the container to reflect the changes.
+   * Update the container to reflect the changes within the UI.
    * @param container
    */
   private async update(container: T) {

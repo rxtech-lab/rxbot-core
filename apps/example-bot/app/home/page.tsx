@@ -21,8 +21,12 @@ export default function Page() {
         <a href={"https://google.com"}>Google.com</a>
       </span>
       <menu>
-        <CommandButton command={"/home"}>Home</CommandButton>
-        <button key={"button3"}>Reset</button>
+        <CommandButton command={"/home_nested"}>
+          Replace and home nested
+        </CommandButton>
+        <CommandButton renderNewMessage={true} command={"/home_nested"}>
+          New and home nested
+        </CommandButton>
       </menu>
     </div>
   );
