@@ -1,3 +1,5 @@
+import { Logger } from "@rx-lab/common";
+import { useRouter } from "@rx-lab/router";
 import {
   useCallback,
   useContext,
@@ -6,8 +8,6 @@ import {
   useSyncExternalStore,
 } from "react";
 import { StorageContext } from ".";
-import { useRouter } from "@rx-lab/router";
-import { Logger } from "@rx-lab/common";
 
 const initializedMap = new Map<string, boolean>();
 
@@ -45,7 +45,7 @@ export function useState<T>(key: string, initialState: T) {
   const state = useSyncExternalStore<T>(
     useCallback(
       (onStoreChange) => {
-        return client.subscribe(key, () => {
+        return client.subscribeStateChange(key, () => {
           const loadNewState = async () => {
             Logger.log(`Loading new state for key ${storedKey}`);
             const newState = await client.restoreState(storedKey);

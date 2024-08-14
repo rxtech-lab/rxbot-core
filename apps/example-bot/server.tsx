@@ -30,13 +30,14 @@ const adapter = new TelegramAdapter({
       },
       message: message as any,
     };
-
+    const key = `${chatroomId}`;
     try {
-      const route = await adapter.getCurrentRoute(message);
-      if (route) {
-        const result = await router.render(route);
-        await render.setComponent(result.component as any);
+      const routeFromMessage = await adapter.getCurrentRoute(message);
+      if (routeFromMessage) {
+        await router.navigateTo(key, routeFromMessage);
       }
+      const result = await router.render(key);
+      await render.setComponent(result.component as any);
       // render default component
       await render.render(container);
       console.log("Rendered default component");
@@ -71,6 +72,8 @@ const compiler = new Compiler({
     await render.init();
     console.log("Bot is running");
   } catch (err: any) {
+    // log error trace
+    console.error(err.stack);
     Logger.log(err.toString(), "red");
     process.exit(1);
   }
