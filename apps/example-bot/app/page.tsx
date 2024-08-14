@@ -7,6 +7,7 @@ export default function Page() {
   return (
     <div>
       <h1>Home</h1>
+      <a href={"https://google.com"}>Google.com</a>
     </div>
   );
 }

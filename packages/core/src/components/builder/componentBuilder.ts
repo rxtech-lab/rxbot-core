@@ -8,18 +8,24 @@ import {
   InstanceType,
   ReactInstanceType,
 } from "@rx-lab/common";
-import { type BaseComponent, Button, type ComponentOptions } from "../index";
 import {
   DuplicatedKeyPropsError,
   MissingRequiredKeyPropsError,
   UnsupportedComponentError,
   UnsupportedReactComponentError,
 } from "@rx-lab/errors";
-import { Menu } from "../Menu";
-import { Container as ContainerComponent } from "../Container";
-import { Header } from "../Header";
-import { LineBreak } from "../LineBreak";
-import { Suspendable } from "../Internal";
+import {
+  type BaseComponent,
+  Button,
+  CommandComponent,
+  type ComponentOptions,
+  Container as ContainerComponent,
+  Header,
+  LineBreak,
+  Link,
+  Menu,
+  Suspendable,
+} from "../index";
 
 type InstanceTypeKeys = keyof typeof InstanceType;
 
@@ -51,6 +57,10 @@ export class ComponentBuilder implements Builder {
       BaseComponent<any>
     >,
     [InstanceType.Suspendable]: Suspendable,
+    [InstanceType.Link]: Link as unknown as Constructor<BaseComponent<any>>,
+    [InstanceType.Command]: CommandComponent as unknown as Constructor<
+      BaseComponent<any>
+    >,
   };
 
   /**
@@ -65,6 +75,7 @@ export class ComponentBuilder implements Builder {
     [ReactInstanceType.Div]: InstanceType.Container,
     [ReactInstanceType.Text]: InstanceType.Text,
     [ReactInstanceType.Paragraph]: InstanceType.Container,
+    [ReactInstanceType.Span]: InstanceType.Container,
     [ReactInstanceType.Menu]: InstanceType.Menu,
     [ReactInstanceType.H1]: InstanceType.Header,
     [ReactInstanceType.H2]: InstanceType.Header,
@@ -75,6 +86,8 @@ export class ComponentBuilder implements Builder {
     [ReactInstanceType.NewLine]: InstanceType.LineBreak,
     [ReactInstanceType.ThematicBreak]: InstanceType.LineBreak,
     [ReactInstanceType.Suspendable]: InstanceType.Suspendable,
+    [ReactInstanceType.Link]: InstanceType.Link,
+    [ReactInstanceType.Command]: InstanceType.Command,
   };
 
   build(

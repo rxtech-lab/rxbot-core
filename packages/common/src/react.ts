@@ -47,4 +47,5 @@ export enum ReactInstanceType {
   NewLine = "br",
   ThematicBreak = "hr",
   Suspendable = "suspendable",
+  Command = "command",
 }

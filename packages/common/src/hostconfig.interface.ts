@@ -16,6 +16,8 @@ export enum InstanceType {
    * Text is the basic text instance similar to `createTextInstance` in [React Reconciler package](https://github.com/facebook/react/tree/main/packages/react-reconciler#createtextinstancetext-rootcontainer-hostcontext-internalhandle).
    */
   Text = "Text",
+  Link = "Link",
+  Command = "Command",
   Paragraph = "Paragraph",
   Header = "Header",
   List = "List",
