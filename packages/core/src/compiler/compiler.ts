@@ -132,10 +132,14 @@ export class Compiler {
       originalDir.replace(this.options.rootDir, ""),
     );
     const outputFile = path.join(outputDir, outputFileName);
-    // Compile the source code
     const result = await swc.transformFile(page, {
       jsc: {
         target: "es2016",
+        transform: {
+          react: {
+            runtime: "automatic",
+          },
+        },
       },
       module: {
         type: "commonjs",

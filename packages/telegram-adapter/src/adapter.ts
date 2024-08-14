@@ -6,10 +6,11 @@ import {
   type Menu,
   type ReconcilerApi,
 } from "@rx-lab/common";
-import TelegramBot, { Update } from "node-telegram-bot-api";
+import TelegramBot from "node-telegram-bot-api";
 import { CallbackParser } from "./callbackParser";
 import { renderElement } from "./renderer";
 import { DEFAULT_ROOT_PATH, RenderedElement } from "./types";
+import { convertRouteToTGRoute, convertTGRouteToRoute } from "./utils";
 
 export type TelegramAppOpts =
   | {
@@ -217,17 +218,13 @@ export class TelegramAdapter
     return (element as any).text ?? "";
   }
 
-  //TODO: Add a way for adapter to parse the menu.
-  // Sometimes, in telegram, nested menu is not supported
-  // we need to replace any slash after the first slash with a underscore,
-  // otherwise, 400 error will be thrown
   async setMenus(menus: Menu[]): Promise<void> {
     const commands: TelegramBot.BotCommand[] = menus
       .flatMap((menu) => {
         const subCommands = this.getSubCommands(menu);
         return [
           {
-            command: menu.href,
+            command: convertRouteToTGRoute(menu.href),
             description: menu.description ?? "",
           },
           ...subCommands,
@@ -244,7 +241,7 @@ export class TelegramAdapter
         const subCommands = this.getSubCommands(child);
         return [
           {
-            command: child.href,
+            command: convertRouteToTGRoute(child.href),
             description: child.description ?? "",
           },
           ...subCommands,
@@ -265,5 +262,9 @@ export class TelegramAdapter
         return message.text?.slice(entity.offset, entity.length);
       }
     }
+  }
+
+  parseRoute(route: string): string {
+    return convertTGRouteToRoute(route);
   }
 }
