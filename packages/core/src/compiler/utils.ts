@@ -1,4 +1,3 @@
-import * as fs from "fs";
 import { RouteMetadata } from "@rx-lab/common";
 import * as swc from "@swc/core";
 

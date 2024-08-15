@@ -1,5 +1,5 @@
-import { MemoryStorage } from "./memory";
 import { Component, type InstanceProps, InstanceType } from "@rx-lab/common";
+import { MemoryStorage } from "./memory";
 
 class MockComponent extends Component {
   id = "mock";

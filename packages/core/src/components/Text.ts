@@ -1,10 +1,10 @@
-import { BaseComponent } from "./Component";
 import {
+  type Container,
   type HostContext,
   InstanceType,
-  type Container,
   type InternalHandle,
 } from "@rx-lab/common";
+import { BaseComponent } from "./Component";
 
 export interface TextProps {
   text: string;

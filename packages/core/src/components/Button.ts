@@ -1,5 +1,5 @@
-import { BaseComponent } from "./Component";
 import { InstanceType } from "@rx-lab/common";
+import { BaseComponent } from "./Component";
 
 /**
  * Button component will render a button element.

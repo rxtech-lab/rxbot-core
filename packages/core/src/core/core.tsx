@@ -1,20 +1,21 @@
 import {
   type AdapterInterface,
-  type ClientComponent,
   type Container,
+  CoreApi,
   type InstanceProps,
   InstanceType,
   Logger,
   type ReactInstanceType,
+  RenderedComponent,
   type Renderer as RendererInterface,
   StorageInterface,
 } from "@rx-lab/common";
 import { Router } from "@rx-lab/router";
 import type React from "react";
-import Reconciler from "react-reconciler";
 import type ReactReconciler from "react-reconciler";
-import { type BaseComponent, Text } from "../components";
+import Reconciler from "react-reconciler";
 import type { Suspendable } from "../components";
+import { type BaseComponent, Text } from "../components";
 import { ComponentBuilder } from "../components/builder/componentBuilder";
 import { createEmptyFiberRoot } from "./utils";
 import { WrappedElement } from "./wrappedElement";
@@ -52,7 +53,7 @@ export class Core<T extends Container<any, any>>
   adapter: AdapterInterface<any, any, any>;
   storage: StorageInterface;
   router: Router;
-  private element: React.ReactElement | undefined;
+  private element: RenderedComponent | undefined;
 
   listeners: Map<
     AdapterInterface<any, any, any>,
@@ -185,11 +186,10 @@ export class Core<T extends Container<any, any>>
   }
 
   /**
-   * Initialize the renderer.
+   * The core API that provides the necessary methods to render the app.
    */
-  async init() {
-    // initialize the adapter
-    await this.adapter.init({
+  get coreApi(): CoreApi<any> {
+    return {
       renderApp: (container, callback) => {
         this.listeners.set(this.adapter, callback);
         return this.render(container);
@@ -199,23 +199,31 @@ export class Core<T extends Container<any, any>>
         const key = this.adapter.getRouteKey(container);
         await this.router.navigateTo(key, path);
         if (options.shouldRender) {
-          await this.renderFromStoredRoute(key);
+          await this.loadAndRenderStoredRoute(key);
           await this.render(container);
         }
       },
-    });
+    };
   }
 
-  async renderFromStoredRoute(key: string) {
+  /**
+   * Initialize the renderer.
+   */
+  async init() {
+    // initialize the adapter
+    await this.adapter.init(this.coreApi);
+  }
+
+  async loadAndRenderStoredRoute(key: string) {
     const component = await this.router.render(key);
-    await this.setComponent(component.component as any);
+    await this.setComponent(component);
   }
 
   /**
    * Set the component to render.
    * @param component Must be a valid client component.
    */
-  private async setComponent(component: ClientComponent) {
+  private async setComponent(component: RenderedComponent) {
     this.element = component;
   }
 
@@ -246,6 +254,10 @@ export class Core<T extends Container<any, any>>
    * @private
    */
   async render(container: T) {
+    if (!this.element) {
+      throw new Error("No component to render");
+    }
+
     if (!container._rootContainer) {
       createEmptyFiberRoot(container, this.reconciler);
     }

@@ -1,5 +1,5 @@
-import type { InstanceProps, InstanceType } from "./hostconfig.interface";
 import { type Container, ContainerType } from "./container.interface";
+import type { InstanceProps, InstanceType } from "./hostconfig.interface";
 
 export interface ComponentInterface {
   id: string;
