@@ -3,7 +3,13 @@ import path from "path";
 import { Logger, RouteInfo } from "@rx-lab/common";
 import * as swc from "@swc/core";
 import { glob } from "glob";
-import { isDefaultExportAsync, readMetadata } from "./utils";
+import {
+  generateClientComponentTag,
+  isClientComponent,
+  isTypeScript,
+  parseSourceCode,
+  readMetadata,
+} from "./utils";
 
 export interface CompilerOptions {
   /**
@@ -71,6 +77,19 @@ export class Compiler {
   async compile(): Promise<RouteInfo[]> {
     const buildRouteInfo = await this.buildRouteInfo();
     let info: RouteInfo[] = [];
+    // check if the output directory exists
+    if (fs.existsSync(this.options.destinationDir ?? DEFAULT_DESTINATION_DIR)) {
+      // remove the output directory
+      Logger.log(
+        `Removing ${this.options.destinationDir ?? DEFAULT_DESTINATION_DIR}`,
+        "yellow",
+      );
+      fs.rmSync(this.options.destinationDir ?? DEFAULT_DESTINATION_DIR, {
+        force: true,
+        recursive: true,
+      });
+    }
+
     for (const route of buildRouteInfo) {
       const newInfo = await this.compileHelper(route);
       info = [...info, ...newInfo];
@@ -103,7 +122,6 @@ export class Compiler {
         filePath: outputFile.path,
         subRoutes: subPages,
         metadata,
-        isAsync: isDefaultExportAsync(outputFile.code),
       };
       info.push(routeInfo);
     } else {
@@ -131,6 +149,7 @@ export class Compiler {
       outputRootDir,
       originalDir.replace(this.options.rootDir, ""),
     );
+    const srcCode = fs.readFileSync(page, "utf-8");
     const outputFile = path.join(outputDir, outputFileName);
     const result = await swc.transformFile(page, {
       jsc: {
@@ -150,7 +169,16 @@ export class Compiler {
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
     }
-    fs.writeFileSync(outputFile, result.code);
+    let codeToWrite = result.code;
+    const ast = await parseSourceCode(
+      isTypeScript(page) ? "typescript" : "javascript",
+      srcCode,
+    );
+    const clientTag = await generateClientComponentTag(ast);
+    if (clientTag) {
+      codeToWrite = codeToWrite + clientTag;
+    }
+    fs.writeFileSync(outputFile, codeToWrite);
     Logger.log(`Compiled ${page} to ${outputFile}`, "blue");
 
     return {

@@ -1,7 +1,9 @@
 import { CoreApi, RenderedComponent } from "@rx-lab/common";
 import { RouterProvider } from "@rx-lab/router";
 import { StorageProvider } from "@rx-lab/storage";
-import React from "react";
+import * as React from "react";
+import { Child } from "./clientComponent";
+import { renderServerComponent } from "./server/renderServerComponent";
 
 /**
  * Properties that will be passed to each rendered page component.
@@ -14,10 +16,15 @@ export interface WrappedElementProps {
   chatroomInfo: any;
   message: any;
   api: CoreApi<any>;
+  children?: any;
 }
 
+/**
+ * Wrap component with RouterProvider and StorageProvider.
+ * @param props
+ * @constructor
+ */
 export function WrappedElement(props: WrappedElementProps) {
-  const Element = props.element.component;
   return (
     <RouterProvider
       chatroomInfo={props.chatroomInfo}
@@ -27,13 +34,7 @@ export function WrappedElement(props: WrappedElementProps) {
       query={props.element.queryString}
       path={props.element.path}
     >
-      <StorageProvider client={props.storage}>
-        <Element
-          searchQuery={props.element.queryString}
-          params={props.element.params}
-          path={props.element.path}
-        />
-      </StorageProvider>
+      <StorageProvider client={props.storage}>{props.children}</StorageProvider>
     </RouterProvider>
   );
 }

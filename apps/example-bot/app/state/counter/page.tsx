@@ -1,4 +1,4 @@
-import { RouteMetadata } from "@rx-lab/common";
+"use client";
 import { useState } from "@rx-lab/storage";
 import React from "react";
 

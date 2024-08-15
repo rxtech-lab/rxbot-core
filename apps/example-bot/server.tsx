@@ -39,7 +39,6 @@ const adapter = new TelegramAdapter({
       await core.loadAndRenderStoredRoute(routeKey);
       // render default component
       await core.render(container);
-      console.log("Rendered default component");
     } catch (err) {
       console.error(err);
     }
