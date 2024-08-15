@@ -5,18 +5,20 @@ import {
   type InstanceProps,
   InstanceType,
   Logger,
+  PageProps,
   type ReactInstanceType,
   RenderedComponent,
   type Renderer as RendererInterface,
   StorageInterface,
 } from "@rx-lab/common";
 import { Router } from "@rx-lab/router";
-import type React from "react";
+import React from "react";
 import type ReactReconciler from "react-reconciler";
 import Reconciler from "react-reconciler";
 import type { Suspendable } from "../components";
 import { type BaseComponent, Text } from "../components";
 import { ComponentBuilder } from "../components/builder/componentBuilder";
+import { renderServerComponent } from "./server/renderServerComponent";
 import { createEmptyFiberRoot } from "./utils";
 import { WrappedElement } from "./wrappedElement";
 
@@ -264,13 +266,23 @@ export class Core<T extends Container<any, any>>
 
     // wrap the element with the router and storage providers so that
     // the components can access the router and storage
-    const wrappedElement = (
-      <WrappedElement
-        element={this.element}
-        storage={this.storage}
-        chatroomInfo={container.chatroomInfo}
-        message={container.message}
-      />
+    const Component = this.element.component;
+
+    const props: PageProps = {
+      searchQuery: this.element.queryString,
+      params: this.element.params,
+    };
+
+    const wrappedElement = React.createElement(
+      WrappedElement,
+      {
+        element: this.element,
+        storage: this.storage,
+        chatroomInfo: container.chatroomInfo,
+        message: container.message,
+        api: this.coreApi,
+      },
+      await renderServerComponent(Component, props),
     );
 
     await new Promise<void>((resolve) => {

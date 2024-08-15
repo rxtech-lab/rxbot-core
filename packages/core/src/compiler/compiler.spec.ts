@@ -10,7 +10,9 @@ jest.mock("@swc/core", () => ({
 
 jest.mock("./utils", () => ({
   readMetadata: jest.fn(),
-  isDefaultExportAsync: jest.fn().mockReturnValue(true),
+  isTypeScript: jest.fn().mockReturnValue(true),
+  parseSourceCode: jest.fn(),
+  generateClientComponentTag: jest.fn().mockReturnValue(""),
 }));
 
 // Mock the glob module
@@ -23,6 +25,8 @@ jest.mock("glob", () => ({
 jest.mock("fs", () => ({
   writeFileSync: jest.fn(),
   existsSync: jest.fn().mockReturnValue(true),
+  readFileSync: jest.fn(),
+  rmSync: jest.fn(),
 }));
 
 describe("buildRouteInfo", () => {
@@ -157,7 +161,6 @@ describe("Compiler.compile", () => {
         route: "/home",
         filePath: "/path/to/output/path/to/project/home/page.js",
         subRoutes: [],
-        isAsync: true,
         metadata: { title: "Home" },
       },
     ]);
@@ -182,10 +185,8 @@ describe("Compiler.compile", () => {
       {
         route: "/home",
         filePath: "/path/to/output/path/to/project/home/page.js",
-        isAsync: true,
         subRoutes: [
           {
-            isAsync: true,
             route: "/home/nested",
             filePath: "/path/to/output/path/to/project/home/nested/page.js",
             subRoutes: [],

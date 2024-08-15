@@ -12,5 +12,5 @@ export const DEFAULT_ROOT_PATH = "/";
 
 export type CommandButtonCallback = {
   route: string;
-  renderNewMessage?: boolean;
+  new?: boolean;
 };

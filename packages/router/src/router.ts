@@ -122,13 +122,14 @@ export class Router {
     const matchedRoute = await matchRouteWithPath(this.routes, parsedRoute);
     const queryString = parseQuery(parsedRoute);
     if (!matchedRoute) {
-      throw new Error("Route not found");
+      throw new Error(`Route not found: ${parsedRoute}`);
     }
     return {
       matchedRoute,
       component: matchedRoute.component,
       queryString,
       params: matchedRoute.params,
+      path: matchedRoute.route,
     };
   }
 }

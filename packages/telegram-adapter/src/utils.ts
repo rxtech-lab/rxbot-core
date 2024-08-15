@@ -9,6 +9,10 @@
  * @param route
  */
 export function convertRouteToTGRoute(route: string): string {
+  if (!route) {
+    return "";
+  }
+
   // Check if the route starts with a slash
   if (!route.startsWith("/")) {
     return route; // Return unchanged if it doesn't start with a slash

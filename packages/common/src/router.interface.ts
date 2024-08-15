@@ -14,11 +14,16 @@ export type ServerComponent = Promise<React.JSX.Element>;
 
 export const DEFAULT_ROOT_ROUTE = "/";
 
+export type QueryString = Record<string, string | null | boolean>;
+
+export type PathParams = Record<string, string>;
+
 export type RenderedComponent = {
   matchedRoute: MatchedRoute;
   component: any;
-  queryString: Record<string, string | null | boolean>;
-  params: Record<string, string>;
+  queryString: QueryString;
+  params: PathParams;
+  path: string;
 };
 
 /**

@@ -29,7 +29,7 @@ export const renderElement = (
       if (commandElement.props.variant === "button") {
         const callbackData: CommandButtonCallback = {
           route: convertRouteToTGRoute(commandElement.props.command),
-          renderNewMessage: commandElement.props.renderNewMessage,
+          new: commandElement.props.renderNewMessage,
         };
         return {
           text: commandElement.props.children,

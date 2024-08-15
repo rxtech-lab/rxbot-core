@@ -1,4 +1,10 @@
-import { type BaseChatroomInfo, Logger } from "@rx-lab/common";
+import {
+  type BaseChatroomInfo,
+  CoreApi,
+  Logger,
+  PathParams,
+  QueryString,
+} from "@rx-lab/common";
 import React, {
   createContext,
   type ReactNode,
@@ -15,8 +21,12 @@ type Queue = (() => void)[];
 
 interface RouterProps<ChatroomInfo, Message> {
   children: ReactNode;
+  pathParams: PathParams;
+  query: QueryString;
   chatroomInfo: ChatroomInfo;
   message: Message;
+  coreApi: CoreApi<any>;
+  path: string;
 }
 
 interface RouterContextType<ChatroomInfo extends BaseChatroomInfo, Message> {
@@ -26,6 +36,10 @@ interface RouterContextType<ChatroomInfo extends BaseChatroomInfo, Message> {
   registerLoading: (promise: Promise<void>) => void;
   chatroomInfo: ChatroomInfo;
   message: Message;
+  query: QueryString;
+  pathParams: PathParams;
+  path: string;
+  coreApi: CoreApi<any>;
 }
 
 // Create the context
@@ -52,10 +66,17 @@ export function RouterProvider<ChatroomInfo extends BaseChatroomInfo, Message>({
   children,
   chatroomInfo,
   message,
+  query,
+  coreApi: api,
+  ...props
 }: RouterProps<ChatroomInfo, Message>) {
   const [queue, setQueue] = useState<Queue>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [pendingPromises, setPendingPromises] = useState<Promise<void>[]>([]);
+  const [queryParams, setQueryParams] = useState<QueryString>(query);
+  const [pathParams, setPathParams] = useState<PathParams>(props.pathParams);
+  const [coreApi, setCoreApi] = useState<CoreApi<any>>(api);
+  const [path, setPath] = useState<string>(props.path);
 
   const addToQueue = useCallback((callback: RouteChangeCallback) => {
     Logger.log(`Adding callback to queue: ${callback}`);
@@ -100,6 +121,23 @@ export function RouterProvider<ChatroomInfo extends BaseChatroomInfo, Message>({
     debouncedEffect.current(pendingPromises);
   }, [pendingPromises]);
 
+  // listen to params changes
+  useEffect(() => {
+    setQueryParams(query);
+  }, [query]);
+
+  useEffect(() => {
+    setPathParams(props.pathParams);
+  }, [props.pathParams]);
+
+  useEffect(() => {
+    setCoreApi(api);
+  }, [api]);
+
+  useEffect(() => {
+    setPath(props.path);
+  }, [props.path]);
+
   const contextValue: RouterContextType<ChatroomInfo, Message> = {
     addToQueue,
     isQueueEmpty,
@@ -107,6 +145,10 @@ export function RouterProvider<ChatroomInfo extends BaseChatroomInfo, Message>({
     registerLoading,
     chatroomInfo: chatroomInfo,
     message: message,
+    query,
+    pathParams: pathParams,
+    path,
+    coreApi,
   };
 
   Logger.log(`RouterProvider isLoading: ${isLoading}`, "red");
@@ -117,10 +159,47 @@ export function RouterProvider<ChatroomInfo extends BaseChatroomInfo, Message>({
   );
 }
 
-export function useRouter() {
+/**
+ * Custom hook to access the router context within components.
+ * This hook provides access to routing-related functionality and state.
+ *
+ * **IMPORTANT NOTES:**
+ * - When useState is loading remote states, the router will pause rendering.
+ * - No content will be sent to the end user during this loading phase.
+ *
+ * **INTERNAL API WARNING:**
+ * Some methods returned by this hook, such as `addToQueue`, are for internal use only.
+ * These should not be used directly by library consumers. use `@rx-lab/router/hooks` instead.
+ *
+ * @returns {RouterContextType} The router context containing various routing utilities.
+ * @throws {Error} If used outside a RouterProvider.
+ *
+ * @example
+ * Example of internal usage (NOT FOR END USERS):
+ *
+ * function SomeInternalComponent() {
+ *   const { addToQueue } = useRouter();
+ *
+ *   useEffect(() => {
+ *     addToQueue(() => {
+ *       console.log("Route has changed");
+ *       // Perform some internal operations
+ *     });
+ *   }, []);
+ *
+ *   // Rest of the component logic...
+ * }
+ *
+ */
+export function useRouter(): RouterContextType<any, any> {
+  // Attempt to access the RouterContext
   const context = useContext(RouterContext);
+
+  // Check if the context is undefined, which means the hook is used outside of a RouterProvider
   if (context === undefined) {
     throw new Error("useRouter must be used within a RouterProvider");
   }
+
+  // Return the context if it's available
   return context;
 }

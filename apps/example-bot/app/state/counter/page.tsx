@@ -1,22 +1,13 @@
-import { RouteMetadata } from "@rx-lab/common";
-import { useRouter } from "@rx-lab/router";
+"use client";
 import { useState } from "@rx-lab/storage";
 import React from "react";
 
-export const metadata: RouteMetadata = {
-  title: "Counter",
-  description: "This is a counter",
-  includeInMenu: true,
-};
-
 export default function Page() {
   const [state, setState] = useState("counter", 0);
-  const { chatroomInfo } = useRouter();
 
   return (
     <div>
       <h1>Welcome to the Telegram Bot!</h1>
-      <h1>ChatroomInfo: {chatroomInfo.messageId}</h1>
       <hr />
       <p>Choose an option</p>
       <hr />

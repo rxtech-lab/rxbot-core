@@ -1,13 +1,12 @@
-import { useState } from "@rx-lab/storage";
-import React from "react";
-
-export default function Page() {
-  const [] = useState("key", 1);
-
+export default async function Page() {
   return (
     <div>
-      <h1>Home</h1>
-      <a href={"https://google.com"}>Google.com</a>
+      <h1>Welcome to the Rx-Bot Demo</h1>
+      <p>
+        You can use this bot to interact with the Rx-Lab framework.
+        <br />
+        Click the menu button to see the available options.
+      </p>
     </div>
   );
 }

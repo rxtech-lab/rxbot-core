@@ -1,32 +1,153 @@
-import { isDefaultExportAsync } from "./utils";
+import { describe } from "node:test";
+import {
+  generateClientComponentTag,
+  isClientComponent,
+  parseSourceCode,
+} from "./utils";
 
-describe("isDefaultExportAsync", () => {
-  const ASYNC_COMPONENT = `
-    export default async function Page() {
-        return <div>This is a subpage</div>;
+describe("isClientComponent", () => {
+  const testCases = [
+    {
+      source: `
+      
+      `,
+      expected: false,
+    },
+    {
+      source: `
+        export async function page() {
+        
         }
-        `;
-
-  const SYNC_COMPONENT = `
-    export default function Page() {
-        return <div>This is a subpage</div>;
+      `,
+      expected: false,
+    },
+    {
+      source: `
+       "use"
+        export async function page() {
+        
         }
-        `;
+      `,
+      expected: false,
+    },
+    {
+      source: `
+      "use client"
+        export async function page() {
+        
+        }
+      `,
+      expected: true,
+    },
+  ];
 
-  it("should return true for async default export", () => {
-    const result = isDefaultExportAsync(ASYNC_COMPONENT);
-
-    expect(result).toBe(true);
+  testCases.forEach(({ source, expected }) => {
+    it(`should return ${expected} for ${source}`, async () => {
+      const ast = await parseSourceCode("typescript", source);
+      const result = await isClientComponent(ast);
+      expect(result).toBe(expected);
+    });
   });
+});
 
-  it("should return false for sync default export", () => {
-    const result = isDefaultExportAsync(SYNC_COMPONENT);
+describe("generateClientComponentTag", () => {
+  const testCases = [
+    {
+      source: `
 
-    expect(result).toBe(false);
-  });
+      `,
+      expected: undefined,
+    },
+    {
+      source: `
+       "use client"
+        export function Page() {
+            return <div></div>
+        }
+        export function Page2() {
+            return <div></div>
+        }
+      `,
+      expected:
+        'Page.$$typeof = Symbol("react.element.client");\n' +
+        'Page2.$$typeof = Symbol("react.element.client");\n',
+    },
+    {
+      source: `
+       "use client"
+        export function Page() {
+            return <div></div>
+        }
+      `,
+      expected: 'Page.$$typeof = Symbol("react.element.client");\n',
+    },
+    {
+      source: `
+       "use client"
+        function Page() {
+            return <div></div>
+        }
+      `,
+      expected: undefined,
+    },
+    {
+      source: `
+       "use client"
+       export const metadata = {
+        title: "hello"
+       }
+        function Page() {
+            return <div></div>
+        }
+      `,
+      expected: undefined,
+    },
+    {
+      source: `
+import { RouteMetadata } from "@rx-lab/common";
+import { CommandButton } from "@rx-lab/core";
 
-  it("should return false for no default export", () => {
-    const result = isDefaultExportAsync("");
-    expect(result).toBe(false);
+export const metadata: RouteMetadata = {
+  title: "State Management",
+  description: "Learn how to manage states in your bot",
+  includeInMenu: true,
+};
+
+export default function page() {
+  return (
+    <div>
+      <h1>Use State Demo</h1>
+      <p>
+        State management is a fundamental aspect of the Rx-Lab framework. We
+        offer a straightforward approach to managing states in your bot, which
+        differs from traditional single-page web applications.
+      </p>
+      <br />
+      <br />
+      <h1>Key Difference</h1>
+      <p>
+        Unlike web applications, bot states cannot be stored directly in the
+        application. Instead, Rx-Lab utilizes external storage for state
+        management.
+      </p>
+      <menu>
+        <div>
+          <CommandButton command={"/state/counter"}>Counter Demo</CommandButton>
+        </div>
+      </menu>
+    </div>
+  );
+}
+      `,
+      expected: undefined,
+    },
+  ];
+
+  testCases.forEach(({ source, expected }) => {
+    it(`should return ${expected} for ${source}`, async () => {
+      const ast = await parseSourceCode("typescript", source);
+      const result = await generateClientComponentTag(ast);
+      expect(result).toBe(expected);
+    });
   });
 });

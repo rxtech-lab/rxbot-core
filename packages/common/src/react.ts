@@ -49,3 +49,6 @@ export enum ReactInstanceType {
   Suspendable = "suspendable",
   Command = "command",
 }
+
+export const REACT_COMPONENT_TYPE = "react.element";
+export const REACT_CLIENT_COMPONENT_TYPE = "react.element.client";
