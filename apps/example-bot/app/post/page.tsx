@@ -1,4 +1,5 @@
-import { RouteMetadata } from "@rx-lab/common";
+import { PageProps, RouteMetadata } from "@rx-lab/common";
+import { CommandButton } from "@rx-lab/core/dist";
 
 export const metadata: RouteMetadata = {
   title: "Post Demo",
@@ -6,8 +7,10 @@ export const metadata: RouteMetadata = {
   includeInMenu: true,
 };
 
-interface Post {
+export interface Post {
+  id: string;
   title: string;
+  content: string;
 }
 
 const POST_PER_PAGE = 10;
@@ -25,11 +28,39 @@ async function fetchPosts(page: number = 1) {
   return {
     posts: paginatedPosts,
     count,
+    pageCount: Math.ceil(count / POST_PER_PAGE),
   };
 }
 
-export default async function Page() {
-  const { posts, count } = await fetchPosts();
+export default async function Page(props: PageProps) {
+  const page = parseInt((props.searchQuery.page as any) ?? "1");
+  const { posts, count, pageCount } = await fetchPosts(page);
 
-  return <div>This is a subpage</div>;
+  return (
+    <div>
+      <h1>Posts</h1>
+      <p>There are {count} posts</p>
+      <menu>
+        {posts.map((post, index) => (
+          <div key={index}>
+            <CommandButton command={`/post/${post.id}`} renderNewMessage={true}>
+              {post.id + " - " + post.title}
+            </CommandButton>
+          </div>
+        ))}
+        <div key={"actions"}>
+          {page > 1 && (
+            <CommandButton command={`/post?page=${page - 1}`}>
+              Previous Page
+            </CommandButton>
+          )}
+          {page < pageCount && (
+            <CommandButton command={`/post?page=${page + 1}`}>
+              Next Page
+            </CommandButton>
+          )}
+        </div>
+      </menu>
+    </div>
+  );
 }

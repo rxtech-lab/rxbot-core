@@ -5,6 +5,7 @@ import {
   type InstanceProps,
   InstanceType,
   Logger,
+  PageProps,
   type ReactInstanceType,
   RenderedComponent,
   type Renderer as RendererInterface,
@@ -267,7 +268,10 @@ export class Core<T extends Container<any, any>>
     // the components can access the router and storage
     const Component = this.element.component;
 
-    const props = {};
+    const props: PageProps = {
+      searchQuery: this.element.queryString,
+      params: this.element.params,
+    };
 
     const wrappedElement = React.createElement(
       WrappedElement,
