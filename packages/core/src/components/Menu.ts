@@ -1,5 +1,5 @@
-import { BaseComponent } from "./Component";
 import { InstanceType } from "@rx-lab/common";
+import { BaseComponent } from "./Component";
 
 /**
  * Menu component is used to create a menu in the bot.

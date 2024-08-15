@@ -1,4 +1,4 @@
-import { RouteMetadata } from "@rx-lab/common";
+import { PageProps, RouteMetadata } from "@rx-lab/common";
 import React from "react";
 
 export const metadata: RouteMetadata = {
@@ -7,6 +7,14 @@ export const metadata: RouteMetadata = {
   includeInMenu: true,
 };
 
-export default function Page() {
-  return <div>This is a nested page</div>;
+export default function Page(props: PageProps) {
+  const currentSearchQuery = props.searchQuery;
+  const data = currentSearchQuery.data;
+
+  return (
+    <div>
+      This is a nested page
+      <p>Current data: {data}</p>
+    </div>
+  );
 }

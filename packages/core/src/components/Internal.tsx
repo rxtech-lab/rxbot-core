@@ -1,5 +1,5 @@
-import { BaseComponent, type ComponentOptions } from "./Component";
 import { InstanceType } from "@rx-lab/common";
+import { BaseComponent, type ComponentOptions } from "./Component";
 
 interface SuspendableProps {
   shouldSuspend: boolean;

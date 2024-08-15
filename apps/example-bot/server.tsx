@@ -36,7 +36,7 @@ const adapter = new TelegramAdapter({
       if (routeFromMessage) {
         await router.navigateTo(routeKey, routeFromMessage);
       }
-      await core.renderFromStoredRoute(routeKey);
+      await core.loadAndRenderStoredRoute(routeKey);
       // render default component
       await core.render(container);
       console.log("Rendered default component");
@@ -67,7 +67,7 @@ const compiler = new Compiler({
     const routeInfo = await compiler.compile();
     await router.initFromRoutes(routeInfo);
 
-    await core.renderFromStoredRoute("/");
+    await core.loadAndRenderStoredRoute("/");
     await core.init();
     console.log("Bot is running");
   } catch (err: any) {

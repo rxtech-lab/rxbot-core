@@ -1,6 +1,6 @@
 import {
-  type Container,
   Component,
+  type Container,
   type HostContext,
   type InstanceProps,
   InstanceType,

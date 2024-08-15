@@ -1,13 +1,13 @@
+import { type BaseChatroomInfo, Logger } from "@rx-lab/common";
 import React, {
   createContext,
   type ReactNode,
   useCallback,
-  useEffect,
-  useState,
-  useRef,
   useContext,
+  useEffect,
+  useRef,
+  useState,
 } from "react";
-import { type BaseChatroomInfo, Logger } from "@rx-lab/common";
 
 // Types and interfaces
 type RouteChangeCallback = () => void;

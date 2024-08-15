@@ -24,7 +24,7 @@ export default function Page() {
         <CommandButton command={"/home_nested"}>
           Replace and home nested
         </CommandButton>
-        <CommandButton renderNewMessage={true} command={"/home_nested"}>
+        <CommandButton renderNewMessage={true} command={"/home_nested?data=1"}>
           New and home nested
         </CommandButton>
       </menu>

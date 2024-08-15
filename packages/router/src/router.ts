@@ -1,9 +1,11 @@
 import fs from "fs";
-import type {
+import {
   AdapterInterface,
+  DEFAULT_ROOT_ROUTE,
   ImportedRoute,
   MatchedRoute,
   Menu,
+  RenderedComponent,
   RouteInfo,
   RouteMetadata,
   StorageInterface,
@@ -39,8 +41,8 @@ export async function matchRouteWithPath(
   routes: RouteInfo[],
   path: string,
 ): Promise<MatchedRoute | null> {
-  const [pathname, search] = path.split("?");
-  const query = parseQuery(search);
+  const [pathname] = path.split("?");
+  const query = parseQuery(path);
 
   for (const route of routes) {
     const match = matchRoute(route.route, pathname);
@@ -49,7 +51,7 @@ export async function matchRouteWithPath(
       return {
         ...importedRoute,
         params: match,
-        query,
+        query: query as any,
       };
     }
 
@@ -113,13 +115,20 @@ export class Router {
     await this.storage.saveRoute(key, path);
   }
 
-  async render(key: string) {
-    const currentRoute = (await this.storage.restoreRoute(key)) ?? "/";
+  async render(key: string): Promise<RenderedComponent> {
+    const currentRoute =
+      (await this.storage.restoreRoute(key)) ?? DEFAULT_ROOT_ROUTE;
     const parsedRoute = this.adapter.parseRoute(currentRoute);
     const matchedRoute = await matchRouteWithPath(this.routes, parsedRoute);
+    const queryString = parseQuery(parsedRoute);
     if (!matchedRoute) {
       throw new Error("Route not found");
     }
-    return { matchedRoute, component: matchedRoute.component };
+    return {
+      matchedRoute,
+      component: matchedRoute.component,
+      queryString,
+      params: matchedRoute.params,
+    };
   }
 }
