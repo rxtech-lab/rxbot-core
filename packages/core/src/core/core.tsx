@@ -270,6 +270,7 @@ export class Core<T extends Container<any, any>>
         storage={this.storage}
         chatroomInfo={container.chatroomInfo}
         message={container.message}
+        api={this.coreApi}
       />
     );
 

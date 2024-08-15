@@ -2,9 +2,16 @@
   "name": "@rx-lab/router",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "files": ["dist", "src/global.d.ts"],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./hooks": {
+      "types": "./dist/hooks/index.d.ts",
+      "default": "./dist/hooks/index.js"
+    }
+  },
   "scripts": {
     "test": "jest --passWithNoTests",
     "build": "tsc"

@@ -111,7 +111,7 @@ export class TelegramAdapter
             container.hasUpdated = true;
             // if component is set to render new message
             // we need to reset the updateMessageId
-            if (component.renderNewMessage) {
+            if (component.new) {
               container.updateMessageId = undefined;
             }
 

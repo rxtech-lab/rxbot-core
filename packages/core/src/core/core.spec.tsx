@@ -1,9 +1,8 @@
+import * as process from "node:process";
 import type { AdapterInterface, Container, Menu } from "@rx-lab/common";
+import { MemoryStorage } from "@rx-lab/storage/memory";
 import React from "react";
 import { Core } from "./core";
-import "@rx-lab/router/src/global.d";
-import * as process from "node:process";
-import { MemoryStorage } from "@rx-lab/storage/memory";
 
 // Mock adapter
 class MockAdapter implements AdapterInterface<Container<any, any>, any, any> {
