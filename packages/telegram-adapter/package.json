@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/index.ts",
-  "scripts": {},
+  "scripts": {
+    "build": "tsc"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -15,7 +17,6 @@
   },
   "devDependencies": {
     "@rx-lab/common": "workspace:*",
-    "@rx-lab/core": "workspace:*",
     "@rx-lab/router": "workspace:*",
     "@rx-lab/typescript-config": "workspace:*",
     "@types/jest": "^29.5.12",

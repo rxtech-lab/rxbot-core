@@ -1,0 +1,307 @@
+openapi: 3.0.0
+info:
+  title: Chat Controller API
+  version: 1.0.0
+  description: API for simulating user chat with a bot
+
+paths:
+  /message:
+    post:
+      summary: Send a message
+      operationId: sendMessage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+      responses:
+        '200':
+          description: Message sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendMessageResponse'
+    get:
+      summary: Get all messages
+      operationId: getMessages
+      responses:
+        '200':
+          description: List of messages retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListMessageResponse'
+
+  /message/{id}:
+    get:
+      summary: Get a message by ID
+      operationId: getMessageById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Message retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetMessageByIdResponse'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Message not found
+
+  /message/{id}/click:
+    post:
+      summary: Simulate clicking on a message
+      operationId: clickOnMessage
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClickOnMessageRequest'
+      responses:
+        '200':
+          description: Click simulated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateMessageByIdResponse'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Message or button not found
+
+  /chatroom/{chatroomId}/message:
+    post:
+      summary: Send a message to a specific chatroom
+      operationId: sendMessageToChatroom
+      parameters:
+        - name: chatroomId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+      responses:
+        '200':
+          description: Message sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendMessageResponse'
+    get:
+      summary: Get all messages from a specific chatroom
+      operationId: getMessagesByChatroom
+      parameters:
+        - name: chatroomId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of messages retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListMessageResponse'
+
+  /chatroom/{chatroomId}/message/{id}:
+    get:
+      summary: Get a message by ID from a specific chatroom
+      operationId: getMessageByIdFromChatroom
+      parameters:
+        - name: chatroomId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Message retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetMessageByIdResponse'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Message not found
+
+  /chatroom/{chatroomId}/message/{id}/click:
+    post:
+      summary: Simulate clicking on a message in a specific chatroom
+      operationId: clickOnMessageInChatroom
+      parameters:
+        - name: chatroomId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClickOnMessageRequest'
+      responses:
+        '200':
+          description: Click simulated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateMessageByIdResponse'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Message or button not found
+
+  /reset:
+    post:
+      summary: Reset the entire state
+      operationId: resetState
+      responses:
+        '200':
+          description: State reset successfully
+
+  /reset/{chatroomId}:
+    post:
+      summary: Reset the state for a specific chatroom
+      operationId: resetChatroomState
+      parameters:
+        - name: chatroomId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Chatroom state reset successfully
+
+components:
+  schemas:
+    MessageType:
+      type: string
+      enum: [ text, callback ]
+
+    SendMessageRequest:
+      type: object
+      required:
+        - type
+        - content
+      properties:
+        type:
+          $ref: '#/components/schemas/MessageType'
+        content:
+          type: string
+
+    SendMessageResponse:
+      type: object
+      required:
+        - message_id
+        - chat_id
+      properties:
+        message_id:
+          type: integer
+        chat_id:
+          type: integer
+
+    Message:
+      type: object
+      properties:
+        message_id:
+          type: integer
+        text:
+          type: string
+        reply_markup:
+          $ref: '#/components/schemas/ReplyMarkup'
+        callback_query:
+          type: string
+        update_count:
+          type: integer
+
+    ReplyMarkup:
+      type: object
+      properties:
+        inline_keyboard:
+          type: array
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/InlineKeyboardButton'
+
+    InlineKeyboardButton:
+      type: object
+      required:
+        - text
+      properties:
+        text:
+          type: string
+        callback_data:
+          type: string
+        url:
+          type: string
+
+    GetMessageByIdResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          $ref: '#/components/schemas/Message'
+
+    ListMessageResponse:
+      type: object
+      required:
+        - messages
+        - count
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        count:
+          type: integer
+
+    UpdateMessageByIdResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          $ref: '#/components/schemas/Message'
+
+    ClickOnMessageRequest:
+      type: object
+      required:
+        - text
+      properties:
+        text:
+          type: string

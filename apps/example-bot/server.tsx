@@ -19,6 +19,7 @@ console.log("Starting bot with key: ", apiKey);
 const adapter = new TelegramAdapter({
   token: apiKey,
   longPolling: true,
+  url: "http://localhost:8080/webhook/chatroom/1",
   onMessage: async (message) => {
     const chatroomId = message?.chat?.id;
     const container: TGContainer = {

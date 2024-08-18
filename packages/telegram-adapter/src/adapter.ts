@@ -14,12 +14,20 @@ import { convertRouteToTGRoute, convertTGRouteToRoute } from "./utils";
 
 export type TelegramAppOpts =
   | {
+      /**
+       * base telegram url for the bot
+       */
+      url?: string;
       token: string;
       callbackUrl: string;
     }
   | {
       token: string;
       longPolling: boolean;
+      /**
+       * base telegram url for the bot
+       */
+      url?: string;
       onMessage(message: TelegramBot.Message): Promise<void>;
     };
 
@@ -49,6 +57,7 @@ export class TelegramAdapter
     const supportLongPolling = "longPolling" in opts ? opts.longPolling : false;
     this.bot = new TelegramBot(opts.token, {
       polling: supportLongPolling,
+      baseApiUrl: opts.url,
     });
   }
 
