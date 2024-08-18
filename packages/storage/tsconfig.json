@@ -1,7 +1,10 @@
 {
-  "extends": "../typescript-config/base.json",
+  "include": ["src/**/*"],
+  "exclude": ["**/*.spec.ts"],
+  "extends": "../typescript-config/react-library.json",
   "compilerOptions": {
-    "lib": ["es2017"],
-    "jsx": "react"
+    "outDir": "dist",
+    "moduleResolution": "node16",
+    "module": "Node16"
   }
 }

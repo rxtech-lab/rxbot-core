@@ -1,9 +1,10 @@
 import { REACT_CLIENT_COMPONENT_TYPE, RouteMetadata } from "@rx-lab/common";
 import * as swc from "@swc/core";
 
+//TODO: use swc to parse the source code
 export async function readMetadata(page: string): Promise<RouteMetadata> {
-  const component = await import(page);
-  return component.default.metadata;
+  const component = await require(page);
+  return component.default.metadata ?? component.metadata;
 }
 
 /**

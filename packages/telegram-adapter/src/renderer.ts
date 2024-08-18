@@ -1,5 +1,4 @@
 import { type Component, InstanceType } from "@rx-lab/common";
-import { CommandComponent } from "@rx-lab/core";
 import type { CallbackParser } from "./callbackParser";
 import type { CommandButtonCallback, RenderedElement } from "./types";
 import { convertRouteToTGRoute } from "./utils";
@@ -24,7 +23,7 @@ export const renderElement = (
   }
   switch (element.type) {
     case InstanceType.Command:
-      const commandElement = element as CommandComponent;
+      const commandElement = element as any;
 
       if (commandElement.props.variant === "button") {
         const callbackData: CommandButtonCallback = {
