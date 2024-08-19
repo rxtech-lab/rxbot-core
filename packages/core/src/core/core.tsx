@@ -171,8 +171,8 @@ export class Core<T extends Container<any, any>>
         newProps,
         internalHandle,
       ) => {
-        instance.commitUpdate(oldProps, newProps);
-        if (instance.isRoot) {
+        const hasUpdate = instance.commitUpdate(oldProps, newProps);
+        if (instance.isRoot && hasUpdate) {
           await this.onUpdate(instance.parent as any);
         }
       },
@@ -317,5 +317,10 @@ export class Core<T extends Container<any, any>>
     for (const listener of this.listeners.values()) {
       await listener(container);
     }
+  }
+
+  async onDestroy() {
+    await this.adapter.onDestroy();
+    this.listeners.clear();
   }
 }

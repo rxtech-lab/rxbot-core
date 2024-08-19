@@ -1,90 +1,24 @@
-import { spawn } from "child_process";
 import path from "path";
-import { StorageInterface } from "@rx-lab/common";
-import { Compiler, Core } from "@rx-lab/core";
 import { Api, MessageType } from "@rx-lab/mock-telegram-client";
-import { Router } from "@rx-lab/router";
-import { MemoryStorage } from "@rx-lab/storage/memory";
-import { type TGContainer, TelegramAdapter } from "@rx-lab/telegram-adapter";
-
-let port = 9000;
-
-async function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+import { PORT, initialize, sleep } from "../../utils";
 
 describe("Simple State Tests", () => {
   let api: Api<any>;
-  let adapter: TelegramAdapter;
-  let core: Core<any>;
-  let router: Router;
-  let compiler: Compiler;
-  let client: StorageInterface;
 
   beforeAll(async () => {
     api = new Api({
-      baseUrl: `http://0.0.0.0:${port}`,
+      baseUrl: `http://0.0.0.0:${PORT}`,
     });
   });
 
-  const initialize = async (chatroomId: number) => {
-    client = new MemoryStorage();
-    compiler = new Compiler({
-      rootDir: path.join(__dirname, "app"),
-      destinationDir: path.join(__dirname, ".rx-lab"),
-    });
-
-    adapter = new TelegramAdapter({
-      token: "Some token",
-      url: `http://0.0.0.0:${port}/webhook/chatroom/${chatroomId}`,
-      longPolling: true,
-      onMessage: async (message) => {
-        const chatroomId = message?.chat?.id;
-        const container: TGContainer = {
-          type: "ROOT",
-          children: [],
-          chatroomInfo: {
-            id: chatroomId,
-            messageId: message?.message_id,
-          },
-          message: message as any,
-        };
-        const routeKey = adapter.getRouteKey(container);
-        try {
-          const routeFromMessage = await adapter.getCurrentRoute(message);
-          if (routeFromMessage) {
-            await router.navigateTo(routeKey, routeFromMessage);
-          }
-          await core.loadAndRenderStoredRoute(routeKey);
-          // render default component
-          await core.render(container);
-        } catch (err) {
-          console.error(err);
-        }
-      },
-    });
-
-    router = new Router({
-      adapter: adapter,
-      storage: client,
-    });
-    core = new Core({
-      adapter: adapter,
-      storage: client,
-      router: router,
-    });
-
-    const routeInfo = await compiler.compile();
-    await router.initFromRoutes(routeInfo);
-
-    await core.loadAndRenderStoredRoute("/");
-    await core.init();
-
-    await api.reset.resetState();
-  };
-
   it("should render the initial state", async () => {
-    await initialize(1);
+    const rootDir = path.join(__dirname, "app");
+    const destinationDir = path.join(__dirname, ".rx-lab");
+    const { core } = await initialize(1, api, {
+      rootDir,
+      destinationDir,
+    });
+
     await api.chatroom.sendMessageToChatroom(1, {
       content: "Hello",
       type: MessageType.Text,
@@ -109,5 +43,7 @@ describe("Simple State Tests", () => {
     const updatedMessage = updatedMessages.data.messages[1];
     expect(updatedMessage?.update_count).toBe(1);
     expect(updatedMessage?.text).toContain("Current state: 1");
+
+    await core.onDestroy();
   });
 });
