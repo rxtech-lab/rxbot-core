@@ -2,6 +2,8 @@ import path from "path";
 import { Api, MessageType } from "@rx-lab/mock-telegram-client";
 import { PORT, initialize, sleep } from "../../utils";
 
+const chatroomId = 1000;
+
 describe("Simple State Tests", () => {
   let api: Api<any>;
 
@@ -14,18 +16,18 @@ describe("Simple State Tests", () => {
   it("should render the initial state", async () => {
     const rootDir = path.join(__dirname, "app");
     const destinationDir = path.join(__dirname, ".rx-lab");
-    const { core } = await initialize(1, api, {
+    const { core } = await initialize(chatroomId, api, {
       rootDir,
       destinationDir,
     });
 
-    await api.chatroom.sendMessageToChatroom(1, {
+    await api.chatroom.sendMessageToChatroom(chatroomId, {
       content: "Hello",
       type: MessageType.Text,
     });
 
     await sleep(3000);
-    const messages = await api.chatroom.getMessagesByChatroom(1);
+    const messages = await api.chatroom.getMessagesByChatroom(chatroomId);
     expect(messages.data.count).toBe(2);
     const currentMessage = messages.data.messages[1];
     expect(currentMessage?.update_count).toBe(0);
@@ -38,7 +40,8 @@ describe("Simple State Tests", () => {
       },
     );
     await sleep(5000);
-    const updatedMessages = await api.chatroom.getMessagesByChatroom(1);
+    const updatedMessages =
+      await api.chatroom.getMessagesByChatroom(chatroomId);
     expect(updatedMessages.data.count).toBe(2);
     const updatedMessage = updatedMessages.data.messages[1];
     expect(updatedMessage?.update_count).toBe(1);
@@ -53,7 +56,8 @@ describe("Simple State Tests", () => {
       },
     );
     await sleep(5000);
-    const doubleUpdatedMessages = await api.chatroom.getMessagesByChatroom(1);
+    const doubleUpdatedMessages =
+      await api.chatroom.getMessagesByChatroom(chatroomId);
     expect(doubleUpdatedMessages.data.count).toBe(2);
     const doubleUpdatedMessage = doubleUpdatedMessages.data.messages[1];
     expect(doubleUpdatedMessage?.text).toContain("Current state: 2");
