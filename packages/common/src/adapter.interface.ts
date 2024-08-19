@@ -167,4 +167,9 @@ export interface AdapterInterface<Container, AdaptElement, Message> {
    * @param message
    */
   getRouteKey: (message: Container) => string;
+
+  /**
+   * Lifecycle method called when core is destroyed.
+   */
+  onDestroy: () => Promise<void>;
 }

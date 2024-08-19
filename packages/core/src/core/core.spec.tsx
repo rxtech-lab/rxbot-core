@@ -34,6 +34,8 @@ class MockAdapter implements AdapterInterface<Container<any, any>, any, any> {
   getRouteKey(message: Container<any, any>): string {
     return "";
   }
+
+  async onDestroy(): Promise<void> {}
 }
 
 process.env.NODE_ENV = "development";

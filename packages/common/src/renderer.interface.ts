@@ -60,4 +60,10 @@ export interface Renderer<T extends Container<any, any>> {
    * // or any other representation of the rendered application
    */
   render: (container: T) => any;
+
+  /**
+   * Cleans up and destroys the renderer, releasing any resources or
+   * event listeners that were set up during initialization.
+   */
+  onDestroy: () => Promise<void>;
 }

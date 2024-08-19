@@ -305,4 +305,8 @@ export class TelegramAdapter
   getRouteKey(message: TGContainer): string {
     return `${message.chatroomInfo.id}`;
   }
+
+  onDestroy(): Promise<void> {
+    return this.bot.stopPolling();
+  }
 }
