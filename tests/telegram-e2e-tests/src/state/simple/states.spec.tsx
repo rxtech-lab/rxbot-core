@@ -44,6 +44,20 @@ describe("Simple State Tests", () => {
     expect(updatedMessage?.update_count).toBe(1);
     expect(updatedMessage?.text).toContain("Current state: 1");
 
+    // click again
+    await api.chatroom.clickOnMessageInChatroom(
+      1,
+      updatedMessages.data.messages[1]!.message_id!,
+      {
+        text: "+1",
+      },
+    );
+    await sleep(5000);
+    const doubleUpdatedMessages = await api.chatroom.getMessagesByChatroom(1);
+    expect(doubleUpdatedMessages.data.count).toBe(2);
+    const doubleUpdatedMessage = doubleUpdatedMessages.data.messages[1];
+    expect(doubleUpdatedMessage?.text).toContain("Current state: 2");
+
     await core.onDestroy();
   });
 });
