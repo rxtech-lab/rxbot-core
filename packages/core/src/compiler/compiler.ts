@@ -5,7 +5,6 @@ import * as swc from "@swc/core";
 import { glob } from "glob";
 import {
   generateClientComponentTag,
-  isClientComponent,
   isTypeScript,
   parseSourceCode,
   readMetadata,

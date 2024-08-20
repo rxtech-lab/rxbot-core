@@ -306,7 +306,9 @@ export class TelegramAdapter
     return `${message.chatroomInfo.id}`;
   }
 
-  onDestroy(): Promise<void> {
-    return this.bot.stopPolling();
+  async onDestroy(): Promise<void> {
+    await this.bot.stopPolling({
+      cancel: true,
+    });
   }
 }

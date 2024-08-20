@@ -1,21 +1,7 @@
-import { Component, type InstanceProps, InstanceType } from "@rx-lab/common";
 import { MemoryStorage } from "./memory";
-
-class MockComponent extends Component {
-  id = "mock";
-  props: InstanceProps = {};
-  type: InstanceType = InstanceType.Container;
-
-  commitUpdate(oldProps: InstanceProps, newProps: InstanceProps): boolean {
-    return false;
-  }
-
-  finalizeBeforeMount(): void {}
-}
 
 describe("MemoryStorage", () => {
   let memoryStorage: MemoryStorage;
-  let mockComponent: Component;
   let mockState: { key: string };
 
   beforeEach(() => {
@@ -23,12 +9,18 @@ describe("MemoryStorage", () => {
       buildFromJson: jest.fn().mockImplementation((component) => component),
     };
     memoryStorage = new MemoryStorage();
-    mockComponent = new MockComponent();
     mockState = { key: "value" };
   });
 
   test("should store state in memory", async () => {
-    await memoryStorage.saveState("testKey", mockState);
-    expect(await memoryStorage.restoreState("testKey")).toEqual(mockState);
+    await memoryStorage.saveState("testKey", "/", mockState);
+    expect(await memoryStorage.restoreState("testKey", "/")).toEqual(mockState);
+  });
+
+  test("should be able to retrieve the route from the state key", async () => {
+    await memoryStorage.saveState("testKey", "/route1", mockState);
+    expect(await memoryStorage.restoreRouteFromState("testKey")).toEqual(
+      "/route1",
+    );
   });
 });

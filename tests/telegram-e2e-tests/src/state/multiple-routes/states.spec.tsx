@@ -1,11 +1,17 @@
 import path from "path";
 import { Api, MessageType } from "@rx-lab/mock-telegram-client";
-import { PORT, initialize, sleep } from "../../utils";
+import {
+  DEFAULT_RENDERING_WAIT_TIME,
+  PORT,
+  initialize,
+  sleep,
+} from "../../utils";
 
 let chatroomId = 1100;
 
 describe("State in multiple routes Tests", () => {
   let api: Api<any>;
+  let coreApi: any;
 
   beforeAll(async () => {
     api = new Api({
@@ -23,13 +29,14 @@ describe("State in multiple routes Tests", () => {
       rootDir,
       destinationDir,
     });
+    coreApi = core;
 
     await api.chatroom.sendMessageToChatroom(chatroomId, {
       content: "Hello",
       type: MessageType.Text,
     });
 
-    await sleep(3000);
+    await sleep(DEFAULT_RENDERING_WAIT_TIME);
     let messages = await api.chatroom.getMessagesByChatroom(chatroomId);
     expect(messages.data.count).toBe(2);
     let firstMessage = messages.data.messages[1];
@@ -42,7 +49,7 @@ describe("State in multiple routes Tests", () => {
         text: "Go to page 2",
       },
     );
-    await sleep(5000);
+    await sleep(DEFAULT_RENDERING_WAIT_TIME);
     messages = await api.chatroom.getMessagesByChatroom(chatroomId);
     const secondMessage = messages.data.messages[2];
     expect(secondMessage?.update_count).toBe(0);
@@ -58,12 +65,14 @@ describe("State in multiple routes Tests", () => {
       },
     );
 
-    await sleep(5000);
+    await sleep(DEFAULT_RENDERING_WAIT_TIME);
     messages = await api.chatroom.getMessagesByChatroom(chatroomId);
     firstMessage = messages.data.messages[1];
     expect(firstMessage?.text).toContain("Page 1");
     expect(firstMessage?.text).toContain("Current state: 1");
+  });
 
-    await core.onDestroy();
+  afterEach(async () => {
+    await coreApi.onDestroy();
   });
 });

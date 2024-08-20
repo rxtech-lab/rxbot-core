@@ -1,11 +1,17 @@
 import path from "path";
 import { Api, MessageType } from "@rx-lab/mock-telegram-client";
-import { PORT, initialize, sleep } from "../../utils";
+import {
+  DEFAULT_RENDERING_WAIT_TIME,
+  PORT,
+  initialize,
+  sleep,
+} from "../../utils";
 
 const chatroomId = 1000;
 
 describe("Simple State Tests", () => {
   let api: Api<any>;
+  let coreApi: any;
 
   beforeAll(async () => {
     api = new Api({
@@ -20,26 +26,27 @@ describe("Simple State Tests", () => {
       rootDir,
       destinationDir,
     });
+    coreApi = core;
 
     await api.chatroom.sendMessageToChatroom(chatroomId, {
       content: "Hello",
       type: MessageType.Text,
     });
 
-    await sleep(3000);
+    await sleep(DEFAULT_RENDERING_WAIT_TIME);
     const messages = await api.chatroom.getMessagesByChatroom(chatroomId);
     expect(messages.data.count).toBe(2);
     const currentMessage = messages.data.messages[1];
     expect(currentMessage?.update_count).toBe(0);
     expect(currentMessage?.text).toContain("Current state: 0");
     await api.chatroom.clickOnMessageInChatroom(
-      1,
-      messages.data.messages[1]!.message_id!,
+      chatroomId,
+      currentMessage?.message_id!,
       {
         text: "+1",
       },
     );
-    await sleep(5000);
+    await sleep(DEFAULT_RENDERING_WAIT_TIME);
     const updatedMessages =
       await api.chatroom.getMessagesByChatroom(chatroomId);
     expect(updatedMessages.data.count).toBe(2);
@@ -49,19 +56,21 @@ describe("Simple State Tests", () => {
 
     // click again
     await api.chatroom.clickOnMessageInChatroom(
-      1,
-      updatedMessages.data.messages[1]!.message_id!,
+      chatroomId,
+      updatedMessage?.message_id!,
       {
         text: "+1",
       },
     );
-    await sleep(5000);
+    await sleep(DEFAULT_RENDERING_WAIT_TIME);
     const doubleUpdatedMessages =
       await api.chatroom.getMessagesByChatroom(chatroomId);
     expect(doubleUpdatedMessages.data.count).toBe(2);
     const doubleUpdatedMessage = doubleUpdatedMessages.data.messages[1];
     expect(doubleUpdatedMessage?.text).toContain("Current state: 2");
+  });
 
-    await core.onDestroy();
+  afterEach(async () => {
+    await coreApi.onDestroy();
   });
 });

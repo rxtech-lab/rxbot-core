@@ -1,13 +1,13 @@
-import fastify, {
-  FastifyInstance,
-  FastifyRequest,
-  FastifyReply,
-} from "fastify";
-import { load as yamlLoad } from "js-yaml";
 import { readFileSync } from "fs";
 import { join } from "path";
-import { OpenAPIV3 } from "openapi-types";
 import $RefParser from "@apidevtools/json-schema-ref-parser";
+import fastify, {
+  FastifyInstance,
+  FastifyReply,
+  FastifyRequest,
+} from "fastify";
+import { load as yamlLoad } from "js-yaml";
+import { OpenAPIV3 } from "openapi-types";
 
 const server: FastifyInstance = fastify({ logger: true });
 

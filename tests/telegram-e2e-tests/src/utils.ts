@@ -14,6 +14,10 @@ export async function sleep(ms: number) {
 
 export const PORT = 9000;
 
+export const DEFAULT_RENDERING_WAIT_TIME = 500;
+
+export const DEFAULT_LONG_RENDERING_WAIT_TIME = 4000;
+
 interface Options {
   rootDir: string;
   destinationDir: string;

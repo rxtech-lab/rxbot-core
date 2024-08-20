@@ -1,7 +1,7 @@
+import * as fs from "fs";
+import * as path from "path";
 import { generateApi } from "swagger-typescript-api";
 import * as YAML from "yaml";
-import * as path from "path";
-import * as fs from "fs";
 
 const spec = YAML.parse(
   fs.readFileSync(path.resolve(process.cwd(), "./spec.yaml"), "utf8"),

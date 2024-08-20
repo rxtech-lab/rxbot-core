@@ -1,4 +1,4 @@
-import { Logger } from "@rx-lab/common";
+import { DEFAULT_ROOT_ROUTE, Logger } from "@rx-lab/common";
 import { useRouter } from "@rx-lab/router";
 import {
   useCallback,
@@ -28,7 +28,10 @@ export function useState<T>(key: string, initialState: T) {
       return;
     }
     const loadInitialState = async () => {
-      const storedState = await client.restoreState(storedKey);
+      const storedState = await client.restoreState(
+        storedKey,
+        DEFAULT_ROOT_ROUTE,
+      );
       Logger.log(
         `Restored state for key ${storedKey}: ${JSON.stringify(storedState)}`,
       );
@@ -45,10 +48,13 @@ export function useState<T>(key: string, initialState: T) {
   const state = useSyncExternalStore<T>(
     useCallback(
       (onStoreChange) => {
-        return client.subscribeStateChange(key, () => {
+        return client.subscribeStateChange(key, DEFAULT_ROOT_ROUTE, () => {
           const loadNewState = async () => {
             Logger.log(`Loading new state for key ${storedKey}`);
-            const newState = await client.restoreState(storedKey);
+            const newState = await client.restoreState(
+              storedKey,
+              DEFAULT_ROOT_ROUTE,
+            );
             setLocalState(newState as T);
             onStoreChange();
           };
@@ -67,7 +73,7 @@ export function useState<T>(key: string, initialState: T) {
       Logger.log(`Saving state for key ${storedKey}`);
       registerLoading(
         client
-          .saveState(storedKey, newState)
+          .saveState(storedKey, DEFAULT_ROOT_ROUTE, newState)
           .then(() => {
             setLocalState(newState);
           })
