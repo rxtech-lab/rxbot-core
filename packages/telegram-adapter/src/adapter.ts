@@ -94,8 +94,21 @@ export class TelegramAdapter
         //@ts-ignore
         id: new Date().getTime(),
       };
+
+      const [callbackType, component] = this.callbackParser.decode(data);
+      if (callbackType === CallbackType.onClick) {
+        // find the route and redirect to the route
+        const routeFromCallback = await api.restoreRoute(component.id);
+        if (routeFromCallback)
+          await api.redirectTo(container, routeFromCallback, {
+            shouldRender: true,
+          });
+      }
+
       // in order for old message to be updated
-      // we need to render the app with the old message
+      // we need to render the app with the old message.
+      // And if the message is on different route,
+      // we need to render the app with the new route as well.
       const updatedContainer = await api.renderApp(
         container,
         async (container: InternalTGContainer) => {
@@ -107,10 +120,6 @@ export class TelegramAdapter
             return;
           }
 
-          const [callbackType, component] = this.callbackParser.decode(
-            data,
-            container.children as any,
-          );
           // handle command button
           // if the component is a string, it means that it is a route,
           // so we need to redirect to the route
@@ -136,7 +145,14 @@ export class TelegramAdapter
             }
             return;
           }
-          component?.props.onClick?.();
+
+          // find the route based on the key
+          const componentKey = component!.id;
+          const componentToRender = this.callbackParser.findComponentByKey(
+            componentKey,
+            container.children,
+          );
+          componentToRender?.props.onClick?.();
           container.hasUpdated = true;
           Logger.log("Callback query", "blue");
         },
@@ -306,7 +322,9 @@ export class TelegramAdapter
     return `${message.chatroomInfo.id}`;
   }
 
-  onDestroy(): Promise<void> {
-    return this.bot.stopPolling();
+  async onDestroy(): Promise<void> {
+    await this.bot.stopPolling({
+      cancel: true,
+    });
   }
 }

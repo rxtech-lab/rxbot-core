@@ -7,9 +7,9 @@ import {
   sleep,
 } from "../../utils";
 
-const chatroomId = 1000;
+let chatroomId = 1100;
 
-describe("Simple State Tests", () => {
+describe("State in multiple routes Tests", () => {
   let api: Api<any>;
   let coreApi: any;
 
@@ -19,7 +19,10 @@ describe("Simple State Tests", () => {
     });
   });
 
-  it("should render the initial state", async () => {
+  /**
+   * Related to issue https://github.com/rxtech-lab/rxbot-core/issues/66
+   */
+  it("should be able to update state in other routes", async () => {
     const rootDir = path.join(__dirname, "app");
     const destinationDir = path.join(__dirname, ".rx-lab");
     const { core } = await initialize(chatroomId, api, {
@@ -34,40 +37,39 @@ describe("Simple State Tests", () => {
     });
 
     await sleep(DEFAULT_RENDERING_WAIT_TIME);
-    const messages = await api.chatroom.getMessagesByChatroom(chatroomId);
+    let messages = await api.chatroom.getMessagesByChatroom(chatroomId);
     expect(messages.data.count).toBe(2);
-    const currentMessage = messages.data.messages[1];
-    expect(currentMessage?.update_count).toBe(0);
-    expect(currentMessage?.text).toContain("Current state: 0");
+    let firstMessage = messages.data.messages[1];
+    expect(firstMessage?.update_count).toBe(0);
+    expect(firstMessage?.text).toContain("Current state: 0");
     await api.chatroom.clickOnMessageInChatroom(
       chatroomId,
-      currentMessage?.message_id!,
+      firstMessage!.message_id!,
       {
-        text: "+1",
+        text: "Go to page 2",
       },
     );
     await sleep(DEFAULT_RENDERING_WAIT_TIME);
-    const updatedMessages =
-      await api.chatroom.getMessagesByChatroom(chatroomId);
-    expect(updatedMessages.data.count).toBe(2);
-    const updatedMessage = updatedMessages.data.messages[1];
-    expect(updatedMessage?.update_count).toBe(1);
-    expect(updatedMessage?.text).toContain("Current state: 1");
+    messages = await api.chatroom.getMessagesByChatroom(chatroomId);
+    const secondMessage = messages.data.messages[2];
+    expect(secondMessage?.update_count).toBe(0);
+    expect(secondMessage?.text).toContain("Page 2");
+    expect(secondMessage?.text).toContain("Current state: 0");
 
-    // click again
+    // click on the button in the first page
     await api.chatroom.clickOnMessageInChatroom(
       chatroomId,
-      updatedMessage?.message_id!,
+      firstMessage!.message_id!,
       {
         text: "+1",
       },
     );
+
     await sleep(DEFAULT_RENDERING_WAIT_TIME);
-    const doubleUpdatedMessages =
-      await api.chatroom.getMessagesByChatroom(chatroomId);
-    expect(doubleUpdatedMessages.data.count).toBe(2);
-    const doubleUpdatedMessage = doubleUpdatedMessages.data.messages[1];
-    expect(doubleUpdatedMessage?.text).toContain("Current state: 2");
+    messages = await api.chatroom.getMessagesByChatroom(chatroomId);
+    firstMessage = messages.data.messages[1];
+    expect(firstMessage?.text).toContain("Page 1");
+    expect(firstMessage?.text).toContain("Current state: 1");
   });
 
   afterEach(async () => {

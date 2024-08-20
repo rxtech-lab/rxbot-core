@@ -196,6 +196,9 @@ export class Core<T extends Container<any, any>>
         this.listeners.set(this.adapter, callback);
         return this.render(container);
       },
+      restoreRoute: async (key) => {
+        return (await this.router.getRouteFromKey(key)).route;
+      },
       redirectTo: async (container, path, options) => {
         // store the new path
         const key = this.adapter.getRouteKey(container);
@@ -203,6 +206,7 @@ export class Core<T extends Container<any, any>>
         if (options.shouldRender) {
           await this.loadAndRenderStoredRoute(key);
           await this.render(container);
+          return container;
         }
       },
     };

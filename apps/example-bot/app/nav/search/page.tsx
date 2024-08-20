@@ -1,3 +1,4 @@
+"use client";
 import { useSearchParams } from "@rx-lab/router/hooks";
 
 export default function page() {

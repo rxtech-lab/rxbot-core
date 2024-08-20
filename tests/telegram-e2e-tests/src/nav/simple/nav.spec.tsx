@@ -4,6 +4,7 @@ import { PORT, initialize, sleep } from "../../utils";
 
 describe("Simple navigation Tests", () => {
   let api: Api<any>;
+  let coreApi: any;
 
   beforeAll(async () => {
     api = new Api({
@@ -15,13 +16,13 @@ describe("Simple navigation Tests", () => {
     const rootDir = path.join(__dirname, "app");
     const destinationDir = path.join(__dirname, ".rx-lab");
     const { core } = await initialize(2, api, { rootDir, destinationDir });
+    coreApi = core;
 
     await api.chatroom.sendMessageToChatroom(2, {
       content: "Hello",
       type: MessageType.Text,
     });
-
-    await sleep(3000);
+    await sleep(500);
     const messages = await api.chatroom.getMessagesByChatroom(2);
     expect(messages.data.count).toBe(2);
     const currentMessage = messages.data.messages[1];
@@ -34,7 +35,7 @@ describe("Simple navigation Tests", () => {
         text: "Go to subpage 1",
       },
     );
-    await sleep(5000);
+    await sleep(500);
     // When user navigate to subpage 1, the message count should be 3
     // since renderNewMessage is set to true
     const updatedMessages = await api.chatroom.getMessagesByChatroom(2);
@@ -42,7 +43,9 @@ describe("Simple navigation Tests", () => {
     const updatedMessage = updatedMessages.data.messages[2];
     expect(updatedMessage?.update_count).toBe(0);
     expect(updatedMessage?.text).toContain("This is subpage 1");
+  });
 
-    await core.onDestroy();
+  afterEach(async () => {
+    await coreApi?.onDestroy();
   });
 });

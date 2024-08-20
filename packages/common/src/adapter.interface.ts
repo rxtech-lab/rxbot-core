@@ -1,3 +1,5 @@
+import { Route } from "./router.interface";
+
 interface RedirectOptions {
   shouldRender: boolean;
 }
@@ -45,6 +47,14 @@ export interface CoreApi<Container> {
     path: string,
     options: RedirectOptions,
   ) => Promise<void>;
+
+  /**
+   * Finds the route based on the key.
+   * @param key The key of the route to find. Might be a callback data if using a telegram adapter.
+   *
+   * @returns A promise that resolves to the Route object.
+   */
+  restoreRoute: (key: string) => Promise<Route | undefined>;
 }
 
 export interface Menu {

@@ -2,8 +2,6 @@ import { CoreApi, RenderedComponent } from "@rx-lab/common";
 import { RouterProvider } from "@rx-lab/router";
 import { StorageProvider } from "@rx-lab/storage";
 import * as React from "react";
-import { Child } from "./clientComponent";
-import { renderServerComponent } from "./server/renderServerComponent";
 
 /**
  * Properties that will be passed to each rendered page component.

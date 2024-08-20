@@ -1,4 +1,4 @@
-import type { StorageInterface } from "@rx-lab/common";
+import type { Route, StorageInterface } from "@rx-lab/common";
 
 export const STATE_KEY = "state";
 export const ROUTE_KEY = "route";
@@ -9,11 +9,15 @@ export abstract class Storage implements StorageInterface {
 
   constructor() {}
 
-  abstract restoreState<T>(key: string): Promise<T | undefined>;
+  abstract restoreState<T>(key: string, route: Route): Promise<T | undefined>;
 
-  abstract saveState<T>(key: string, state: T): Promise<void>;
+  abstract saveState<T>(key: string, route: Route, state: T): Promise<void>;
 
-  subscribeStateChange(key: string, callback: () => void): () => void {
+  subscribeStateChange(
+    key: string,
+    route: Route,
+    callback: () => void,
+  ): () => void {
     this.stateChangeListeners.set(`${STATE_KEY}-${key}`, callback);
     return () => {
       this.stateChangeListeners.delete(`${STATE_KEY}-${key}`);
@@ -21,13 +25,15 @@ export abstract class Storage implements StorageInterface {
   }
 
   subscribeRouteChange(key: string, callback: () => void): () => void {
-    this.stateChangeListeners.set(`${ROUTE_KEY}-${key}`, callback);
+    this.routeChangeListeners.set(`${ROUTE_KEY}-${key}`, callback);
     return () => {
-      this.stateChangeListeners.delete(`${ROUTE_KEY}-${key}`);
+      this.routeChangeListeners.delete(`${ROUTE_KEY}-${key}`);
     };
   }
 
-  abstract restoreRoute(key: string): Promise<string | undefined>;
+  abstract restoreRoute(key: string): Promise<Route | undefined>;
 
   abstract saveRoute(key: string, path: string): Promise<void>;
+
+  abstract deleteState(key: string, route: Route): Promise<void>;
 }

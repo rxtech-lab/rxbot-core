@@ -107,18 +107,20 @@ describe("should be able to render", () => {
       adapter: mockAdapter as any,
       storage: mockStorage as any,
     });
-    await router.initFromRoutes([
-      {
-        route: "/client",
-        filePath: clientComponents[0],
-        metadata: {},
-      },
-      {
-        route: "/server",
-        filePath: serverComponents[0],
-        metadata: {},
-      },
-    ]);
+    await router.initFromRoutes({
+      routes: [
+        {
+          route: "/client",
+          filePath: clientComponents[0],
+          metadata: {},
+        },
+        {
+          route: "/server",
+          filePath: serverComponents[0],
+          metadata: {},
+        },
+      ],
+    });
 
     const clientResult = await router.render("/client");
     expect(clientResult).toBeTruthy();

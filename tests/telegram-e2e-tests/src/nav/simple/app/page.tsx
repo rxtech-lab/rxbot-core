@@ -1,4 +1,4 @@
-import { CommandButton } from "@rx-lab/core/dist";
+import { CommandButton } from "@rx-lab/core";
 import React from "react";
 
 export default function Page() {

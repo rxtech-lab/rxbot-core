@@ -141,3 +141,94 @@ export async function generateClientComponentTag(
 
   return content;
 }
+
+export interface KeyAttribute {
+  value: string;
+}
+
+/**
+ * Extract the key attribute from the JSX elements
+ * @param ast The AST of the source code
+ * @returns The key attributes
+ *
+ * @example
+ * // element
+ * // <div>
+ * //  <button key="1">Button 1</button>
+ * //  <button key="2">Button 2</button>
+ * // </div>
+ * const keys = await extractJSXKeyAttributes(ast);
+ * console.log(keys); // [{ value: "1" }, { value: "2" }]
+ */
+export async function extractJSXKeyAttributes(
+  ast: swc.Module,
+): Promise<KeyAttribute[]> {
+  const keyAttributes: KeyAttribute[] = [];
+
+  function traverse(node: swc.Node) {
+    if (node.type === "JSXElement") {
+      const jsxElement = node as swc.JSXElement;
+      if (jsxElement.opening && jsxElement.opening.attributes) {
+        for (const attr of jsxElement.opening.attributes) {
+          if (
+            attr.type === "JSXAttribute" &&
+            attr.name.type === "Identifier" &&
+            attr.name.value === "key"
+          ) {
+            if (attr.value && attr.value.type === "JSXExpressionContainer") {
+              const expression = attr.value.expression;
+              if (expression.type === "StringLiteral") {
+                keyAttributes.push({ value: expression.value });
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if (node.type === "JSXAttribute") {
+      const jsxAttribute = node as swc.JSXAttribute;
+      if (
+        jsxAttribute.name.type === "Identifier" &&
+        jsxAttribute.name.value === "key"
+      ) {
+        if (jsxAttribute.value && jsxAttribute.value.type === "StringLiteral") {
+          keyAttributes.push({ value: jsxAttribute.value.value });
+        }
+      }
+    }
+
+    for (const key in node) {
+      if (node.hasOwnProperty(key)) {
+        const child = (node as any)[key];
+        if (child && typeof child === "object") {
+          if (Array.isArray(child)) {
+            child.forEach((item) => traverse(item));
+          } else if (child.type) {
+            traverse(child);
+          }
+        }
+      }
+    }
+  }
+
+  traverse(ast);
+  return keyAttributes;
+}
+
+/**
+ * Check if the given key is a duplicate key
+ * @param oldMap
+ * @param newMap
+ */
+export function checkDuplicateKeys(
+  oldMap: Record<any, any>,
+  newMap: Record<any, any>,
+) {
+  for (const key in newMap) {
+    if (oldMap[key]) {
+      //TODO: Throw custom error
+      throw new Error(`Duplicate key found: ${key}`);
+    }
+  }
+}
