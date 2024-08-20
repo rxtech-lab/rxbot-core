@@ -28,12 +28,16 @@ const adapter = new TelegramAdapter({
         id: chatroomId,
         messageId: message?.message_id,
       },
-      message: message as any,
+      message: {
+        ...message,
+        text: message.text,
+      } as any,
     };
     const routeKey = adapter.getRouteKey(container);
     try {
       const routeFromMessage = await adapter.getCurrentRoute(message);
       if (routeFromMessage) {
+        delete container.message.text;
         await router.navigateTo(routeKey, routeFromMessage);
       }
       await core.loadAndRenderStoredRoute(routeKey);

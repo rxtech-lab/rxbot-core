@@ -9,4 +9,9 @@
 export interface PageProps {
   searchQuery: Record<string, string | null | boolean>;
   params: Record<string, string>;
+  /**
+   * The text from user input. May be undefined if the user did not provide any text or
+   * the text is treated as a command.
+   */
+  text?: string;
 }

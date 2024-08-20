@@ -9,7 +9,14 @@ export interface BaseChatroomInfo {
   messageId?: string | number;
 }
 
-export interface Container<ChatroomInfo extends BaseChatroomInfo, Message> {
+export interface BaseMessage {
+  text?: string;
+}
+
+export interface Container<
+  ChatroomInfo extends BaseChatroomInfo,
+  Message extends BaseMessage,
+> {
   children: any[];
   _rootContainer?: React.ReactElement;
   type: string;

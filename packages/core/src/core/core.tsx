@@ -272,9 +272,10 @@ export class Core<T extends Container<any, any>>
     // the components can access the router and storage
     const Component = this.element.component;
 
-    const props: PageProps = {
+    const pageProps: PageProps = {
       searchQuery: this.element.queryString,
       params: this.element.params,
+      text: container.message.text,
     };
 
     const wrappedElement = React.createElement(
@@ -286,7 +287,7 @@ export class Core<T extends Container<any, any>>
         message: container.message,
         api: this.coreApi,
       },
-      await renderServerComponent(Component, props),
+      await renderServerComponent(Component, pageProps),
     );
 
     await new Promise<void>((resolve) => {
