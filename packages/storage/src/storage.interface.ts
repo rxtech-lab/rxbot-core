@@ -25,9 +25,9 @@ export abstract class Storage implements StorageInterface {
   }
 
   subscribeRouteChange(key: string, callback: () => void): () => void {
-    this.stateChangeListeners.set(`${ROUTE_KEY}-${key}`, callback);
+    this.routeChangeListeners.set(`${ROUTE_KEY}-${key}`, callback);
     return () => {
-      this.stateChangeListeners.delete(`${ROUTE_KEY}-${key}`);
+      this.routeChangeListeners.delete(`${ROUTE_KEY}-${key}`);
     };
   }
 

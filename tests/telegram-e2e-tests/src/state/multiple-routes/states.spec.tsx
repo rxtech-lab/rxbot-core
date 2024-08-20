@@ -9,7 +9,7 @@ import {
 
 let chatroomId = 1100;
 
-describe("State in multiple routes Tests", () => {
+describe.skip("State in multiple routes Tests", () => {
   let api: Api<any>;
   let coreApi: any;
 

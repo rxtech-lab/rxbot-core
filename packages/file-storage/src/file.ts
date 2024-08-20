@@ -1,8 +1,14 @@
 import { ROUTE_KEY, STATE_KEY, Storage } from "@rx-lab/storage";
 
 import * as fs from "node:fs";
+import { Route } from "@rx-lab/common";
 
-type StoredState = { [key: string]: any };
+interface State {
+  route: string;
+  state: any;
+}
+
+type StoredState = { [key: string]: State };
 
 const OUTPUT_FILE_NAME = "state.json";
 
@@ -65,27 +71,46 @@ export class FileStorage extends Storage {
 
   async restoreState<T>(key: string): Promise<T | undefined> {
     const state = await this.readState();
-    return state[`${STATE_KEY}-${key}`];
+    return state[`${STATE_KEY}-${key}`]?.state;
   }
 
-  async saveState<T>(key: string, state: T): Promise<void> {
+  async saveState<T>(key: string, route: Route, state: T): Promise<void> {
     const storedState = await this.readState();
-    storedState[`${STATE_KEY}-${key}`] = state;
+    storedState[`${STATE_KEY}-${key}`] = {
+      route: route,
+      state,
+    };
     await this.writeState(storedState);
-    const listener = this.stateChangeListeners.get(key);
+    const listener = this.stateChangeListeners.get(`${STATE_KEY}-${key}`);
     listener?.();
   }
 
   async restoreRoute(key: string): Promise<string | undefined> {
     const state = await this.readState();
-    return state[`${ROUTE_KEY}-${key}`];
+    return state[`${ROUTE_KEY}-${key}`]?.state;
   }
 
   async saveRoute(key: string, path: string): Promise<void> {
     const storedState = await this.readState();
-    storedState[`${ROUTE_KEY}-${key}`] = path;
+    storedState[`${ROUTE_KEY}-${key}`] = {
+      state: path,
+      route: "",
+    };
     await this.writeState(storedState);
-    const listener = this.routeChangeListeners.get(key);
+    const listener = this.routeChangeListeners.get(`${ROUTE_KEY}-${key}`);
     listener?.();
+  }
+
+  async deleteState(key: string, route: Route): Promise<void> {
+    const state = await this.readState();
+    delete state[`${STATE_KEY}-${key}`];
+    await this.writeState(state);
+    const listener = this.stateChangeListeners.get(`${STATE_KEY}-${key}`);
+    listener?.();
+  }
+
+  async restoreRouteFromState(key: string): Promise<Route | undefined> {
+    const state = await this.readState();
+    return state[`${STATE_KEY}-${key}`]?.route;
   }
 }
