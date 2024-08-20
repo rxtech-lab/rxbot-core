@@ -33,7 +33,9 @@ export type TelegramAppOpts =
 
 export interface TGChatroomInfo extends BaseChatroomInfo {}
 
-export interface TGMessage extends TelegramBot.Update {}
+export interface TGMessage extends TelegramBot.Update {
+  text?: string;
+}
 
 export interface TGContainer extends Container<TGChatroomInfo, TGMessage> {}
 
