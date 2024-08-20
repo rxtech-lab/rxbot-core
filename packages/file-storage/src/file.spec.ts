@@ -230,20 +230,4 @@ describe("FileStorage", () => {
       expect(mockListener).toHaveBeenCalled();
     });
   });
-
-  describe("restoreRouteFromState", () => {
-    it("should restore route from state for a given key", async () => {
-      jest.spyOn(fileStorage as any, "readState").mockResolvedValue({
-        [`${STATE_KEY}-testKey`]: { route: "testRoute" },
-      });
-      const result = await fileStorage.restoreRouteFromState("testKey");
-      expect(result).toBe("testRoute");
-    });
-
-    it("should return undefined if state does not exist for the key", async () => {
-      jest.spyOn(fileStorage as any, "readState").mockResolvedValue({});
-      const result = await fileStorage.restoreRouteFromState("testKey");
-      expect(result).toBeUndefined();
-    });
-  });
 });

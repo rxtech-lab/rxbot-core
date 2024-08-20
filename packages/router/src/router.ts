@@ -7,6 +7,7 @@ import {
   Menu,
   RenderedComponent,
   RouteInfo,
+  RouteInfoFile,
   RouteMetadata,
   StorageInterface,
 } from "@rx-lab/common";
@@ -72,9 +73,9 @@ interface RouterOptions {
 }
 
 export class Router {
-  routes: RouteInfo[] = [];
-  adapter: AdapterInterface<any, any, any>;
-  storage: StorageInterface;
+  private routeInfoFile: RouteInfoFile | null = null;
+  private adapter: AdapterInterface<any, any, any>;
+  private storage: StorageInterface;
 
   constructor({ adapter, storage }: RouterOptions) {
     this.adapter = adapter;
@@ -83,12 +84,14 @@ export class Router {
 
   async init(fromFile: string) {
     // read the file and parse the routes
-    this.routes = JSON.parse(fs.readFileSync(fromFile, "utf-8")) as RouteInfo[];
+    this.routeInfoFile = JSON.parse(
+      fs.readFileSync(fromFile, "utf-8"),
+    ) as RouteInfoFile;
     await this.updateMenu();
   }
 
-  async initFromRoutes(routes: RouteInfo[]) {
-    this.routes = routes;
+  async initFromRoutes(routeFile: RouteInfoFile) {
+    this.routeInfoFile = routeFile;
     await this.updateMenu();
   }
 
@@ -107,7 +110,7 @@ export class Router {
   }
 
   private async updateMenu() {
-    const menu = this.generateMenu(this.routes);
+    const menu = this.generateMenu(this.routeInfoFile.routes);
     await this.adapter.setMenus(menu);
   }
 
@@ -115,11 +118,30 @@ export class Router {
     await this.storage.saveRoute(key, path);
   }
 
+  /**
+   * Get the route from the React key.
+   * @param key The key of the component.
+   * @returns The route of the component.
+   *
+   * @example
+   * // Support you have a component with the key `home` at the route `/home`
+   * // <Component key="home" />
+   *
+   * const route = await router.getRouteFromKey("home");
+   * console.log(route.route); // "/home"
+   */
+  async getRouteFromKey(key: string) {
+    return this.routeInfoFile.componentKeyMap[key];
+  }
+
   async render(key: string): Promise<RenderedComponent> {
     const currentRoute =
       (await this.storage.restoreRoute(key)) ?? DEFAULT_ROOT_ROUTE;
     const parsedRoute = this.adapter.parseRoute(currentRoute);
-    const matchedRoute = await matchRouteWithPath(this.routes, parsedRoute);
+    const matchedRoute = await matchRouteWithPath(
+      this.routeInfoFile.routes,
+      parsedRoute,
+    );
     const queryString = parseQuery(parsedRoute);
     if (!matchedRoute) {
       throw new Error(`Route not found: ${parsedRoute}`);

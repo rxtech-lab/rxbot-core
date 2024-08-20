@@ -1,0 +1,318 @@
+{
+  "type": "Module",
+  "span": {
+    "start": 371,
+    "end": 669
+  },
+  "body": [
+    {
+      "type": "ExportDefaultDeclaration",
+      "span": {
+        "start": 371,
+        "end": 669
+      },
+      "decl": {
+        "type": "FunctionExpression",
+        "identifier": {
+          "type": "Identifier",
+          "span": {
+            "start": 401,
+            "end": 405
+          },
+          "ctxt": 2,
+          "value": "Page",
+          "optional": false
+        },
+        "params": [],
+        "decorators": [],
+        "span": {
+          "start": 386,
+          "end": 669
+        },
+        "ctxt": 3,
+        "body": {
+          "type": "BlockStatement",
+          "span": {
+            "start": 408,
+            "end": 669
+          },
+          "ctxt": 3,
+          "stmts": [
+            {
+              "type": "ReturnStatement",
+              "span": {
+                "start": 412,
+                "end": 667
+              },
+              "argument": {
+                "type": "ParenthesisExpression",
+                "span": {
+                  "start": 419,
+                  "end": 666
+                },
+                "expression": {
+                  "type": "JSXElement",
+                  "span": {
+                    "start": 425,
+                    "end": 662
+                  },
+                  "opening": {
+                    "type": "JSXOpeningElement",
+                    "name": {
+                      "type": "Identifier",
+                      "span": {
+                        "start": 426,
+                        "end": 429
+                      },
+                      "ctxt": 1,
+                      "value": "div",
+                      "optional": false
+                    },
+                    "span": {
+                      "start": 425,
+                      "end": 430
+                    },
+                    "attributes": [],
+                    "selfClosing": false,
+                    "typeArguments": null
+                  },
+                  "children": [
+                    {
+                      "type": "JSXText",
+                      "span": {
+                        "start": 430,
+                        "end": 437
+                      },
+                      "value": "\n      ",
+                      "raw": "\n      "
+                    },
+                    {
+                      "type": "JSXElement",
+                      "span": {
+                        "start": 437,
+                        "end": 487
+                      },
+                      "opening": {
+                        "type": "JSXOpeningElement",
+                        "name": {
+                          "type": "Identifier",
+                          "span": {
+                            "start": 438,
+                            "end": 440
+                          },
+                          "ctxt": 1,
+                          "value": "h1",
+                          "optional": false
+                        },
+                        "span": {
+                          "start": 437,
+                          "end": 456
+                        },
+                        "attributes": [
+                          {
+                            "type": "JSXAttribute",
+                            "span": {
+                              "start": 441,
+                              "end": 455
+                            },
+                            "name": {
+                              "type": "Identifier",
+                              "span": {
+                                "start": 441,
+                                "end": 444
+                              },
+                              "value": "key"
+                            },
+                            "value": {
+                              "type": "JSXExpressionContainer",
+                              "span": {
+                                "start": 445,
+                                "end": 455
+                              },
+                              "expression": {
+                                "type": "StringLiteral",
+                                "span": {
+                                  "start": 446,
+                                  "end": 454
+                                },
+                                "value": "header",
+                                "raw": "\"header\""
+                              }
+                            }
+                          }
+                        ],
+                        "selfClosing": false,
+                        "typeArguments": null
+                      },
+                      "children": [
+                        {
+                          "type": "JSXText",
+                          "span": {
+                            "start": 456,
+                            "end": 482
+                          },
+                          "value": "Welcome to the Rx-Bot Demo",
+                          "raw": "Welcome to the Rx-Bot Demo"
+                        }
+                      ],
+                      "closing": {
+                        "type": "JSXClosingElement",
+                        "span": {
+                          "start": 482,
+                          "end": 487
+                        },
+                        "name": {
+                          "type": "Identifier",
+                          "span": {
+                            "start": 484,
+                            "end": 486
+                          },
+                          "ctxt": 1,
+                          "value": "h1",
+                          "optional": false
+                        }
+                      }
+                    },
+                    {
+                      "type": "JSXText",
+                      "span": {
+                        "start": 487,
+                        "end": 494
+                      },
+                      "value": "\n      ",
+                      "raw": "\n      "
+                    },
+                    {
+                      "type": "JSXElement",
+                      "span": {
+                        "start": 494,
+                        "end": 651
+                      },
+                      "opening": {
+                        "type": "JSXOpeningElement",
+                        "name": {
+                          "type": "Identifier",
+                          "span": {
+                            "start": 495,
+                            "end": 496
+                          },
+                          "ctxt": 1,
+                          "value": "p",
+                          "optional": false
+                        },
+                        "span": {
+                          "start": 494,
+                          "end": 497
+                        },
+                        "attributes": [],
+                        "selfClosing": false,
+                        "typeArguments": null
+                      },
+                      "children": [
+                        {
+                          "type": "JSXText",
+                          "span": {
+                            "start": 497,
+                            "end": 574
+                          },
+                          "value": "\n        You can use this bot to interact with the Rx-Lab framework.\n        ",
+                          "raw": "\n        You can use this bot to interact with the Rx-Lab framework.\n        "
+                        },
+                        {
+                          "type": "JSXElement",
+                          "span": {
+                            "start": 574,
+                            "end": 580
+                          },
+                          "opening": {
+                            "type": "JSXOpeningElement",
+                            "name": {
+                              "type": "Identifier",
+                              "span": {
+                                "start": 575,
+                                "end": 577
+                              },
+                              "ctxt": 1,
+                              "value": "br",
+                              "optional": false
+                            },
+                            "span": {
+                              "start": 574,
+                              "end": 580
+                            },
+                            "attributes": [],
+                            "selfClosing": true,
+                            "typeArguments": null
+                          },
+                          "children": [],
+                          "closing": null
+                        },
+                        {
+                          "type": "JSXText",
+                          "span": {
+                            "start": 580,
+                            "end": 647
+                          },
+                          "value": "\n        Click the menu button to see the available options.\n      ",
+                          "raw": "\n        Click the menu button to see the available options.\n      "
+                        }
+                      ],
+                      "closing": {
+                        "type": "JSXClosingElement",
+                        "span": {
+                          "start": 647,
+                          "end": 651
+                        },
+                        "name": {
+                          "type": "Identifier",
+                          "span": {
+                            "start": 649,
+                            "end": 650
+                          },
+                          "ctxt": 1,
+                          "value": "p",
+                          "optional": false
+                        }
+                      }
+                    },
+                    {
+                      "type": "JSXText",
+                      "span": {
+                        "start": 651,
+                        "end": 656
+                      },
+                      "value": "\n    ",
+                      "raw": "\n    "
+                    }
+                  ],
+                  "closing": {
+                    "type": "JSXClosingElement",
+                    "span": {
+                      "start": 656,
+                      "end": 662
+                    },
+                    "name": {
+                      "type": "Identifier",
+                      "span": {
+                        "start": 658,
+                        "end": 661
+                      },
+                      "ctxt": 1,
+                      "value": "div",
+                      "optional": false
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "generator": false,
+        "async": true,
+        "typeParameters": null,
+        "returnType": null
+      }
+    }
+  ],
+  "interpreter": null
+}

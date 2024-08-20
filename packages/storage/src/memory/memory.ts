@@ -27,10 +27,6 @@ export class MemoryStorage extends Storage {
     listener?.();
   }
 
-  async restoreRouteFromState<T>(key: string): Promise<Route | undefined> {
-    return this.stateMap.get(`${STATE_KEY}-${key}`)?.route;
-  }
-
   async deleteState(key: string, route: Route): Promise<void> {
     this.stateMap.delete(`${STATE_KEY}-${key}`);
     const listener = this.stateChangeListeners.get(`${STATE_KEY}-${key}`);

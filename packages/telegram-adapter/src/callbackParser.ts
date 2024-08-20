@@ -2,6 +2,9 @@ import type { Component } from "@rx-lab/common";
 import { CommandButtonCallback } from "./types";
 
 interface EncodeData {
+  /**
+   * The id of the component.
+   */
   id: string;
   type: string;
 }
@@ -14,7 +17,7 @@ export enum CallbackType {
 export type DecodeType =
   | [undefined, undefined]
   | [CallbackType.onCommand, CommandButtonCallback]
-  | [CallbackType.onClick, Component];
+  | [CallbackType.onClick, EncodeData];
 
 /**
  * CallbackParser is responsible for parsing and encoding the callback data for the telegram bot.
@@ -38,28 +41,23 @@ export class CallbackParser {
    * @param encodedData
    * @param components
    */
-  decode(encodedData: string, components: Component[]): DecodeType {
-    if (components.length === 0) {
-      throw new Error("No components found");
-    }
-
+  decode(encodedData: string): DecodeType {
     const data = JSON.parse(encodedData);
     if ("route" in data) {
       return [CallbackType.onCommand, data];
     }
 
-    const component = this.findComponentByKey(
-      data.id,
-      components[0],
-      components,
-    );
-    if (!component) {
-      return [undefined, undefined];
-    }
-    return [CallbackType.onClick, component];
+    return [CallbackType.onClick, data];
   }
 
-  private findComponentByKey(
+  findComponentByKey(
+    key: string,
+    components: Component[],
+  ): Component | undefined {
+    return this.findComponentByKeyHelper(key, components[0], components);
+  }
+
+  private findComponentByKeyHelper(
     key: string,
     component: Component | undefined,
     components: Component[],
@@ -74,7 +72,7 @@ export class CallbackParser {
 
     // find the component in the children
     for (const child of component.children) {
-      const found = this.findComponentByKey(key, child, components);
+      const found = this.findComponentByKeyHelper(key, child, components);
       if (found) {
         return found;
       }

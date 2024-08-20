@@ -87,7 +87,8 @@ export class FileStorage extends Storage {
 
   async restoreRoute(key: string): Promise<string | undefined> {
     const state = await this.readState();
-    return state[`${ROUTE_KEY}-${key}`]?.state;
+    const stateKey = `${ROUTE_KEY}-${key}`;
+    return state[stateKey]?.state;
   }
 
   async saveRoute(key: string, path: string): Promise<void> {
@@ -107,10 +108,5 @@ export class FileStorage extends Storage {
     await this.writeState(state);
     const listener = this.stateChangeListeners.get(`${STATE_KEY}-${key}`);
     listener?.();
-  }
-
-  async restoreRouteFromState(key: string): Promise<Route | undefined> {
-    const state = await this.readState();
-    return state[`${STATE_KEY}-${key}`]?.route;
   }
 }

@@ -1,5 +1,7 @@
 import { describe } from "node:test";
+import mockJsonAst1 from "../../tests/mock/react-ast.mock.json";
 import {
+  extractJSXKeyAttributes,
   generateClientComponentTag,
   isClientComponent,
   parseSourceCode,
@@ -148,6 +150,51 @@ export default function page() {
       const ast = await parseSourceCode("typescript", source);
       const result = await generateClientComponentTag(ast);
       expect(result).toBe(expected);
+    });
+  });
+});
+
+describe("extractJSXKeyAttributes", () => {
+  describe("parsed from source code", () => {
+    const testCases = [
+      {
+        source: `
+      <button key="key"></button>
+      `,
+        expected: [
+          {
+            value: "key",
+          },
+        ],
+      },
+    ];
+
+    testCases.forEach(({ source, expected }) => {
+      it(`should return ${expected} for ${source}`, async () => {
+        const ast = await parseSourceCode("typescript", source);
+        const result = await extractJSXKeyAttributes(ast);
+        expect(result).toStrictEqual(expected);
+      });
+    });
+  });
+
+  describe("from parsed AST", () => {
+    const testcases = [
+      {
+        source: mockJsonAst1,
+        expected: [
+          {
+            value: "header",
+          },
+        ],
+      },
+    ];
+
+    testcases.forEach(({ source, expected }) => {
+      it(`should return ${expected} for ${source}`, async () => {
+        const result = await extractJSXKeyAttributes(source as any);
+        expect(result).toStrictEqual(expected);
+      });
     });
   });
 });

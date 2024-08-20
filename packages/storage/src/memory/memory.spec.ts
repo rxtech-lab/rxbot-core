@@ -51,22 +51,6 @@ describe("MemoryStorage", () => {
     });
   });
 
-  describe("restoreRouteFromState", () => {
-    it("should restore route from state for a given key", async () => {
-      await memoryStorage.saveState("testKey", "testRoute" as Route, {
-        foo: "bar",
-      });
-      const result = await memoryStorage.restoreRouteFromState("testKey");
-      expect(result).toBe("testRoute");
-    });
-
-    it("should return undefined if state does not exist for the key", async () => {
-      const result =
-        await memoryStorage.restoreRouteFromState("nonExistentKey");
-      expect(result).toBeUndefined();
-    });
-  });
-
   describe("deleteState", () => {
     it("should delete state for a given key", async () => {
       await memoryStorage.saveState("testKey", "testRoute" as Route, {

@@ -34,19 +34,6 @@ export interface StorageInterface {
   restoreState<T>(key: string, route: Route): Promise<T | undefined>;
 
   /**
-   * Restores the route from the state key.
-   * @param key - The unique identifier for the state. Same as the key used in `saveState`.
-   *
-   * @returns A promise that resolves with the route associated with the state, or undefined if not found.
-   *
-   * @example
-   * const storage = new FileStorage();
-   * await storage.saveState("counter", "/route1", 0);
-   * const route = await storage.restoreRouteFromState("counter"); // "/route1"
-   */
-  restoreRouteFromState<T>(key: string): Promise<Route | undefined>;
-
-  /**
    * Deletes the state from the storage.
    *
    * @param key - The unique identifier for the state to be deleted.

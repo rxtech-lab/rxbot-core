@@ -46,6 +46,6 @@ describe("Simple navigation Tests", () => {
   });
 
   afterEach(async () => {
-    await coreApi.onDestroy();
+    await coreApi?.onDestroy();
   });
 });

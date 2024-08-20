@@ -31,11 +31,9 @@ export abstract class Storage implements StorageInterface {
     };
   }
 
-  abstract restoreRoute(key: string): Promise<string | undefined>;
+  abstract restoreRoute(key: string): Promise<Route | undefined>;
 
   abstract saveRoute(key: string, path: string): Promise<void>;
 
   abstract deleteState(key: string, route: Route): Promise<void>;
-
-  abstract restoreRouteFromState<T>(key: string): Promise<Route | undefined>;
 }

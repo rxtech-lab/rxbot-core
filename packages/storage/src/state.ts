@@ -8,6 +8,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { StorageContext } from ".";
+import { encodeStateKey } from "./utils";
 
 const initializedMap = new Map<string, boolean>();
 
@@ -17,9 +18,11 @@ export function useState<T>(key: string, initialState: T) {
   const { registerLoading, chatroomInfo } = useRouter();
 
   // construct the key using chatroom info
-  const storedKey = chatroomInfo.messageId
-    ? `${chatroomInfo.id}-${chatroomInfo.messageId}-${key}`
-    : `${chatroomInfo.id}-${key}`;
+  const storedKey = encodeStateKey(
+    chatroomInfo.id,
+    chatroomInfo.messageId,
+    key,
+  );
 
   // Effect to load initial state from async storage
   useEffect(() => {

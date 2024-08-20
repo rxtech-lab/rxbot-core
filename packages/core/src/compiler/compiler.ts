@@ -1,9 +1,17 @@
 import * as fs from "fs";
 import path from "path";
-import { Logger, RouteInfo } from "@rx-lab/common";
+import {
+  ComponentKeyProps,
+  Logger,
+  RouteInfo,
+  RouteInfoFile,
+} from "@rx-lab/common";
 import * as swc from "@swc/core";
 import { glob } from "glob";
 import {
+  KeyAttribute,
+  checkDuplicateKeys,
+  extractJSXKeyAttributes,
   generateClientComponentTag,
   isTypeScript,
   parseSourceCode,
@@ -30,6 +38,7 @@ type RoutePath = {
   route: string;
   filePath?: string;
   subRoutes: RoutePath[];
+  keys?: Record<string, KeyAttribute>;
 };
 
 export class Compiler {
@@ -73,7 +82,7 @@ export class Compiler {
    *
    * @returns The route information for the project
    */
-  async compile(): Promise<RouteInfo[]> {
+  async compile(): Promise<RouteInfoFile> {
     const buildRouteInfo = await this.buildRouteInfo();
     let info: RouteInfo[] = [];
     // check if the output directory exists
@@ -89,9 +98,11 @@ export class Compiler {
       });
     }
 
+    let keys: Record<string, ComponentKeyProps> = {};
     for (const route of buildRouteInfo) {
-      const newInfo = await this.compileHelper(route);
-      info = [...info, ...newInfo];
+      const newInfo = await this.compileHelper(route, {});
+      info = [...info, ...newInfo.routes];
+      keys = { ...keys, ...newInfo.keys };
     }
 
     // create route-metadata.json file if it doesn't exist
@@ -99,38 +110,74 @@ export class Compiler {
       this.options.destinationDir ?? DEFAULT_DESTINATION_DIR,
       ROUTE_METADATA_FILE,
     );
-    fs.writeFileSync(outputPath, JSON.stringify(info, null, 2));
+    const file: RouteInfoFile = {
+      routes: info,
+      componentKeyMap: keys,
+    };
+    fs.writeFileSync(outputPath, JSON.stringify(file, null, 2));
     Logger.log(`Route metadata written to ${outputPath}`, "green");
-    return info;
+    return file;
   }
 
-  private async compileHelper(route: RoutePath): Promise<RouteInfo[]> {
+  private async compileHelper(
+    route: RoutePath,
+    keys: Record<string, ComponentKeyProps>,
+  ): Promise<{
+    routes: RouteInfo[];
+    keys: Record<string, ComponentKeyProps>;
+  }> {
     let info: RouteInfo[] = [];
+    let newKeys: Record<string, ComponentKeyProps> = {};
+    // if the route has a file path, compile the source code
+    // and add the route information to the list
     if (route.filePath) {
       Logger.log(`Compiling ${route.filePath}`, "blue");
       const outputFile = await this.buildSourceCode(
         path.join(this.options.rootDir, route.filePath),
       );
+      outputFile.keys.forEach((key) => {
+        if (newKeys[key.value]) {
+          throw new Error(
+            `Duplicate key found: ${key.value} in ${route.filePath}`,
+          );
+        }
+        newKeys[key.value] = {
+          route: route.route,
+        };
+      });
       const subPages = (
-        await Promise.all(route.subRoutes.map((r) => this.compileHelper(r)))
+        await Promise.all(
+          route.subRoutes.map((r) => this.compileHelper(r, keys)),
+        )
       ).flat();
 
       const metadata = await readMetadata(outputFile.path);
       const routeInfo: RouteInfo = {
         route: route.route,
         filePath: outputFile.path,
-        subRoutes: subPages,
+        subRoutes: subPages.map((p) => p.routes).flat(),
         metadata,
       };
       info.push(routeInfo);
+      subPages.forEach((p) => {
+        checkDuplicateKeys(newKeys, p.keys);
+        newKeys = { ...newKeys, ...p.keys };
+      });
     } else {
+      // if the route does not have a file path, compile the sub-routes
       const subPages = (
-        await Promise.all(route.subRoutes.map((r) => this.compileHelper(r)))
+        await Promise.all(
+          route.subRoutes.map((r) => this.compileHelper(r, keys)),
+        )
       ).flat();
-      info = [...info, ...subPages];
+      info = [...info, ...subPages.map((p) => p.routes).flat()];
     }
 
-    return info;
+    checkDuplicateKeys(newKeys, keys);
+    return {
+      routes: info,
+      keys: { ...newKeys, ...keys },
+    };
   }
 
   /**
@@ -180,9 +227,12 @@ export class Compiler {
     fs.writeFileSync(outputFile, codeToWrite);
     Logger.log(`Compiled ${page} to ${outputFile}`, "blue");
 
+    const keyRouteMapping = await extractJSXKeyAttributes(ast);
+
     return {
       code: result.code,
       path: outputFile,
+      keys: keyRouteMapping,
     };
   }
 

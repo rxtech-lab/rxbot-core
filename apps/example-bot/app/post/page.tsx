@@ -1,5 +1,5 @@
 import { PageProps, RouteMetadata } from "@rx-lab/common";
-import { CommandButton } from "@rx-lab/core/dist";
+import { CommandButton } from "@rx-lab/core";
 
 export const metadata: RouteMetadata = {
   title: "Post Demo",
