@@ -1,10 +1,40 @@
-import { REACT_CLIENT_COMPONENT_TYPE, RouteMetadata } from "@rx-lab/common";
+import {
+  REACT_CLIENT_COMPONENT_TYPE,
+  RouteMetadata,
+  RouteMetadataSchema,
+} from "@rx-lab/common";
 import * as swc from "@swc/core";
 
-//TODO: use swc to parse the source code
-export async function readMetadata(page: string): Promise<RouteMetadata> {
-  const component = await require(page);
-  return component.default.metadata ?? component.metadata;
+export async function readMetadata(
+  ast: swc.Module,
+): Promise<RouteMetadata | undefined> {
+  const metadata: Record<any, any> = {};
+  for (const item of ast.body) {
+    if (item.type === "ExportDeclaration") {
+      const declaration = item.declaration;
+      if (declaration.type === "VariableDeclaration") {
+        for (const declarator of declaration.declarations) {
+          if (
+            declarator.id.type === "Identifier" &&
+            declarator.id.value === "metadata"
+          ) {
+            if (declarator.init?.type === "ObjectExpression") {
+              for (const prop of declarator.init.properties) {
+                if (prop.type === "KeyValueProperty") {
+                  const key: any = (prop.key as swc.Identifier).value;
+                  metadata[key] = (prop.value as any).value;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  // make sure the metadata is valid
+  return Object.keys(metadata).length !== 0
+    ? RouteMetadataSchema.parse(metadata)
+    : undefined;
 }
 
 /**

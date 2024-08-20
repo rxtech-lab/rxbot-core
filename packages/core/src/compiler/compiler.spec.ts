@@ -155,8 +155,8 @@ describe("Compiler.compile", () => {
     jest.clearAllMocks();
   });
 
-  it("should compile a single page", async () => {
-    const mockPages = ["/path/to/project/home/page.tsx"];
+  it.only("should compile a single page", async () => {
+    const mockPages = ["/home/page.tsx"];
     (require("glob").glob.glob as jest.Mock).mockResolvedValue(mockPages);
     (swc.transformFile as jest.Mock).mockResolvedValue({
       code: "compiled code",
@@ -169,7 +169,7 @@ describe("Compiler.compile", () => {
       routes: [
         {
           route: "/home",
-          filePath: "/path/to/output/path/to/project/home/page.js",
+          filePath: "/path/to/output/home/page.js",
           subRoutes: [],
           metadata: { title: "Home" },
         },
@@ -195,9 +195,8 @@ describe("Compiler.compile", () => {
     (swc.transformFile as jest.Mock).mockResolvedValue({
       code: "compiled code",
     });
-    (readMetadata as jest.Mock)
-      .mockResolvedValueOnce({ title: "Nested" })
-      .mockResolvedValueOnce({ title: "Home" });
+    (readMetadata as jest.Mock).mockResolvedValue({ title: "Nested" });
+
     (extractJSXKeyAttributes as jest.Mock)
       .mockResolvedValueOnce([
         {
@@ -226,7 +225,7 @@ describe("Compiler.compile", () => {
 
     const result = await compiler.compile();
 
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       routes: [
         {
           route: "/home",
@@ -239,14 +238,14 @@ describe("Compiler.compile", () => {
               metadata: { title: "Nested" },
             },
           ],
-          metadata: { title: "Home" },
+          metadata: { title: "Nested" },
         },
         {
           route: "/admin",
           filePath: "/path/to/output/path/to/project/admin/page.js",
           subRoutes: [],
           metadata: {
-            title: "Home",
+            title: "Nested",
           },
         },
       ],

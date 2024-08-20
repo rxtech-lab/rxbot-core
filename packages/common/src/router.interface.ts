@@ -1,16 +1,28 @@
 import type React from "react";
+import { z } from "zod";
+
+export const RouteMetadataSchema = z.object({
+  title: z
+    .string({
+      description: "The title of the route, often used for the page title",
+    })
+    .optional(),
+  description: z
+    .string({
+      description: "A brief description of the route's content",
+    })
+    .optional(),
+  includeInMenu: z
+    .boolean({
+      description: "Whether this route should be included in navigation menus",
+    })
+    .optional(),
+});
 
 /**
  * Metadata associated with a route.
  */
-export type RouteMetadata = {
-  /** The title of the route, often used for the page title */
-  title?: string;
-  /** A brief description of the route's content */
-  description?: string;
-  /** Whether this route should be included in navigation menus */
-  includeInMenu?: boolean;
-};
+export type RouteMetadata = z.infer<typeof RouteMetadataSchema>;
 
 /** The default folder name for application components */
 export const DEFAULT_APP_FOLDER = "app";
