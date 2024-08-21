@@ -1,4 +1,6 @@
+import path from "path";
 import {
+  APP_FOLDER,
   type AdapterInterface,
   BaseChatroomInfo,
   BaseMessage,
@@ -31,10 +33,17 @@ interface RendererOptions {
   storage: StorageInterface;
 }
 
-interface CompileOptions extends RendererOptions {
-  rootDir: string;
-  destinationDir: string;
-}
+type CompileOptions =
+  | {
+      rootDir: string;
+      destinationDir: string;
+    }
+  | {
+      adapter: AdapterInterface<any, any, any>;
+      storage: StorageInterface;
+      rootDir: string;
+      destinationDir: string;
+    };
 
 // recursively find the first suspendable instance
 function getSuspendableInstance(
@@ -199,12 +208,31 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
   }
 
   static async Compile(opts: CompileOptions) {
+    let adapter: AdapterInterface<any, any, any>;
+    let storage: StorageInterface;
+
     const compiler = new Compiler({
       rootDir: opts.rootDir,
       destinationDir: opts.destinationDir,
     });
-    const core = new Core(opts);
     const routeInfo = await compiler.compile();
+
+    if ("adapter" in opts && "storage" in opts) {
+      adapter = opts.adapter;
+      storage = opts.storage;
+    } else {
+      const adapterFile = await require(
+        path.join(opts.destinationDir, APP_FOLDER, "adapter"),
+      );
+      adapter = adapterFile.adapter;
+      storage = adapterFile.storage;
+    }
+
+    const core = new Core({
+      adapter: adapter,
+      storage: storage,
+    });
+
     await core.router.initFromRoutes(routeInfo);
     return core;
   }

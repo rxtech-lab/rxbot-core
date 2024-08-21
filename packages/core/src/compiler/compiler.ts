@@ -1,12 +1,12 @@
 import * as fs from "fs";
 import path from "path";
-import { Logger, RouteInfo, RouteInfoFile } from "@rx-lab/common";
+import { APP_FOLDER, Logger, RouteInfo, RouteInfoFile } from "@rx-lab/common";
 import * as swc from "@swc/core";
 import { glob } from "glob";
 import {
+  KeyAttribute,
   generateClientComponentTag,
   isTypeScript,
-  KeyAttribute,
   parseSourceCode,
   readMetadata,
 } from "./utils";
@@ -26,7 +26,6 @@ const PAGE_FILE_PATTERN = "app/**/page.tsx";
 const ROUTE_METADATA_FILE = "route-metadata.json";
 const OUTPUT_FILE_EXTENSION = ".js";
 const DEFAULT_DESTINATION_DIR = "dist";
-const APP_FOLDER = "app";
 
 type RoutePath = {
   route: string;
