@@ -193,4 +193,11 @@ export interface AdapterInterface<
   subscribeToMessageChanged(
     callback: (container: C, message: Message) => Promise<void>,
   ): void;
+
+  /**
+   * Handles webhook message updates. Generally, this method should be called by core.
+   * Check `handleMessageUpdate` in the core for more details.
+   * @param message The message to be updated.
+   */
+  handleMessageUpdate: (message: Message) => Promise<void>;
 }

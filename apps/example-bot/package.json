@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node server.tsx"
+    "dev": "ts-node server.tsx",
+    "webhook": "ts-node webhook.ts"
   },
   "keywords": [],
   "author": "",

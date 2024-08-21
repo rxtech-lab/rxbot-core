@@ -40,6 +40,10 @@ class MockAdapter implements AdapterInterface<Container<any, any>, any, any> {
   subscribeToMessageChanged(
     callback: (container: Container<any, any>, message: any) => Promise<void>,
   ) {}
+
+  handleMessageUpdate(message: any): Promise<void> {
+    return Promise.resolve(undefined);
+  }
 }
 
 process.env.NODE_ENV = "development";
