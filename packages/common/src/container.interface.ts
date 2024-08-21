@@ -10,6 +10,7 @@ export interface BaseChatroomInfo {
 }
 
 export interface BaseMessage {
+  id: string | number;
   text?: string;
 }
 

@@ -34,6 +34,7 @@ export type TelegramAppOpts =
 export interface TGChatroomInfo extends BaseChatroomInfo {}
 
 export interface TGMessage extends TelegramBot.Update {
+  id: string | number;
   text?: string;
 }
 
@@ -42,6 +43,24 @@ export interface TGContainer extends Container<TGChatroomInfo, TGMessage> {}
 interface InternalTGContainer extends TGContainer {
   // internal field used to store the message id for updating the message
   updateMessageId?: number;
+}
+
+export function createTelegramContainer(
+  message: TelegramBot.Message,
+): TGContainer {
+  return {
+    type: "ROOT",
+    children: [],
+    chatroomInfo: {
+      id: message?.chat?.id as number,
+      messageId: message?.message_id,
+    },
+    message: {
+      ...message,
+      id: message.message_id,
+      text: message.text,
+    } as any,
+  };
 }
 
 export class TelegramAdapter
@@ -100,10 +119,13 @@ export class TelegramAdapter
       const [callbackType, component] = this.callbackParser.decode(data);
       if (callbackType === CallbackType.onClick) {
         // find the route and redirect to the route
-        const routeFromCallback = await api.restoreRoute(component.id);
+        const routeFromCallback = await api.restoreRoute(
+          this.getRouteKey(container),
+        );
         if (routeFromCallback)
           await api.redirectTo(container, routeFromCallback, {
             shouldRender: true,
+            shouldAddToHistory: false,
           });
       }
 
@@ -126,7 +148,11 @@ export class TelegramAdapter
           // if the component is a string, it means that it is a route,
           // so we need to redirect to the route
           if (callbackType === CallbackType.onCommand) {
-            const route = this.parseRoute(component.route);
+            const route = await this.decodeRoute(component.route);
+            if (!route) {
+              Logger.log(`Invalid route: ${component.route}`, "red");
+              return;
+            }
             Logger.log(`Redirecting to ${route}`, "blue");
             container.hasUpdated = true;
             // if component is set to render new message
@@ -138,6 +164,7 @@ export class TelegramAdapter
             try {
               await api.redirectTo(container, route, {
                 shouldRender: true,
+                shouldAddToHistory: true,
               });
             } catch (err: any) {
               Logger.log(
@@ -316,8 +343,14 @@ export class TelegramAdapter
     }
   }
 
-  parseRoute(route: string): string {
-    return convertTGRouteToRoute(route);
+  async decodeRoute(route: any): Promise<string | undefined> {
+    if (typeof route === "string") {
+      return convertTGRouteToRoute(route);
+    }
+
+    if (typeof route === "object") {
+      return await this.getCurrentRoute(route);
+    }
   }
 
   getRouteKey(message: TGContainer): string {

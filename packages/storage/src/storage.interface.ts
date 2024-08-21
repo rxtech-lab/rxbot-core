@@ -2,6 +2,7 @@ import type { Route, StorageInterface } from "@rx-lab/common";
 
 export const STATE_KEY = "state";
 export const ROUTE_KEY = "route";
+export const HISTORY_KEY = "history";
 
 export abstract class Storage implements StorageInterface {
   stateChangeListeners: Map<string, () => void> = new Map();
@@ -36,4 +37,10 @@ export abstract class Storage implements StorageInterface {
   abstract saveRoute(key: string, path: string): Promise<void>;
 
   abstract deleteState(key: string, route: Route): Promise<void>;
+
+  abstract addHistory(key: string, route: Route): Promise<void>;
+
+  abstract deleteHistory(key: string): Promise<void>;
+
+  abstract restoreHistory(key: string): Promise<Route | undefined>;
 }

@@ -35,7 +35,6 @@ describe("State in multiple routes Tests", () => {
       content: "Hello",
       type: MessageType.Text,
     });
-
     await sleep(DEFAULT_RENDERING_WAIT_TIME);
     let messages = await api.chatroom.getMessagesByChatroom(chatroomId);
     expect(messages.data.count).toBe(2);
@@ -46,9 +45,23 @@ describe("State in multiple routes Tests", () => {
       chatroomId,
       firstMessage!.message_id!,
       {
+        text: "+1",
+      },
+    );
+    await sleep(DEFAULT_RENDERING_WAIT_TIME);
+    messages = await api.chatroom.getMessagesByChatroom(chatroomId);
+    firstMessage = messages.data.messages[1];
+    expect(firstMessage?.text).toContain("Page 1");
+    expect(firstMessage?.text).toContain("Current state: 1");
+    await api.chatroom.clickOnMessageInChatroom(
+      chatroomId,
+      firstMessage!.message_id!,
+      {
         text: "Go to page 2",
       },
     );
+
+    // go to page 2
     await sleep(DEFAULT_RENDERING_WAIT_TIME);
     messages = await api.chatroom.getMessagesByChatroom(chatroomId);
     const secondMessage = messages.data.messages[2];
@@ -64,7 +77,7 @@ describe("State in multiple routes Tests", () => {
         text: "+1",
       },
     );
-
+    //
     await sleep(DEFAULT_RENDERING_WAIT_TIME);
     messages = await api.chatroom.getMessagesByChatroom(chatroomId);
     firstMessage = messages.data.messages[1];

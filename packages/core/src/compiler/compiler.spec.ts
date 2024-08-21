@@ -1,7 +1,7 @@
 import * as path from "path";
 import swc from "@swc/core";
 import { glob } from "glob";
-import { Compiler, CompilerOptions } from "./compiler";
+import { Compiler, CompilerOptions, CompilerUtils } from "./compiler";
 import { extractJSXKeyAttributes, readMetadata } from "./utils";
 // Mock dependencies
 jest.mock("@swc/core", () => ({
@@ -155,7 +155,7 @@ describe("Compiler.compile", () => {
     jest.clearAllMocks();
   });
 
-  it.only("should compile a single page", async () => {
+  it("should compile a single page", async () => {
     const mockPages = ["/home/page.tsx"];
     (require("glob").glob.glob as jest.Mock).mockResolvedValue(mockPages);
     (swc.transformFile as jest.Mock).mockResolvedValue({
@@ -174,14 +174,6 @@ describe("Compiler.compile", () => {
           metadata: { title: "Home" },
         },
       ],
-      componentKeyMap: {
-        key1: {
-          route: "/home",
-        },
-        key2: {
-          route: "/home",
-        },
-      },
     });
   });
 
@@ -249,55 +241,9 @@ describe("Compiler.compile", () => {
           },
         },
       ],
-      componentKeyMap: {
-        key1: {
-          route: "/home",
-        },
-        key2: {
-          route: "/home",
-        },
-        key3: {
-          route: "/home/nested",
-        },
-        key4: {
-          route: "/home/nested",
-        },
-        key5: {
-          route: "/admin",
-        },
-        key6: {
-          route: "/admin",
-        },
-      },
     });
     expect(swc.transformFile).toHaveBeenCalledTimes(3);
     expect(readMetadata).toHaveBeenCalledTimes(3);
-  });
-
-  it("should throw error if duplicate found", async () => {
-    const mockPages = [
-      "/path/to/project/home/page.tsx",
-      "/path/to/project/home/nested/page.tsx",
-    ];
-    (require("glob").glob.glob as jest.Mock).mockResolvedValue(mockPages);
-    (swc.transformFile as jest.Mock).mockResolvedValue({
-      code: "compiled code",
-    });
-    (readMetadata as jest.Mock)
-      .mockResolvedValueOnce({ title: "Nested" })
-      .mockResolvedValueOnce({ title: "Home" });
-    (extractJSXKeyAttributes as jest.Mock).mockResolvedValueOnce([
-      {
-        value: "key1",
-      },
-      {
-        value: "key1",
-      },
-    ]);
-
-    await expect(() => compiler.compile()).rejects.toThrow(
-      "Duplicate key found: key1 in /path/to/project/home/page.tsx",
-    );
   });
 
   it("should handle compilation errors", async () => {
@@ -332,7 +278,6 @@ describe("Compiler.compile", () => {
 
     expect(result).toEqual({
       routes: [],
-      componentKeyMap: {},
     });
     expect(swc.transformFile).not.toHaveBeenCalled();
     expect(readMetadata).not.toHaveBeenCalled();

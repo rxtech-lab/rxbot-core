@@ -112,7 +112,7 @@ async function renderServerComponentHelper(
       }
 
       if (typeof jsx.type === "function") {
-        if (isReactClientElement(jsx)) {
+        if (isReactClientElement(jsx.type)) {
           return jsx;
         }
         const Component = await jsx.type;

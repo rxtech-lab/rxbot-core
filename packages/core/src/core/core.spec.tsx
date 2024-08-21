@@ -27,7 +27,7 @@ class MockAdapter implements AdapterInterface<Container<any, any>, any, any> {
     return Promise.resolve(undefined);
   }
 
-  parseRoute(route: string): string {
+  async decodeRoute(route: string): Promise<string> {
     return "";
   }
 

@@ -233,7 +233,6 @@ describe("readMetadata", () => {
         export const metadata = {
           title: "hello"
         }
-        
         `,
         expected: {
           title: "hello",

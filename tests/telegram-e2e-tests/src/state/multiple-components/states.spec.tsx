@@ -9,7 +9,7 @@ import {
 
 const chatroomId = 1000;
 
-describe("Simple State Tests", () => {
+describe("Simple State with sub components Tests", () => {
   let api: Api<any>;
   let coreApi: any;
 

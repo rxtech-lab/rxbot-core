@@ -132,7 +132,7 @@ describe("FileStorage", () => {
   describe("restoreState", () => {
     it("should restore state for a given key", async () => {
       jest.spyOn(fileStorage as any, "readState").mockResolvedValue({
-        [`${STATE_KEY}-testKey`]: { state: { foo: "bar" } },
+        [`${STATE_KEY}-testKey`]: { data: { foo: "bar" } },
       });
       const result = await fileStorage.restoreState("testKey");
       expect(result).toEqual({ foo: "bar" });
@@ -155,7 +155,9 @@ describe("FileStorage", () => {
         foo: "bar",
       });
       expect(mockWriteState).toHaveBeenCalledWith({
-        [`${STATE_KEY}-testKey`]: { route: "testRoute", state: { foo: "bar" } },
+        [`${STATE_KEY}-testKey`]: {
+          data: { foo: "bar" },
+        },
       });
     });
 
@@ -174,7 +176,7 @@ describe("FileStorage", () => {
   describe("restoreRoute", () => {
     it("should restore route for a given key", async () => {
       jest.spyOn(fileStorage as any, "readState").mockResolvedValue({
-        [`${ROUTE_KEY}-testKey`]: { state: "/test/route" },
+        [`${ROUTE_KEY}-testKey`]: { data: "/test/route" },
       });
       const result = await fileStorage.restoreRoute("testKey");
       expect(result).toBe("/test/route");
@@ -195,7 +197,7 @@ describe("FileStorage", () => {
       jest.spyOn(fileStorage as any, "readState").mockResolvedValue({});
       await fileStorage.saveRoute("testKey", "/test/route");
       expect(mockWriteState).toHaveBeenCalledWith({
-        [`${ROUTE_KEY}-testKey`]: { state: "/test/route", route: "" },
+        [`${ROUTE_KEY}-testKey`]: { data: "/test/route" },
       });
     });
 

@@ -68,6 +68,7 @@ export type RenderedComponent = {
   params: PathParams;
   /** The full path that was matched */
   path: string;
+  currentRoute: Route;
 };
 
 export type ComponentKeyProps = {
@@ -75,16 +76,10 @@ export type ComponentKeyProps = {
 };
 
 /**
- * A map of component keys to their route.
- */
-export type ComponentKeyMap = Record<string, ComponentKeyProps>;
-
-/**
  * Represents a file that contains route information.
  */
 export interface RouteInfoFile {
   routes: RouteInfo[];
-  componentKeyMap?: ComponentKeyMap;
 }
 
 /**

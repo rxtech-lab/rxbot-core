@@ -243,28 +243,6 @@ export class Compiler extends CompilerUtils {
         })),
       )
     ).flat();
-    let keys: Record<string, ComponentKeyProps> = {};
-
-    for (const extracted of extractedKeys) {
-      // find route
-      const route = buildRouteInfo.find((r) => {
-        const routePath = path.join(this.options.rootDir, r.filePath ?? "");
-        return routePath === extracted.sourceCodePath;
-      });
-      if (!route) {
-        throw new Error(`Route not found for ${extracted.sourceCodePath}`);
-      }
-      for (const key of extracted.keys) {
-        if (keys[key.value]) {
-          throw new Error(
-            `Duplicate key found: ${key.value} in ${route?.filePath}`,
-          );
-        }
-        keys[key.value] = {
-          route: route!.route,
-        };
-      }
-    }
 
     for (const route of buildRouteInfo) {
       const newInfo = await this.compileHelper(route, artifacts);
@@ -278,7 +256,6 @@ export class Compiler extends CompilerUtils {
     );
     const file: RouteInfoFile = {
       routes: info,
-      componentKeyMap: keys,
     };
     fs.writeFileSync(outputPath, JSON.stringify(file, null, 2));
     Logger.log(`Route metadata written to ${outputPath}`, "green");

@@ -1,3 +1,4 @@
+import * as path from "node:path";
 import { Route } from "@rx-lab/common";
 import { ROUTE_KEY, STATE_KEY, Storage } from "../storage.interface";
 
@@ -12,6 +13,7 @@ interface State<T> {
 export class MemoryStorage extends Storage {
   private stateMap = new Map<string, State<any>>();
   private routeMap = new Map<string, string>();
+  private historyMap = new Map<string, Route>();
 
   async restoreState<T>(key: string, route: Route): Promise<T | undefined> {
     const state = this.stateMap.get(`${STATE_KEY}-${key}`);
@@ -41,5 +43,17 @@ export class MemoryStorage extends Storage {
     this.routeMap.set(`${ROUTE_KEY}-${key}`, path);
     const listener = this.routeChangeListeners.get(`${ROUTE_KEY}-${key}`);
     listener?.();
+  }
+
+  async addHistory(key: string, route: Route): Promise<void> {
+    this.historyMap.set(key, route);
+  }
+
+  async deleteHistory(key: string): Promise<void> {
+    this.historyMap.delete(key);
+  }
+
+  async restoreHistory(key: string): Promise<Route | undefined> {
+    return this.historyMap.get(key);
   }
 }
