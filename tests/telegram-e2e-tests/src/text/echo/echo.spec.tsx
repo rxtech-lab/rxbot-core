@@ -2,8 +2,8 @@ import path from "path";
 import { Api, MessageType } from "@rx-lab/mock-telegram-client";
 import {
   DEFAULT_RENDERING_WAIT_TIME,
-  PORT,
   initialize,
+  PORT,
   sleep,
 } from "../../utils";
 
@@ -20,7 +20,7 @@ describe("Simple echo bot test", () => {
   });
 
   it("should echo user input", async () => {
-    const rootDir = path.join(__dirname, "app");
+    const rootDir = path.join(__dirname, "src");
     const destinationDir = path.join(__dirname, ".rx-lab");
     const { core } = await initialize(chatroomId, api, {
       rootDir,

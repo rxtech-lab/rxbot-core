@@ -36,6 +36,10 @@ class MockAdapter implements AdapterInterface<Container<any, any>, any, any> {
   }
 
   async onDestroy(): Promise<void> {}
+
+  subscribeToMessageChanged(
+    callback: (container: Container<any, any>, message: any) => Promise<void>,
+  ) {}
 }
 
 process.env.NODE_ENV = "development";
@@ -53,7 +57,6 @@ describe.skip("Reconciler(Suspendable)", () => {
     renderer = new Core({
       adapter: mockAdapter,
       storage: new MemoryStorage(),
-      router: jest.fn() as any,
     });
   });
 

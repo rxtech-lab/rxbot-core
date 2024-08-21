@@ -28,7 +28,6 @@ export type TelegramAppOpts =
        * base telegram url for the bot
        */
       url?: string;
-      onMessage(message: TelegramBot.Message): Promise<void>;
     };
 
 export interface TGChatroomInfo extends BaseChatroomInfo {}
@@ -45,9 +44,7 @@ interface InternalTGContainer extends TGContainer {
   updateMessageId?: number;
 }
 
-export function createTelegramContainer(
-  message: TelegramBot.Message,
-): TGContainer {
+function createTelegramContainer(message: TelegramBot.Message): TGContainer {
   return {
     type: "ROOT",
     children: [],
@@ -90,12 +87,6 @@ export class TelegramAdapter
         throw new Error("callbackUrl is required for webhook mode");
       }
       await this.bot.setWebHook(this.opts.callbackUrl);
-    } else {
-      this.bot.on("message", (msg) => {
-        if ("onMessage" in this.opts) {
-          this.opts.onMessage(msg);
-        }
-      });
     }
 
     //FIXME: If user click on the button multiple times at the same time,
@@ -360,6 +351,18 @@ export class TelegramAdapter
   async onDestroy(): Promise<void> {
     await this.bot.stopPolling({
       cancel: true,
+    });
+  }
+
+  subscribeToMessageChanged(
+    callback: (
+      container: TGContainer,
+      message: TelegramBot.Message,
+    ) => Promise<void>,
+  ) {
+    this.bot.on("message", (message) => {
+      const container = createTelegramContainer(message);
+      return callback(container, message);
     });
   }
 }

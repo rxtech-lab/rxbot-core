@@ -2,8 +2,8 @@ import path from "path";
 import { Api, MessageType } from "@rx-lab/mock-telegram-client";
 import {
   DEFAULT_RENDERING_WAIT_TIME,
-  PORT,
   initialize,
+  PORT,
   sleep,
 } from "../../utils";
 
@@ -23,7 +23,7 @@ describe("State in multiple routes Tests", () => {
    * Related to issue https://github.com/rxtech-lab/rxbot-core/issues/66
    */
   it("should be able to update state in other routes", async () => {
-    const rootDir = path.join(__dirname, "app");
+    const rootDir = path.join(__dirname, "src");
     const destinationDir = path.join(__dirname, ".rx-lab");
     const { core } = await initialize(chatroomId, api, {
       rootDir,

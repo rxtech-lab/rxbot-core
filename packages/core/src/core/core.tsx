@@ -18,6 +18,7 @@ import { Router } from "@rx-lab/router";
 import React from "react";
 import type ReactReconciler from "react-reconciler";
 import Reconciler from "react-reconciler";
+import { Compiler } from "../compiler";
 import type { Suspendable } from "../components";
 import { type BaseComponent, Text } from "../components";
 import { ComponentBuilder } from "../components/builder/componentBuilder";
@@ -28,7 +29,11 @@ import { WrappedElement } from "./wrappedElement";
 interface RendererOptions {
   adapter: AdapterInterface<any, any, any>;
   storage: StorageInterface;
-  router: Router;
+}
+
+interface CompileOptions extends RendererOptions {
+  rootDir: string;
+  destinationDir: string;
 }
 
 // recursively find the first suspendable instance
@@ -65,11 +70,14 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     (container: T) => Promise<void>
   > = new Map();
 
-  constructor({ adapter, storage, router }: RendererOptions) {
+  constructor({ adapter, storage }: RendererOptions) {
     const builder = new ComponentBuilder();
     this.adapter = adapter;
     this.storage = storage;
-    this.router = router;
+    this.router = new Router({
+      adapter: adapter,
+      storage: storage,
+    });
     const hostConfig: Reconciler.HostConfig<
       ReactInstanceType,
       InstanceProps,
@@ -190,6 +198,17 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     this.reconciler = Reconciler(hostConfig);
   }
 
+  static async Compile(opts: CompileOptions) {
+    const compiler = new Compiler({
+      rootDir: opts.rootDir,
+      destinationDir: opts.destinationDir,
+    });
+    const core = new Core(opts);
+    const routeInfo = await compiler.compile();
+    await core.router.initFromRoutes(routeInfo);
+    return core;
+  }
+
   /**
    * The core API that provides the necessary methods to render the app.
    */
@@ -215,6 +234,13 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
   async init() {
     // initialize the adapter
     await this.adapter.init(this.coreApi);
+    this.adapter.subscribeToMessageChanged(async (container, message) => {
+      await this.redirect(container, message, {
+        shouldRender: true,
+        shouldAddToHistory: true,
+      });
+    });
+    await this.loadAndRenderStoredRoute("/");
   }
 
   async redirect(container: T, routeOrObject: any, options?: RedirectOptions) {

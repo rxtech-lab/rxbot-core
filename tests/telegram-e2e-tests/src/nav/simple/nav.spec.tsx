@@ -1,6 +1,6 @@
 import path from "path";
 import { Api, MessageType } from "@rx-lab/mock-telegram-client";
-import { PORT, initialize, sleep } from "../../utils";
+import { initialize, PORT, sleep } from "../../utils";
 
 describe("Simple navigation Tests", () => {
   let api: Api<any>;
@@ -13,7 +13,7 @@ describe("Simple navigation Tests", () => {
   });
 
   it("should render the nav page", async () => {
-    const rootDir = path.join(__dirname, "app");
+    const rootDir = path.join(__dirname, "src");
     const destinationDir = path.join(__dirname, ".rx-lab");
     const { core } = await initialize(2, api, { rootDir, destinationDir });
     coreApi = core;

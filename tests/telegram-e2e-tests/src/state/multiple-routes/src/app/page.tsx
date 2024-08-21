@@ -1,5 +1,5 @@
 "use client";
-import { CommandButton } from "@rx-lab/core";
+import { CommandButton } from "@rx-lab/core/dist/src";
 import { useState } from "@rx-lab/storage";
 import React from "react";
 
@@ -8,15 +8,13 @@ export default function Page() {
 
   return (
     <div>
-      <h1>Page 2</h1>
-      <hr />
-      <p>Choose an option</p>
+      <h1>Page 1</h1>
       <hr />
       <p>Current state: {state}</p>
       <menu>
         <div>
           <button
-            key={"button10"}
+            key={"button1"}
             onClick={() => {
               setState(state + 1);
             }}
@@ -24,7 +22,7 @@ export default function Page() {
             +1
           </button>
           <button
-            key={"button11"}
+            key={"button2"}
             onClick={() => {
               setState(state - 1);
             }}
@@ -33,17 +31,17 @@ export default function Page() {
           </button>
         </div>
         <div>
-          <CommandButton command={"/"} renderNewMessage={false}>
-            Go to page 1
-          </CommandButton>
           <button
-            key={"button12"}
+            key={"button3"}
             onClick={() => {
               setState(0);
             }}
           >
             Reset
           </button>
+          <CommandButton command={"/route2"} renderNewMessage={true}>
+            Go to page 2
+          </CommandButton>
         </div>
       </menu>
     </div>
