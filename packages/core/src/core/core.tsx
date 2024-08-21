@@ -10,6 +10,7 @@ import {
   InstanceType,
   Logger,
   PageProps,
+  ROUTE_METADATA_FILE,
   type ReactInstanceType,
   RedirectOptions,
   RenderedComponent,
@@ -44,6 +45,10 @@ type CompileOptions =
       rootDir: string;
       destinationDir: string;
     };
+
+type StartOptions = {
+  outputDir: string;
+};
 
 // recursively find the first suspendable instance
 function getSuspendableInstance(
@@ -237,6 +242,23 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     return core;
   }
 
+  static async Start(opts: StartOptions) {
+    const adapterFile = await require(
+      path.join(opts.outputDir, APP_FOLDER, "adapter"),
+    );
+    const adapter = adapterFile.adapter;
+    const storage = adapterFile.storage;
+
+    const core = new Core({
+      adapter: adapter,
+      storage: storage,
+    });
+
+    await core.router.init(path.join(opts.outputDir, ROUTE_METADATA_FILE));
+    await core.init();
+    return core;
+  }
+
   /**
    * The core API that provides the necessary methods to render the app.
    */
@@ -269,6 +291,10 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
       });
     });
     await this.loadAndRenderStoredRoute("/");
+  }
+
+  async handleMessageUpdate(message: BaseMessage) {
+    await this.adapter.handleMessageUpdate(message);
   }
 
   async redirect(container: T, routeOrObject: any, options?: RedirectOptions) {

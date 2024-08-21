@@ -5,6 +5,7 @@ import {
   ImportedRoute,
   MatchedRoute,
   Menu,
+  ROUTE_METADATA_FILE,
   RenderedComponent,
   RouteInfo,
   RouteInfoFile,

@@ -86,6 +86,7 @@ export class TelegramAdapter
       if (this.opts.callbackUrl === undefined) {
         throw new Error("callbackUrl is required for webhook mode");
       }
+      Logger.log("Setting webhook", "blue");
       await this.bot.setWebHook(this.opts.callbackUrl);
     }
 
@@ -364,5 +365,9 @@ export class TelegramAdapter
       const container = createTelegramContainer(message);
       return callback(container, message);
     });
+  }
+
+  async handleMessageUpdate(message: TelegramBot.Message) {
+    this.bot.processUpdate(message as any);
   }
 }

@@ -80,4 +80,21 @@ export interface Renderer<T extends Container<any, any>> {
    * event listeners that were set up during initialization.
    */
   onDestroy: () => Promise<void>;
+
+  /**
+   * Handle updates to the message. Useful for webhook integrations.
+   * @param message Webhook message
+   *
+   * @example
+   * // suppose you have your webhook setup like this
+   * app.post("/webhook", async (req, res) => {
+   *   const { body } = req;
+   *   // handle the message update
+   *   await core.handleMessageUpdate(body as any);
+   *   return {
+   *     status: "ok",
+   *   };
+   * });
+   */
+  handleMessageUpdate: (message: any) => Promise<void>;
 }

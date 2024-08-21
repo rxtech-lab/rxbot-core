@@ -1,0 +1,25 @@
+{
+  "name": "example-vercel-deployment",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "ts-node compile.ts"
+  },
+  "keywords": [],
+  "dependencies": {
+    "@rx-lab/core": "workspace:*",
+    "@rx-lab/file-storage": "workspace:*",
+    "@rx-lab/telegram-adapter": "workspace:*",
+    "@rx-lab/typescript-config": "workspace:*",
+    "@rx-lab/router": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.4.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  },
+  "author": "",
+  "license": "ISC"
+}
