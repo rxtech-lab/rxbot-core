@@ -70,7 +70,7 @@ export interface StorageInterface {
   subscribeRouteChange(key: string, callback: () => void): () => void;
 
   /**
-   * Saves a route to the storage.
+   * Saves current route to the storage.
    *
    * @param key - A unique identifier for the route. This is typically determined by the adapter.
    * @param path - The path of the route to be saved.
@@ -79,10 +79,33 @@ export interface StorageInterface {
   saveRoute(key: string, path: Route): Promise<void>;
 
   /**
-   * Retrieves a route from the storage.
+   * Retrieves current route from the storage.
    *
    * @param key - The unique identifier for the route. This is typically determined by the adapter.
    * @returns A promise that resolves with the retrieved route, or undefined if not found.
    */
   restoreRoute(key: string): Promise<Route | undefined>;
+
+  /**
+   * Adds a route to the history storage.
+   * In the Telegram platform, each message is associated with one route.
+   * @param key - Unique identifier for the history entry (e.g., message ID)
+   * @param route - Route to be saved. Should also include query parameters and path parameters if applicable.
+   * @returns A promise that resolves when the operation is complete
+   */
+  addHistory(key: string | number, route: Route): Promise<void>;
+
+  /**
+   * Removes a specific route from the history storage.
+   * @param key - Unique identifier for the history entry
+   * @returns A promise that resolves when the operation is complete
+   */
+  deleteHistory(key: string | number): Promise<void>;
+
+  /**
+   * Retrieves a route from the history storage.
+   * @param key - Unique identifier for the history entry
+   * @returns A promise that resolves with the associated route, or undefined if not found
+   */
+  restoreHistory(key: string | number): Promise<Route | undefined>;
 }

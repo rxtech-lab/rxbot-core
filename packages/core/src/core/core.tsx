@@ -1,5 +1,7 @@
 import {
   type AdapterInterface,
+  BaseChatroomInfo,
+  BaseMessage,
   type Container,
   CoreApi,
   type InstanceProps,
@@ -7,6 +9,7 @@ import {
   Logger,
   PageProps,
   type ReactInstanceType,
+  RedirectOptions,
   RenderedComponent,
   type Renderer as RendererInterface,
   StorageInterface,
@@ -42,7 +45,7 @@ function getSuspendableInstance(
   }
 }
 
-export class Core<T extends Container<any, any>>
+export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
   implements RendererInterface<T>
 {
   reconciler: Reconciler.Reconciler<
@@ -190,24 +193,18 @@ export class Core<T extends Container<any, any>>
   /**
    * The core API that provides the necessary methods to render the app.
    */
-  get coreApi(): CoreApi<any> {
+  get coreApi(): CoreApi<T> {
     return {
       renderApp: (container, callback) => {
         this.listeners.set(this.adapter, callback);
         return this.render(container);
       },
       restoreRoute: async (key) => {
-        return (await this.router.getRouteFromKey(key)).route;
+        return await this.router.getRouteFromKey(key);
       },
       redirectTo: async (container, path, options) => {
-        // store the new path
-        const key = this.adapter.getRouteKey(container);
-        await this.router.navigateTo(key, path);
-        if (options.shouldRender) {
-          await this.loadAndRenderStoredRoute(key);
-          await this.render(container);
-          return container;
-        }
+        await this.redirect(container, path, options);
+        return container;
       },
     };
   }
@@ -220,9 +217,27 @@ export class Core<T extends Container<any, any>>
     await this.adapter.init(this.coreApi);
   }
 
+  async redirect(container: T, routeOrObject: any, options?: RedirectOptions) {
+    const key = this.adapter.getRouteKey(container);
+    const route = await this.adapter.decodeRoute(routeOrObject);
+    if (route) {
+      await this.router.navigateTo(key, route);
+      if (options?.shouldAddToHistory) {
+        await this.storage.addHistory(key, route);
+      }
+      delete container.message.text;
+    }
+
+    if (options?.shouldRender) {
+      await this.loadAndRenderStoredRoute(key);
+      await this.render(container);
+    }
+  }
+
   async loadAndRenderStoredRoute(key: string) {
     const component = await this.router.render(key);
     await this.setComponent(component);
+    return component;
   }
 
   /**

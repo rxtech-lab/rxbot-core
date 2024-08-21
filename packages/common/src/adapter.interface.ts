@@ -1,10 +1,12 @@
+import { Container } from "./container.interface";
 import { Route } from "./router.interface";
 
-interface RedirectOptions {
+export interface RedirectOptions {
   shouldRender: boolean;
+  shouldAddToHistory: boolean;
 }
 
-export interface CoreApi<Container> {
+export interface CoreApi<C extends Container<any, any>> {
   /**
    * Renders the application and handles state updates.
    * This method should be called when a state change occurs that requires re-rendering.
@@ -23,9 +25,9 @@ export interface CoreApi<Container> {
    * );
    */
   renderApp: (
-    container: Container,
-    callback: (container: Container) => Promise<void>,
-  ) => Promise<Container>;
+    container: C,
+    callback: (container: C) => Promise<void>,
+  ) => Promise<C>;
 
   /**
    * Redirects the user to the specified path.
@@ -43,10 +45,10 @@ export interface CoreApi<Container> {
    *
    */
   redirectTo: (
-    container: Container,
+    container: C,
     path: string,
     options: RedirectOptions,
-  ) => Promise<void>;
+  ) => Promise<C | undefined>;
 
   /**
    * Finds the route based on the key.
@@ -79,7 +81,11 @@ export interface Menu {
   children?: Menu[];
 }
 
-export interface AdapterInterface<Container, AdaptElement, Message> {
+export interface AdapterInterface<
+  C extends Container<any, any>,
+  AdaptElement,
+  Message,
+> {
   /**
    * Initializes the adapter with the given reconciler API.
    * This method is called once when the adapter is first set up.
@@ -93,7 +99,7 @@ export interface AdapterInterface<Container, AdaptElement, Message> {
    *   }
    * });
    */
-  init: (api: CoreApi<Container>) => Promise<void>;
+  init: (api: CoreApi<C>) => Promise<void>;
 
   /**
    * Lifecycle method called when a component is mounted.
@@ -104,7 +110,7 @@ export interface AdapterInterface<Container, AdaptElement, Message> {
    * @example
    * await adapter.componentOnMount(container);
    */
-  componentOnMount: (container: Container) => Promise<void>;
+  componentOnMount: (container: C) => Promise<void>;
 
   /**
    * Adapts the container to the corresponding UI element for the target platform.
@@ -117,7 +123,7 @@ export interface AdapterInterface<Container, AdaptElement, Message> {
    * @example
    * const uiElement = await adapter.adapt(container, false);
    */
-  adapt: (container: Container, isUpdate: boolean) => Promise<AdaptElement>;
+  adapt: (container: C, isUpdate: boolean) => Promise<AdaptElement>;
 
   /**
    * Sets up the menu structure for the target platform.
@@ -139,26 +145,6 @@ export interface AdapterInterface<Container, AdaptElement, Message> {
   setMenus: (menus: Menu[]) => Promise<void>;
 
   /**
-   * Retrieves the unprocessed current route based on the given message.
-   * This is typically used to determine the current page or state in the application.
-   *
-   * @param message The message object containing route information.
-   * @returns A promise that resolves to the current route string, or undefined if not applicable.
-   *
-   * @example
-   * const currentRoute = await adapter.getCurrentRoute(incomingMessage);
-   * console.log(currentRoute); // Outputs: "/home"
-   * if (currentRoute) {
-   *   // Handle navigation to the current route
-   * }
-   *
-   * @example
-   * const currentRoute = await adapter.getCurrentRoute(incomingMessage);
-   * console.log(currentRoute); // Outputs: "/settings_profile_edit"
-   */
-  getCurrentRoute: (message: Message) => Promise<string | undefined>;
-
-  /**
    * Parses a platform-specific route into a standardized format.
    * This is useful when dealing with platforms that have limitations on route formats.
    *
@@ -167,16 +153,32 @@ export interface AdapterInterface<Container, AdaptElement, Message> {
    *
    * @example
    * // For a platform that uses underscores instead of slashes after the first level
-   * const standardRoute = adapter.parseRoute("/settings_profile_edit");
+   * // parse route from callback data
+   * const standardRoute = await adapter.decodeRoute("encoded_route");
    * console.log(standardRoute); // Outputs: "/settings/profile/edit"
+   *
+   * //parse route from message
+   * const standardRoute = await adapter.decodeRoute({ someObject }); // Outputs: "/settings/profile"
    */
-  parseRoute: (route: string) => string;
+  decodeRoute: (route: any) => Promise<Route | undefined>;
 
   /**
-   * Retrieves the route key for the given message.
-   * @param message
+   * Retrieves a unique route key from the container.
+   *
+   * This key is used to identify the route for each individual message, allowing for:
+   * 1. Tracking different routes across multiple messages in a single user's conversation.
+   * 2. Distinguishing routes for messages in separate chat rooms or conversations.
+   *
+   * The generated key should be unique for each message to enable precise route identification.
+   *
+   * @example
+   * const routeKey = adapter.getRouteKey(container);
+   * await storage.saveRoute(routeKey, currentPath);
+   *
+   * @param container - The container object holding message context
+   * @returns A unique string key identifying the route for the current message
    */
-  getRouteKey: (message: Container) => string;
+  getRouteKey: (container: C) => string;
 
   /**
    * Lifecycle method called when core is destroyed.

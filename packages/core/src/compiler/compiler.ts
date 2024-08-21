@@ -41,8 +41,144 @@ type RoutePath = {
   keys?: Record<string, KeyAttribute>;
 };
 
-export class Compiler {
-  constructor(private readonly options: CompilerOptions) {}
+export interface BuildSourceCodeOutput {
+  /**
+   * Built source code
+   */
+  code: string;
+  /**
+   * The abstract syntax tree of the source code
+   */
+  ast: swc.Module;
+  /**
+   * The path to the compiled source code
+   */
+  outputFilePath: string;
+  /**
+   * The directory where the compiled source code is located
+   */
+  outputDir: string;
+  /**
+   * The path to the source code
+   */
+  sourceCodePath: string;
+}
+
+export type AppRelatedFileType = "page";
+
+export class CompilerUtils {
+  constructor(
+    private readonly sourceDir: string,
+    private readonly destinationDir: string,
+  ) {}
+
+  /**
+   * Compile source code using SWC. Note that this method does not write the compiled code to a file.
+   * @param sourceCodePath The path to the source code
+   * @returns The path to the compiled source code
+   */
+  async buildSourceCode(
+    sourceCodePath: string,
+  ): Promise<BuildSourceCodeOutput> {
+    const outputFileName =
+      path.basename(sourceCodePath, ".tsx") + OUTPUT_FILE_EXTENSION;
+    const originalDir = path.dirname(sourceCodePath);
+    const outputRootDir =
+      this.destinationDir || path.join(__dirname, DEFAULT_DESTINATION_DIR);
+    const outputDir = path.join(
+      outputRootDir,
+      originalDir.replace(this.sourceDir, ""),
+    );
+    const srcCode = fs.readFileSync(sourceCodePath, "utf-8");
+    const outputFile = path.join(outputDir, outputFileName);
+    const result = await swc.transformFile(sourceCodePath, {
+      jsc: {
+        target: "es2016",
+        transform: {
+          react: {
+            runtime: "automatic",
+          },
+        },
+      },
+      module: {
+        type: "commonjs",
+      },
+    });
+
+    let codeToWrite = result.code;
+    const ast = await parseSourceCode(
+      isTypeScript(sourceCodePath) ? "typescript" : "javascript",
+      srcCode,
+    );
+    const clientTag = await generateClientComponentTag(ast);
+    if (clientTag) {
+      codeToWrite = codeToWrite + clientTag;
+    }
+
+    return {
+      code: codeToWrite,
+      ast,
+      sourceCodePath,
+      outputFilePath: outputFile,
+      outputDir,
+    };
+  }
+
+  /**
+   * Build app related files like `page.tsx`, `404.tsx`, etc.
+   * @param artifact The source code artifact
+   * @param fileType The type of the file
+   */
+  async buildAppRelatedFiles(
+    artifact: BuildSourceCodeOutput,
+    fileType: AppRelatedFileType,
+  ) {
+    return {
+      metadata: await readMetadata(artifact.ast),
+      path: artifact.outputFilePath,
+    };
+  }
+
+  /**
+   * Get all tsx or ts files in a directory
+   * @param dir
+   * @private
+   */
+  private async getAllTsFilesInDir(dir: string) {
+    return glob.glob("**/*.ts*", {
+      cwd: dir,
+    });
+  }
+
+  /**
+   * Build all files in the source directory except app related files.
+   */
+  async buildAllFilesInSourceDir() {
+    const tsFiles = await this.getAllTsFilesInDir(this.sourceDir);
+    return await Promise.all(
+      tsFiles.map(async (file) => {
+        Logger.log(`Compiling ${file}`, "blue");
+        const result = await this.buildSourceCode(
+          path.join(this.sourceDir, file),
+        );
+        if (!fs.existsSync(result.outputDir)) {
+          fs.mkdirSync(result.outputDir, { recursive: true });
+        }
+        fs.writeFileSync(result.outputFilePath, result.code);
+        return result;
+      }),
+    );
+  }
+}
+
+export class Compiler extends CompilerUtils {
+  constructor(private readonly options: CompilerOptions) {
+    super(
+      options.rootDir,
+      options.destinationDir ??
+        path.join(options.rootDir, DEFAULT_DESTINATION_DIR),
+    );
+  }
 
   /**
    * Find every page.tsx file in the project
@@ -98,11 +234,19 @@ export class Compiler {
       });
     }
 
-    let keys: Record<string, ComponentKeyProps> = {};
+    const artifacts = await this.buildAllFilesInSourceDir();
+    const extractedKeys = (
+      await Promise.all(
+        artifacts.map(async (a) => ({
+          sourceCodePath: a.sourceCodePath,
+          keys: await extractJSXKeyAttributes(a.ast),
+        })),
+      )
+    ).flat();
+
     for (const route of buildRouteInfo) {
-      const newInfo = await this.compileHelper(route, {});
+      const newInfo = await this.compileHelper(route, artifacts);
       info = [...info, ...newInfo.routes];
-      keys = { ...keys, ...newInfo.keys };
     }
 
     // create route-metadata.json file if it doesn't exist
@@ -112,7 +256,6 @@ export class Compiler {
     );
     const file: RouteInfoFile = {
       routes: info,
-      componentKeyMap: keys,
     };
     fs.writeFileSync(outputPath, JSON.stringify(file, null, 2));
     Logger.log(`Route metadata written to ${outputPath}`, "green");
@@ -121,118 +264,48 @@ export class Compiler {
 
   private async compileHelper(
     route: RoutePath,
-    keys: Record<string, ComponentKeyProps>,
+    artifacts: BuildSourceCodeOutput[],
   ): Promise<{
     routes: RouteInfo[];
-    keys: Record<string, ComponentKeyProps>;
   }> {
     let info: RouteInfo[] = [];
-    let newKeys: Record<string, ComponentKeyProps> = {};
+
     // if the route has a file path, compile the source code
     // and add the route information to the list
     if (route.filePath) {
-      Logger.log(`Compiling ${route.filePath}`, "blue");
-      const outputFile = await this.buildSourceCode(
-        path.join(this.options.rootDir, route.filePath),
+      const outputPageFile = await this.buildAppRelatedFiles(
+        artifacts.find(
+          (a) =>
+            a.sourceCodePath ===
+            path.join(this.options.rootDir, route.filePath ?? ""),
+        )!,
+        "page",
       );
-      outputFile.keys.forEach((key) => {
-        if (newKeys[key.value]) {
-          throw new Error(
-            `Duplicate key found: ${key.value} in ${route.filePath}`,
-          );
-        }
-        newKeys[key.value] = {
-          route: route.route,
-        };
-      });
       const subPages = (
         await Promise.all(
-          route.subRoutes.map((r) => this.compileHelper(r, keys)),
+          route.subRoutes.map((r) => this.compileHelper(r, artifacts)),
         )
       ).flat();
 
-      const metadata = await readMetadata(outputFile.path);
       const routeInfo: RouteInfo = {
         route: route.route,
-        filePath: outputFile.path,
+        filePath: outputPageFile.path,
         subRoutes: subPages.map((p) => p.routes).flat(),
-        metadata,
+        metadata: outputPageFile.metadata,
       };
       info.push(routeInfo);
-      subPages.forEach((p) => {
-        checkDuplicateKeys(newKeys, p.keys);
-        newKeys = { ...newKeys, ...p.keys };
-      });
     } else {
       // if the route does not have a file path, compile the sub-routes
       const subPages = (
         await Promise.all(
-          route.subRoutes.map((r) => this.compileHelper(r, keys)),
+          route.subRoutes.map((r) => this.compileHelper(r, artifacts)),
         )
       ).flat();
       info = [...info, ...subPages.map((p) => p.routes).flat()];
     }
 
-    checkDuplicateKeys(newKeys, keys);
     return {
       routes: info,
-      keys: { ...newKeys, ...keys },
-    };
-  }
-
-  /**
-   * Compile source code using SWC. Output will be written to the `dist` directory.
-   * @param page The path to the page.tsx file
-   * @returns The path to the compiled source code
-   */
-  private async buildSourceCode(page: string) {
-    const outputFileName = path.basename(page, ".tsx") + OUTPUT_FILE_EXTENSION;
-    const originalDir = path.dirname(page);
-    const outputRootDir =
-      this.options.destinationDir ||
-      path.join(__dirname, DEFAULT_DESTINATION_DIR);
-    const outputDir = path.join(
-      outputRootDir,
-      originalDir.replace(this.options.rootDir, ""),
-    );
-    const srcCode = fs.readFileSync(page, "utf-8");
-    const outputFile = path.join(outputDir, outputFileName);
-    const result = await swc.transformFile(page, {
-      jsc: {
-        target: "es2016",
-        transform: {
-          react: {
-            runtime: "automatic",
-          },
-        },
-      },
-      module: {
-        type: "commonjs",
-      },
-    });
-
-    // check if the output directory exists
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true });
-    }
-    let codeToWrite = result.code;
-    const ast = await parseSourceCode(
-      isTypeScript(page) ? "typescript" : "javascript",
-      srcCode,
-    );
-    const clientTag = await generateClientComponentTag(ast);
-    if (clientTag) {
-      codeToWrite = codeToWrite + clientTag;
-    }
-    fs.writeFileSync(outputFile, codeToWrite);
-    Logger.log(`Compiled ${page} to ${outputFile}`, "blue");
-
-    const keyRouteMapping = await extractJSXKeyAttributes(ast);
-
-    return {
-      code: result.code,
-      path: outputFile,
-      keys: keyRouteMapping,
     };
   }
 

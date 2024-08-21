@@ -1,6 +1,20 @@
+import { RedirectOptions } from "./adapter.interface";
 import type { Container } from "./container.interface";
+import { RenderedComponent, Route } from "./router.interface";
 
 export interface Renderer<T extends Container<any, any>> {
+  /**
+   * Redirects the user to the specified route.
+   * @param container
+   * @param routeOrObject The route to redirect to. Might be a string, or an object depends on the adapter.
+   * @param options
+   */
+  redirect: (
+    container: T,
+    routeOrObject: any,
+    options?: RedirectOptions,
+  ) => Promise<void>;
+
   /**
    * Loads a previously stored route from the given path and renders it.
    * This is typically used when restoring a user's session or navigating
@@ -18,7 +32,7 @@ export interface Renderer<T extends Container<any, any>> {
    *
    * // This might restore a user's profile page from a previous session
    */
-  loadAndRenderStoredRoute: (path: string) => Promise<void>;
+  loadAndRenderStoredRoute: (path: string) => Promise<RenderedComponent>;
 
   /**
    * Initializes the renderer, setting up any necessary configurations,

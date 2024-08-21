@@ -1,11 +1,10 @@
-import { ROUTE_KEY, STATE_KEY, Storage } from "@rx-lab/storage";
+import { HISTORY_KEY, ROUTE_KEY, STATE_KEY, Storage } from "@rx-lab/storage";
 
 import * as fs from "node:fs";
 import { Route } from "@rx-lab/common";
 
 interface State {
-  route: string;
-  state: any;
+  data: any;
 }
 
 type StoredState = { [key: string]: State };
@@ -71,14 +70,13 @@ export class FileStorage extends Storage {
 
   async restoreState<T>(key: string): Promise<T | undefined> {
     const state = await this.readState();
-    return state[`${STATE_KEY}-${key}`]?.state;
+    return state[`${STATE_KEY}-${key}`]?.data;
   }
 
   async saveState<T>(key: string, route: Route, state: T): Promise<void> {
     const storedState = await this.readState();
     storedState[`${STATE_KEY}-${key}`] = {
-      route: route,
-      state,
+      data: state,
     };
     await this.writeState(storedState);
     const listener = this.stateChangeListeners.get(`${STATE_KEY}-${key}`);
@@ -88,14 +86,13 @@ export class FileStorage extends Storage {
   async restoreRoute(key: string): Promise<string | undefined> {
     const state = await this.readState();
     const stateKey = `${ROUTE_KEY}-${key}`;
-    return state[stateKey]?.state;
+    return state[stateKey]?.data;
   }
 
   async saveRoute(key: string, path: string): Promise<void> {
     const storedState = await this.readState();
     storedState[`${ROUTE_KEY}-${key}`] = {
-      state: path,
-      route: "",
+      data: path,
     };
     await this.writeState(storedState);
     const listener = this.routeChangeListeners.get(`${ROUTE_KEY}-${key}`);
@@ -108,5 +105,27 @@ export class FileStorage extends Storage {
     await this.writeState(state);
     const listener = this.stateChangeListeners.get(`${STATE_KEY}-${key}`);
     listener?.();
+  }
+
+  async addHistory(key: string, route: Route): Promise<void> {
+    const storedKey = `${HISTORY_KEY}-${key}`;
+    const storedState = await this.readState();
+    storedState[storedKey] = {
+      data: route,
+    };
+    await this.writeState(storedState);
+  }
+
+  async deleteHistory(key: string): Promise<void> {
+    const storedKey = `${HISTORY_KEY}-${key}`;
+    const storedState = await this.readState();
+    delete storedState[storedKey];
+    await this.writeState(storedState);
+  }
+
+  async restoreHistory(key: string): Promise<Route | undefined> {
+    const storedKey = `${HISTORY_KEY}-${key}`;
+    const storedState = await this.readState();
+    return storedState[storedKey]?.data;
   }
 }

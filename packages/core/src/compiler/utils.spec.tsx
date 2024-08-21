@@ -1,10 +1,12 @@
 import { describe } from "node:test";
+import mockJsonAst2 from "../../tests/mock/react-ast-metadata.mock.json";
 import mockJsonAst1 from "../../tests/mock/react-ast.mock.json";
 import {
   extractJSXKeyAttributes,
   generateClientComponentTag,
   isClientComponent,
   parseSourceCode,
+  readMetadata,
 } from "./utils";
 
 describe("isClientComponent", () => {
@@ -193,6 +195,54 @@ describe("extractJSXKeyAttributes", () => {
     testcases.forEach(({ source, expected }) => {
       it(`should return ${expected} for ${source}`, async () => {
         const result = await extractJSXKeyAttributes(source as any);
+        expect(result).toStrictEqual(expected);
+      });
+    });
+  });
+});
+
+describe("readMetadata", () => {
+  describe("read from json", () => {
+    const testcases = [
+      {
+        source: mockJsonAst2,
+        expected: {
+          title: "State Management",
+          description: "Learn how to manage states in your bot",
+          includeInMenu: true,
+        },
+      },
+    ];
+
+    testcases.forEach(({ source, expected }) => {
+      it(`should return ${expected} for ${source}`, async () => {
+        const result = await readMetadata(source as any);
+        expect(result).toStrictEqual(expected);
+      });
+    });
+  });
+
+  describe("read from source code", () => {
+    const testCases = [
+      {
+        source: ``,
+        expected: undefined,
+      },
+      {
+        source: `
+        export const metadata = {
+          title: "hello"
+        }
+        `,
+        expected: {
+          title: "hello",
+        },
+      },
+    ];
+    testCases.forEach(({ source, expected }) => {
+      it(`should return ${expected} for ${source}`, async () => {
+        const ast = await parseSourceCode("typescript", source);
+        const result = await readMetadata(ast);
         expect(result).toStrictEqual(expected);
       });
     });

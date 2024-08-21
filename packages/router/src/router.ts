@@ -128,16 +128,19 @@ export class Router {
    * // <Component key="home" />
    *
    * const route = await router.getRouteFromKey("home");
-   * console.log(route.route); // "/home"
+   * console.log(route); // "/home"
    */
   async getRouteFromKey(key: string) {
-    return this.routeInfoFile.componentKeyMap[key];
+    return this.storage.restoreHistory(key);
   }
 
   async render(key: string): Promise<RenderedComponent> {
     const currentRoute =
       (await this.storage.restoreRoute(key)) ?? DEFAULT_ROOT_ROUTE;
-    const parsedRoute = this.adapter.parseRoute(currentRoute);
+    const parsedRoute = await this.adapter.decodeRoute(currentRoute);
+    if (!parsedRoute) {
+      throw new Error(`Invalid route: ${currentRoute}`);
+    }
     const matchedRoute = await matchRouteWithPath(
       this.routeInfoFile.routes,
       parsedRoute,
@@ -152,6 +155,7 @@ export class Router {
       queryString,
       params: matchedRoute.params,
       path: matchedRoute.route,
+      currentRoute: currentRoute,
     };
   }
 }

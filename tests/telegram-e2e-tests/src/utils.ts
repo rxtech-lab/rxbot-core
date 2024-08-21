@@ -2,7 +2,11 @@ import { Compiler, Core } from "@rx-lab/core";
 import { Api } from "@rx-lab/mock-telegram-client";
 import { Router } from "@rx-lab/router";
 import { MemoryStorage } from "@rx-lab/storage/memory";
-import { type TGContainer, TelegramAdapter } from "@rx-lab/telegram-adapter";
+import {
+  type TGContainer,
+  TelegramAdapter,
+  createTelegramContainer,
+} from "@rx-lab/telegram-adapter";
 
 /**
  * Utility function to sleep for a given time
@@ -45,25 +49,12 @@ export const initialize = async (
     url: `http://0.0.0.0:${PORT}/webhook/chatroom/${chatroomId}`,
     longPolling: true,
     onMessage: async (message) => {
-      const chatroomId = message?.chat?.id;
-      const container: TGContainer = {
-        type: "ROOT",
-        children: [],
-        chatroomInfo: {
-          id: chatroomId,
-          messageId: message?.message_id,
-        },
-        message: message as any,
-      };
-      const routeKey = adapter.getRouteKey(container);
+      const container = createTelegramContainer(message);
       try {
-        const routeFromMessage = await adapter.getCurrentRoute(message);
-        if (routeFromMessage) {
-          await router.navigateTo(routeKey, routeFromMessage);
-        }
-        await core.loadAndRenderStoredRoute(routeKey);
-        // render default component
-        await core.render(container);
+        await core.redirect(container, message, {
+          shouldRender: true,
+          shouldAddToHistory: true,
+        });
       } catch (err) {
         console.error(err);
       }

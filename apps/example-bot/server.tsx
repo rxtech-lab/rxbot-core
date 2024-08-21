@@ -3,7 +3,8 @@ import { Logger } from "@rx-lab/common";
 import { Compiler, Core } from "@rx-lab/core";
 import { FileStorage } from "@rx-lab/file-storage";
 import { Router } from "@rx-lab/router";
-import { type TGContainer, TelegramAdapter } from "@rx-lab/telegram-adapter";
+import { TelegramAdapter } from "@rx-lab/telegram-adapter";
+import { createTelegramContainer } from "@rx-lab/telegram-adapter";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -20,29 +21,12 @@ const adapter = new TelegramAdapter({
   token: apiKey,
   longPolling: true,
   onMessage: async (message) => {
-    const chatroomId = message?.chat?.id;
-    const container: TGContainer = {
-      type: "ROOT",
-      children: [],
-      chatroomInfo: {
-        id: chatroomId,
-        messageId: message?.message_id,
-      },
-      message: {
-        ...message,
-        text: message.text,
-      } as any,
-    };
-    const routeKey = adapter.getRouteKey(container);
+    const container = createTelegramContainer(message);
     try {
-      const routeFromMessage = await adapter.getCurrentRoute(message);
-      if (routeFromMessage) {
-        delete container.message.text;
-        await router.navigateTo(routeKey, routeFromMessage);
-      }
-      await core.loadAndRenderStoredRoute(routeKey);
-      // render default component
-      await core.render(container);
+      await core.redirect(container, message, {
+        shouldRender: true,
+        shouldAddToHistory: true,
+      });
     } catch (err) {
       console.error(err);
     }
