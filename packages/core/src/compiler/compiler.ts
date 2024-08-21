@@ -1,17 +1,10 @@
 import * as fs from "fs";
 import path from "path";
-import {
-  ComponentKeyProps,
-  Logger,
-  RouteInfo,
-  RouteInfoFile,
-} from "@rx-lab/common";
+import { APP_FOLDER, Logger, RouteInfo, RouteInfoFile } from "@rx-lab/common";
 import * as swc from "@swc/core";
 import { glob } from "glob";
 import {
   KeyAttribute,
-  checkDuplicateKeys,
-  extractJSXKeyAttributes,
   generateClientComponentTag,
   isTypeScript,
   parseSourceCode,
@@ -29,7 +22,7 @@ export interface CompilerOptions {
   destinationDir?: string;
 }
 
-const PAGE_FILE_PATTERN = "**/page.tsx";
+const PAGE_FILE_PATTERN = "app/**/page.tsx";
 const ROUTE_METADATA_FILE = "route-metadata.json";
 const OUTPUT_FILE_EXTENSION = ".js";
 const DEFAULT_DESTINATION_DIR = "dist";
@@ -235,14 +228,6 @@ export class Compiler extends CompilerUtils {
     }
 
     const artifacts = await this.buildAllFilesInSourceDir();
-    const extractedKeys = (
-      await Promise.all(
-        artifacts.map(async (a) => ({
-          sourceCodePath: a.sourceCodePath,
-          keys: await extractJSXKeyAttributes(a.ast),
-        })),
-      )
-    ).flat();
 
     for (const route of buildRouteInfo) {
       const newInfo = await this.compileHelper(route, artifacts);
@@ -326,7 +311,7 @@ export class Compiler extends CompilerUtils {
       .replace(/^\//, "");
     const parts = relativePath.split("/");
     const routeParts = parts.slice(0, -1); // Exclude the 'page.tsx' part
-    const route = "/" + routeParts.join("/");
+    const route = "/" + routeParts.filter((r) => r !== APP_FOLDER).join("/");
 
     return {
       route,

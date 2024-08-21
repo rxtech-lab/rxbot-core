@@ -1,4 +1,4 @@
-export { TelegramAdapter, createTelegramContainer } from "./adapter";
+export { TelegramAdapter } from "./adapter";
 export type {
   TGContainer,
   TGMessage,

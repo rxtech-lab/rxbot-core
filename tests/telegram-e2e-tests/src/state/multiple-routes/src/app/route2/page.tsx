@@ -1,14 +1,14 @@
 "use client";
-
+import { CommandButton } from "@rx-lab/core/dist/src";
 import { useState } from "@rx-lab/storage";
-type Props = {};
+import React from "react";
 
-export default function Counter(props: Props) {
+export default function Page() {
   const [state, setState] = useState("counter", 0);
 
   return (
     <div>
-      <h1>Welcome to the Telegram Bot!</h1>
+      <h1>Page 2</h1>
       <hr />
       <p>Choose an option</p>
       <hr />
@@ -16,7 +16,7 @@ export default function Counter(props: Props) {
       <menu>
         <div>
           <button
-            key={"button1"}
+            key={"button10"}
             onClick={() => {
               setState(state + 1);
             }}
@@ -24,7 +24,7 @@ export default function Counter(props: Props) {
             +1
           </button>
           <button
-            key={"button2"}
+            key={"button11"}
             onClick={() => {
               setState(state - 1);
             }}
@@ -33,8 +33,11 @@ export default function Counter(props: Props) {
           </button>
         </div>
         <div>
+          <CommandButton command={"/"} renderNewMessage={false}>
+            Go to page 1
+          </CommandButton>
           <button
-            key={"button3"}
+            key={"button12"}
             onClick={() => {
               setState(0);
             }}

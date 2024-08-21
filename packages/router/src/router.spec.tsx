@@ -1,5 +1,5 @@
 import { RouteInfo } from "@rx-lab/common";
-import { Router, importRoute, matchRouteWithPath } from "./router";
+import { importRoute, matchRouteWithPath, Router } from "./router";
 
 const clientComponents = ["../tests/client/test-component1.tsx"];
 

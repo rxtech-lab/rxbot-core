@@ -1,7 +1,7 @@
 import * as path from "path";
 import swc from "@swc/core";
 import { glob } from "glob";
-import { Compiler, CompilerOptions, CompilerUtils } from "./compiler";
+import { Compiler, CompilerOptions } from "./compiler";
 import { extractJSXKeyAttributes, readMetadata } from "./utils";
 // Mock dependencies
 jest.mock("@swc/core", () => ({
@@ -137,7 +137,7 @@ describe("buildRouteInfo", () => {
   it("should correctly handle the PAGE_FILE_PATTERN", async () => {
     await compiler.buildRouteInfo();
 
-    expect(glob.glob).toHaveBeenCalledWith("**/page.tsx", {
+    expect(glob.glob).toHaveBeenCalledWith("app/**/page.tsx", {
       cwd: mockOptions.rootDir,
     });
   });

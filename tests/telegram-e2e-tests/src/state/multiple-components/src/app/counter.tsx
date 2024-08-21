@@ -1,14 +1,17 @@
 "use client";
-import { CommandButton } from "@rx-lab/core";
-import { useState } from "@rx-lab/storage";
-import React from "react";
 
-export default function Page() {
+import { useState } from "@rx-lab/storage";
+
+type Props = {};
+
+export default function Counter(props: Props) {
   const [state, setState] = useState("counter", 0);
 
   return (
     <div>
-      <h1>Page 1</h1>
+      <h1>Welcome to the Telegram Bot!</h1>
+      <hr />
+      <p>Choose an option</p>
       <hr />
       <p>Current state: {state}</p>
       <menu>
@@ -39,9 +42,6 @@ export default function Page() {
           >
             Reset
           </button>
-          <CommandButton command={"/route2"} renderNewMessage={true}>
-            Go to page 2
-          </CommandButton>
         </div>
       </menu>
     </div>

@@ -1,4 +1,6 @@
+import path from "path";
 import {
+  APP_FOLDER,
   type AdapterInterface,
   BaseChatroomInfo,
   BaseMessage,
@@ -18,6 +20,7 @@ import { Router } from "@rx-lab/router";
 import React from "react";
 import type ReactReconciler from "react-reconciler";
 import Reconciler from "react-reconciler";
+import { Compiler } from "../compiler";
 import type { Suspendable } from "../components";
 import { type BaseComponent, Text } from "../components";
 import { ComponentBuilder } from "../components/builder/componentBuilder";
@@ -28,8 +31,19 @@ import { WrappedElement } from "./wrappedElement";
 interface RendererOptions {
   adapter: AdapterInterface<any, any, any>;
   storage: StorageInterface;
-  router: Router;
 }
+
+type CompileOptions =
+  | {
+      rootDir: string;
+      destinationDir: string;
+    }
+  | {
+      adapter: AdapterInterface<any, any, any>;
+      storage: StorageInterface;
+      rootDir: string;
+      destinationDir: string;
+    };
 
 // recursively find the first suspendable instance
 function getSuspendableInstance(
@@ -65,11 +79,14 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     (container: T) => Promise<void>
   > = new Map();
 
-  constructor({ adapter, storage, router }: RendererOptions) {
+  constructor({ adapter, storage }: RendererOptions) {
     const builder = new ComponentBuilder();
     this.adapter = adapter;
     this.storage = storage;
-    this.router = router;
+    this.router = new Router({
+      adapter: adapter,
+      storage: storage,
+    });
     const hostConfig: Reconciler.HostConfig<
       ReactInstanceType,
       InstanceProps,
@@ -190,6 +207,36 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     this.reconciler = Reconciler(hostConfig);
   }
 
+  static async Compile(opts: CompileOptions) {
+    let adapter: AdapterInterface<any, any, any>;
+    let storage: StorageInterface;
+
+    const compiler = new Compiler({
+      rootDir: opts.rootDir,
+      destinationDir: opts.destinationDir,
+    });
+    const routeInfo = await compiler.compile();
+
+    if ("adapter" in opts && "storage" in opts) {
+      adapter = opts.adapter;
+      storage = opts.storage;
+    } else {
+      const adapterFile = await require(
+        path.join(opts.destinationDir, APP_FOLDER, "adapter"),
+      );
+      adapter = adapterFile.adapter;
+      storage = adapterFile.storage;
+    }
+
+    const core = new Core({
+      adapter: adapter,
+      storage: storage,
+    });
+
+    await core.router.initFromRoutes(routeInfo);
+    return core;
+  }
+
   /**
    * The core API that provides the necessary methods to render the app.
    */
@@ -215,6 +262,13 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
   async init() {
     // initialize the adapter
     await this.adapter.init(this.coreApi);
+    this.adapter.subscribeToMessageChanged(async (container, message) => {
+      await this.redirect(container, message, {
+        shouldRender: true,
+        shouldAddToHistory: true,
+      });
+    });
+    await this.loadAndRenderStoredRoute("/");
   }
 
   async redirect(container: T, routeOrObject: any, options?: RedirectOptions) {

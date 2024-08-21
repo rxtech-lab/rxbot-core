@@ -1,6 +1,6 @@
 import { RedirectOptions } from "./adapter.interface";
 import type { Container } from "./container.interface";
-import { RenderedComponent, Route } from "./router.interface";
+import { RenderedComponent } from "./router.interface";
 
 export interface Renderer<T extends Container<any, any>> {
   /**

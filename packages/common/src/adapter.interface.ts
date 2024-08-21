@@ -184,4 +184,13 @@ export interface AdapterInterface<
    * Lifecycle method called when core is destroyed.
    */
   onDestroy: () => Promise<void>;
+
+  /**
+   * Subscribes to message changes.
+   * This method should be called by core.
+   * @param callback
+   */
+  subscribeToMessageChanged(
+    callback: (container: C, message: Message) => Promise<void>,
+  ): void;
 }
