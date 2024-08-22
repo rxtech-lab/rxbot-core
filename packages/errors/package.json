@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/index.ts",
-  "scripts": {},
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -11,7 +10,7 @@
     "@rx-lab/common": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.4.5",
+    "typescript": "^5.5.4",
     "@rx-lab/typescript-config": "workspace:*"
   }
 }

@@ -1,4 +1,5 @@
 on: workflow_dispatch
+name: Create a new release
 
 jobs:
   create-release:
