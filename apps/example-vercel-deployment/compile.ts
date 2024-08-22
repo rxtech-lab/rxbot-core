@@ -4,7 +4,7 @@ import { Compiler } from "@rx-lab/core";
 (async () => {
   const compiler = new Compiler({
     rootDir: path.join(__dirname, "src"),
-    destinationDir: path.join(__dirname, ".rx-lab"),
+    destinationDir: ".rx-lab",
   });
   await compiler.compile();
 })();

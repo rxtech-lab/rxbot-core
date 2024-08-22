@@ -1,4 +1,4 @@
-import { FileStorage } from "@rx-lab/file-storage";
+import { MemoryStorage } from "@rx-lab/storage/memory";
 import { TelegramAdapter } from "@rx-lab/telegram-adapter";
 
 const apiKey = process.env.API_KEY ?? process.env.TG_BOT_API_KEY;
@@ -10,9 +10,8 @@ if (!apiKey) {
 
 const adapter = new TelegramAdapter({
   token: apiKey,
-  longPolling: true,
-});
+} as any);
 
-const storage = new FileStorage();
+const storage = new MemoryStorage();
 
 export { adapter, storage };

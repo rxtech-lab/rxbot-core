@@ -15,7 +15,6 @@ if (!apiKey) {
 
 const adapter = new TelegramAdapter({
   token: apiKey,
-  callbackUrl: process.env.CALLBACK_URL!,
 });
 
 const storage = new FileStorage();
@@ -23,12 +22,19 @@ const storage = new FileStorage();
 const app = Fastify();
 let core: Core<any>;
 
-app.post("/webhook", async (req, res) => {
+app.post("/api/webhook", async (req, res) => {
   const { body } = req;
-  await core.handleMessageUpdate(body as any);
-  return {
-    status: "ok",
-  };
+  try {
+    await core.handleMessageUpdate(body as any);
+    return {
+      status: "ok",
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      status: "error",
+    };
+  }
 });
 
 (async () => {
@@ -39,7 +45,6 @@ app.post("/webhook", async (req, res) => {
       rootDir: path.join(__dirname, "src"),
       destinationDir: path.join(__dirname, ".rx-lab"),
     });
-    await core.init();
     console.log("Bot is running");
     await app.listen({
       port: 3000,

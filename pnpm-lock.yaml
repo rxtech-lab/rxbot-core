@@ -82,17 +82,32 @@ importers:
   apps/example-vercel-deployment:
     dependencies:
       '@rx-lab/core':
-        specifier: 1.1.6
-        version: 1.1.6
+        specifier: 1.1.7
+        version: 1.1.7
       '@rx-lab/file-storage':
-        specifier: 1.1.6
-        version: 1.1.6
+        specifier: 1.1.7
+        version: 1.1.7
       '@rx-lab/router':
-        specifier: 1.1.6
-        version: 1.1.6
+        specifier: 1.1.7
+        version: 1.1.7
+      '@rx-lab/storage':
+        specifier: 1.1.7
+        version: 1.1.7
       '@rx-lab/telegram-adapter':
-        specifier: 1.1.6
-        version: 1.1.6(request@2.88.2)
+        specifier: 1.1.7
+        version: 1.1.7
+      '@types/react':
+        specifier: ^18.3.3
+        version: 18.3.3
+      '@vercel/functions':
+        specifier: ^1.4.1
+        version: 1.4.1
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-reconciler:
+        specifier: ^0.29.2
+        version: 0.29.2(react@18.3.1)
     devDependencies:
       '@types/node':
         specifier: ^22.4.2
@@ -1301,26 +1316,26 @@ packages:
   '@rushstack/eslint-patch@1.5.1':
     resolution: {integrity: sha512-6i/8UoL0P5y4leBIGzvkZdS85RDMG9y1ihZzmTZQ5LdHUYmZ7pKFoj8X0236s3lusPs1Fa5HTQUpwI+UfTcmeA==}
 
-  '@rx-lab/common@1.1.6':
-    resolution: {integrity: sha512-o+JFDAUAbNVb89PuKViXp1ofWkY+zO/oXKQkyJ9p3SE3/+zhcB9ruw1f5LXxwgRiqkoj3VGSEDf9+vXFIT9vDg==}
+  '@rx-lab/common@1.1.7':
+    resolution: {integrity: sha512-tf3iuUfesF7qx03KsX1PJejDF0E8ygIsoL20B+VOLW30Dz3EHIzh3Meyy/10oBEgBDs2YoBiwLgc1FRq2bd5xA==}
 
-  '@rx-lab/core@1.1.6':
-    resolution: {integrity: sha512-v8YWprjrGyD+SeCGJ/cB5ybREGhfiE92ggCHhB8HHngSaNBfbYVrGaIq/8oZFJ6KdPFPWHbzJwJcGA3Ry0AUtg==}
+  '@rx-lab/core@1.1.7':
+    resolution: {integrity: sha512-64l5thlUi+b1V14bUVc8QfyJcIx+cAm12Si8t/IkS75+C9u6tG2byIrPQi9YWCQK1Aes5OlyuZfLW/oUXrDb+A==}
 
-  '@rx-lab/errors@1.1.6':
-    resolution: {integrity: sha512-W4W3YT45cOXRABAPHJyNj2Mxe8Kjw9ElQPkZamDtay0Erd6O9TP+PNortQtRuViwyvZCVCzCp7ofKbJi8CWqag==}
+  '@rx-lab/errors@1.1.7':
+    resolution: {integrity: sha512-yF99aOZDLf8LIFWN0ZvQ8VHjOtMNC6W4AtdbM2ykK0O4n5jelIb6cCYF5Cm3nk1jwUUCmqXjMrXx0M8nBZNhJQ==}
 
-  '@rx-lab/file-storage@1.1.6':
-    resolution: {integrity: sha512-vPJhB0zrMxtOzdx9mHCkIf6E8z8xEiJ+suf+qLXw84MY5u+WfIbeGRvNcF0KZdfT6DK5iTpPR2GAXNHSl0YS5g==}
+  '@rx-lab/file-storage@1.1.7':
+    resolution: {integrity: sha512-Pq8oaq8jxdHkWIZDKpoJVnxIu7Q2q9qQHj+yYpWNi3J4CusmsJNO9AJ1hgszqMG7GF/BOshfYUS84Y78Rjf3Fg==}
 
-  '@rx-lab/router@1.1.6':
-    resolution: {integrity: sha512-9ZcKPJ5CCxT2vBDreDc29t93KtDJbCA82t3LivU6Xnh/hIOMT7y88+CtAVyMzaern+OZsjCfZ9bfBl2IsXT8WA==}
+  '@rx-lab/router@1.1.7':
+    resolution: {integrity: sha512-tvC6Nbt0gFt4gueB5roQKPrHCMxehFfmIlODtdodGdbG/c7JAROkjjOeK8RQfaftcxy5daYl/KXdsZbBZBfTYQ==}
 
-  '@rx-lab/storage@1.1.6':
-    resolution: {integrity: sha512-a55q3u5Xq4E9Sf+s4oqZp54PY3rcQLGrAVARXWjehONETwdVKJkDE7qe6IKjzD7gfQsV4vhzuxYsFrVvsMoKoA==}
+  '@rx-lab/storage@1.1.7':
+    resolution: {integrity: sha512-+5F7hjosU1R0XZD6DDTxAN5HtnOEX4nxEtg4OYwFJky8gxSVWxJp5nmPNsgvL4JFEmzTBm4ppehaw57RSAQkpg==}
 
-  '@rx-lab/telegram-adapter@1.1.6':
-    resolution: {integrity: sha512-Mj2akcvERFqhoIIbHqUVUCghc4AnagWR0kPEOCFONb5KXIn+Lq83eI7KJrUl4yY00potCov4dDEkZ05IFPRq6Q==}
+  '@rx-lab/telegram-adapter@1.1.7':
+    resolution: {integrity: sha512-eRZk0+rKspkNCq9vkC5cZf1edrXCRT9IGbKp32sVj0vXqEU0G7pJI3Un2h3Fmh90wOgMj2w+EOoxSd9CsTD7iA==}
 
   '@sigstore/bundle@2.3.2':
     resolution: {integrity: sha512-wueKWDk70QixNLB363yHc2D2ItTgYiMTdPwK8D9dKQMR3ZQ0c35IxP5xnwQ8cNLoCgCRcHf14kE+CLIvNX1zmA==}
@@ -1740,6 +1755,15 @@ packages:
 
   '@ungap/structured-clone@1.2.0':
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
+
+  '@vercel/functions@1.4.1':
+    resolution: {integrity: sha512-987mKpoDCI18x2rDjrDbiuGOtxDMK/UhfhDZoN3A2SAt40BMaj8HEKwVqL6fOian5j/3RZcOuJnMOpatQGgpjw==}
+    engines: {node: '>= 16'}
+    peerDependencies:
+      '@aws-sdk/credential-provider-web-identity': '*'
+    peerDependenciesMeta:
+      '@aws-sdk/credential-provider-web-identity':
+        optional: true
 
   '@vercel/style-guide@5.2.0':
     resolution: {integrity: sha512-fNSKEaZvSkiBoF6XEefs8CcgAV9K9e+MbcsDZjUsktHycKdA0jvjAzQi1W/FzLS+Nr5zZ6oejCwq/97dHUKe0g==}
@@ -7360,19 +7384,19 @@ snapshots:
 
   '@rushstack/eslint-patch@1.5.1': {}
 
-  '@rx-lab/common@1.1.6':
+  '@rx-lab/common@1.1.7':
     dependencies:
       '@types/node': 22.4.2
       '@types/react': 18.3.3
       react: 18.3.1
       zod: 3.23.8
 
-  '@rx-lab/core@1.1.6':
+  '@rx-lab/core@1.1.7':
     dependencies:
-      '@rx-lab/common': 1.1.6
-      '@rx-lab/errors': 1.1.6
-      '@rx-lab/router': 1.1.6
-      '@rx-lab/storage': 1.1.6
+      '@rx-lab/common': 1.1.7
+      '@rx-lab/errors': 1.1.7
+      '@rx-lab/router': 1.1.7
+      '@rx-lab/storage': 1.1.7
       '@swc/core': 1.7.10
       '@types/glob': 8.1.0
       '@types/md5': 2.3.5
@@ -7386,33 +7410,33 @@ snapshots:
     transitivePeerDependencies:
       - '@swc/helpers'
 
-  '@rx-lab/errors@1.1.6':
+  '@rx-lab/errors@1.1.7':
     dependencies:
-      '@rx-lab/common': 1.1.6
+      '@rx-lab/common': 1.1.7
 
-  '@rx-lab/file-storage@1.1.6':
+  '@rx-lab/file-storage@1.1.7':
     dependencies:
-      '@rx-lab/common': 1.1.6
-      '@rx-lab/storage': 1.1.6
+      '@rx-lab/common': 1.1.7
+      '@rx-lab/storage': 1.1.7
       '@types/react': 18.3.3
       react: 18.3.1
 
-  '@rx-lab/router@1.1.6':
+  '@rx-lab/router@1.1.7':
     dependencies:
       '@types/react': 18.3.3
       react: 18.3.1
 
-  '@rx-lab/storage@1.1.6':
+  '@rx-lab/storage@1.1.7':
     dependencies:
-      '@rx-lab/common': 1.1.6
-      '@rx-lab/router': 1.1.6
+      '@rx-lab/common': 1.1.7
+      '@rx-lab/router': 1.1.7
       '@types/react': 18.3.3
       react: 18.3.1
 
-  '@rx-lab/telegram-adapter@1.1.6(request@2.88.2)':
+  '@rx-lab/telegram-adapter@1.1.7':
     dependencies:
-      '@rx-lab/common': 1.1.6
-      '@rx-lab/router': 1.1.6
+      '@rx-lab/common': 1.1.7
+      '@rx-lab/router': 1.1.7
       '@types/node-telegram-bot-api': 0.64.6
       '@types/react': 18.3.3
       node-telegram-bot-api: 0.66.0(request@2.88.2)
@@ -7894,6 +7918,8 @@ snapshots:
       eslint-visitor-keys: 3.4.3
 
   '@ungap/structured-clone@1.2.0': {}
+
+  '@vercel/functions@1.4.1': {}
 
   '@vercel/style-guide@5.2.0(eslint@8.57.0)(jest@29.7.0(@types/node@22.4.2))(prettier@3.3.3)(typescript@5.5.4)':
     dependencies:

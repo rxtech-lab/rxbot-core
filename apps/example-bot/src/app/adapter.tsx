@@ -12,7 +12,6 @@ if (!apiKey) {
 
 const adapter = new TelegramAdapter({
   token: apiKey,
-  longPolling: true,
 });
 
 const storage = new FileStorage();

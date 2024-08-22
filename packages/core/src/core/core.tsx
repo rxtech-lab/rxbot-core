@@ -239,6 +239,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     });
 
     await core.router.initFromRoutes(routeInfo);
+    await core.init();
     return core;
   }
 
@@ -285,10 +286,14 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     // initialize the adapter
     await this.adapter.init(this.coreApi);
     this.adapter.subscribeToMessageChanged(async (container, message) => {
-      await this.redirect(container, message, {
-        shouldRender: true,
-        shouldAddToHistory: true,
-      });
+      try {
+        await this.redirect(container, message, {
+          shouldRender: true,
+          shouldAddToHistory: true,
+        });
+      } catch (e) {
+        console.error(e);
+      }
     });
     await this.loadAndRenderStoredRoute("/");
   }
