@@ -46,3 +46,4 @@ packit.yaml
 !packages/router/src/global.d.ts
 mock-telegram
 .rx-lab
+!jest.config.js

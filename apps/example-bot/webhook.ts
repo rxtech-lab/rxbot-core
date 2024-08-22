@@ -1,7 +1,7 @@
 import path from "path";
 import { Core } from "@rx-lab/core";
-import { FileStorage } from "@rx-lab/file-storage";
 import { TelegramAdapter } from "@rx-lab/telegram-adapter";
+import { UpstashStorage } from "@rx-lab/upstash-storage";
 import dotenv from "dotenv";
 import Fastify from "fastify";
 
@@ -17,7 +17,10 @@ const adapter = new TelegramAdapter({
   token: apiKey,
 });
 
-const storage = new FileStorage();
+const storage = new UpstashStorage({
+  url: process.env.UPSTASH_URL!,
+  token: process.env.UPSTASH_TOKEN!,
+});
 
 const app = Fastify();
 let core: Core<any>;
