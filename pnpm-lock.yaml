@@ -82,20 +82,17 @@ importers:
   apps/example-vercel-deployment:
     dependencies:
       '@rx-lab/core':
-        specifier: workspace:*
-        version: link:../../packages/core
+        specifier: latest
+        version: 1.1.5
       '@rx-lab/file-storage':
-        specifier: workspace:*
-        version: link:../../packages/file-storage
+        specifier: latest
+        version: 1.1.5
       '@rx-lab/router':
-        specifier: workspace:*
-        version: link:../../packages/router
+        specifier: latest
+        version: 1.1.5
       '@rx-lab/telegram-adapter':
-        specifier: workspace:*
-        version: link:../../packages/telegram-adapter
-      '@rx-lab/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
+        specifier: latest
+        version: 1.1.5
     devDependencies:
       '@types/node':
         specifier: ^22.4.2
@@ -1303,6 +1300,27 @@ packages:
 
   '@rushstack/eslint-patch@1.5.1':
     resolution: {integrity: sha512-6i/8UoL0P5y4leBIGzvkZdS85RDMG9y1ihZzmTZQ5LdHUYmZ7pKFoj8X0236s3lusPs1Fa5HTQUpwI+UfTcmeA==}
+
+  '@rx-lab/common@1.1.5':
+    resolution: {integrity: sha512-QYbZQWCag54qshkd3bqzO0eO+2ygR9tw7lCdAvINQefim2Yah7IYvD8t/hdkR1YwE6gSrdkMNQBShivXyrO5+Q==}
+
+  '@rx-lab/core@1.1.5':
+    resolution: {integrity: sha512-7VSMxN9jVwQZy2Bbf/Wzw5D/Y0nOV9rTYxSVtNhjhXTrJMY5iAd6Elzm3956ZxGaeq8N0IwGqzpsaPZJPsJSDA==}
+
+  '@rx-lab/errors@1.1.5':
+    resolution: {integrity: sha512-2Tbse/GeXx8SMzZCDvdhQaRg4mjKoPM+aFsi9s4YB4n9wtCa9G51EUzpXgOS5jpMZAjs46WYUNH17GOM2y8/jA==}
+
+  '@rx-lab/file-storage@1.1.5':
+    resolution: {integrity: sha512-kPXyMdyE2LwyS24XlFhZW+u/cqeJw1+gw9LX/HRtgRIrayR+NaUnLqh0B6k0UR6P84/2QxNXqj+TFzujhspC1Q==}
+
+  '@rx-lab/router@1.1.5':
+    resolution: {integrity: sha512-+PxQh/nyXjkYPyiluSKJGhcXZpRcYvINe92aK5ao4dKvlYAa3tZMdIoO0T5QAoQOyVXCX5Kvl4/7bIuiXmV0mQ==}
+
+  '@rx-lab/storage@1.1.5':
+    resolution: {integrity: sha512-C1v20HfN5Y8ul6Rjn5WBgOaiZIoNJvfaaYaE+9g7CXSo4rNwrkndW34teXCjpEkJPMq+eDnWGX3MUlEIzz1z8Q==}
+
+  '@rx-lab/telegram-adapter@1.1.5':
+    resolution: {integrity: sha512-SHGN9RoIeR8MBzng4RTUFIyp0YIfuy1e2chYhUPp2qmuTXbLXkfZS1i5mze2HqMWY/YIB50BmypJZuePAZhHRw==}
 
   '@sigstore/bundle@2.3.2':
     resolution: {integrity: sha512-wueKWDk70QixNLB363yHc2D2ItTgYiMTdPwK8D9dKQMR3ZQ0c35IxP5xnwQ8cNLoCgCRcHf14kE+CLIvNX1zmA==}
@@ -7341,6 +7359,67 @@ snapshots:
       tslib: 2.6.2
 
   '@rushstack/eslint-patch@1.5.1': {}
+
+  '@rx-lab/common@1.1.5':
+    dependencies:
+      '@types/node': 22.4.2
+      '@types/react': 18.3.3
+      react: 18.3.1
+      zod: 3.23.8
+
+  '@rx-lab/core@1.1.5':
+    dependencies:
+      '@rx-lab/common': 1.1.5
+      '@rx-lab/errors': 1.1.5
+      '@rx-lab/router': 1.1.5
+      '@rx-lab/storage': 1.1.5
+      '@swc/core': 1.7.10
+      '@types/glob': 8.1.0
+      '@types/md5': 2.3.5
+      '@types/node': 22.4.2
+      '@types/react': 18.3.3
+      '@types/uuid': 9.0.8
+      glob: 11.0.0
+      md5: 2.3.0
+      uuid: 10.0.0
+      zod: 3.23.8
+    transitivePeerDependencies:
+      - '@swc/helpers'
+
+  '@rx-lab/errors@1.1.5':
+    dependencies:
+      '@rx-lab/common': 1.1.5
+
+  '@rx-lab/file-storage@1.1.5':
+    dependencies:
+      '@rx-lab/common': 1.1.5
+      '@rx-lab/storage': 1.1.5
+      '@types/react': 18.3.3
+      react: 18.3.1
+
+  '@rx-lab/router@1.1.5':
+    dependencies:
+      '@types/react': 18.3.3
+      react: 18.3.1
+
+  '@rx-lab/storage@1.1.5':
+    dependencies:
+      '@rx-lab/common': 1.1.5
+      '@rx-lab/router': 1.1.5
+      '@types/react': 18.3.3
+      react: 18.3.1
+
+  '@rx-lab/telegram-adapter@1.1.5':
+    dependencies:
+      '@rx-lab/common': 1.1.5
+      '@rx-lab/router': 1.1.5
+      '@types/node-telegram-bot-api': 0.64.6
+      '@types/react': 18.3.3
+      node-telegram-bot-api: 0.66.0(request@2.88.2)
+      react: 18.3.1
+    transitivePeerDependencies:
+      - request
+      - supports-color
 
   '@sigstore/bundle@2.3.2':
     dependencies:
