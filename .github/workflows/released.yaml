@@ -1,0 +1,36 @@
+name: Release npm packages and apps
+on:
+  release:
+    types:
+      - released
+  push:
+    branches:
+      - main
+jobs:
+  release-npm:
+    name: Release npm packages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: latest
+      - name: Install dependencies
+        run: pnpm install
+      - name: Lerna Bump Version
+        run: pnpm lerna version ${{ github.event.release.tag_name }} --no-git-tag-version --no-push --yes
+      - name: Sign In to NPM
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          npm whoami
+      - name: Lerna Publish
+        run: pnpm lerna publish from-package --yes
+        # if the event is a release, we need to publish the packages
+        if: github.event_name == 'release'
+      - name: Lerna Publish dry
+        run: pnpm publish:dry
+        # if the event is a push to main, we need to publish the packages
+        if: github.event_name == 'push'

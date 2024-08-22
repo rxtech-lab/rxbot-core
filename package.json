@@ -7,7 +7,8 @@
     "lint": "turbo lint",
     "test": "turbo test",
     "format": "biome format --write .",
-    "format:version": "syncpack fix-mismatches"
+    "format:version": "syncpack fix-mismatches",
+    "publish:dry": "lerna publish from-package --no-push"
   },
   "devDependencies": {
     "@biomejs/biome": "1.8.3",
