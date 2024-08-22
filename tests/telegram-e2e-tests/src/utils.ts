@@ -46,7 +46,6 @@ export const initialize = async (
     rootDir: opts.rootDir,
     destinationDir: opts.destinationDir,
   });
-  await core.init();
 
   await api.reset.resetState();
 
