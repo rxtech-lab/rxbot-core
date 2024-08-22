@@ -12,6 +12,7 @@
       "default": "./dist/hooks/index.js"
     }
   },
+  "files": ["dist"],
   "scripts": {
     "test": "jest --passWithNoTests",
     "build": "tsc"

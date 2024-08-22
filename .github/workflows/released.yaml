@@ -4,8 +4,6 @@ on:
     types:
       - released
   push:
-    branches:
-      - main
 jobs:
   release-npm:
     name: Release npm packages

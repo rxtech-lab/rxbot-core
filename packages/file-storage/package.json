@@ -3,11 +3,15 @@
   "version": "1.0.0",
   "description": "",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
   },
   "scripts": {
     "test": "jest"
   },
+  "files": ["dist"],
   "keywords": [],
   "author": "",
   "license": "ISC",

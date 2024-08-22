@@ -1,5 +1,7 @@
 {
   "extends": "../typescript-config/base.json",
+  "include": ["src/**/*"],
+  "exclude": ["**/*.spec.ts", "**/*.spec.tsx"],
   "compilerOptions": {
     "jsx": "react-jsx",
     "outDir": "dist",

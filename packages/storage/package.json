@@ -3,9 +3,16 @@
   "version": "1.0.0",
   "description": "",
   "exports": {
-    ".": "./src/index.ts",
-    "./memory": "./src/memory/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./memory": {
+      "types": "./dist/memory/index.d.ts",
+      "default": "./dist/memory/index.js"
+    }
   },
+  "files": ["dist"],
   "scripts": {
     "test": "jest",
     "build": "tsc"
