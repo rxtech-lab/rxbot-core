@@ -174,9 +174,6 @@ importers:
         specifier: ^3.23.8
         version: 3.23.8
     devDependencies:
-      '@rx-lab/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
       '@types/jest':
         specifier: ^29.5.12
         version: 29.5.12
@@ -205,9 +202,6 @@ importers:
         specifier: workspace:*
         version: link:../common
     devDependencies:
-      '@rx-lab/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -244,9 +238,6 @@ importers:
       '@rx-lab/storage':
         specifier: workspace:*
         version: link:../storage
-      '@rx-lab/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
       '@types/react':
         specifier: ^18.3.3
         version: 18.3.3
@@ -312,9 +303,6 @@ importers:
 
   packages/router:
     dependencies:
-      '@rx-lab/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
       '@types/react':
         specifier: ^18.3.3
         version: 18.3.3
@@ -365,9 +353,6 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
     devDependencies:
-      '@rx-lab/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
       '@testing-library/dom':
         specifier: ^10.3.0
         version: 10.3.0
@@ -414,9 +399,6 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
     devDependencies:
-      '@rx-lab/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
       '@types/jest':
         specifier: ^29.5.12
         version: 29.5.12
