@@ -14,12 +14,8 @@ import { convertRouteToTGRoute, convertTGRouteToRoute } from "./utils";
 
 export type TelegramAppOpts =
   | {
-      /**
-       * base telegram url for the bot
-       */
-      url?: string;
       token: string;
-      callbackUrl: string;
+      url: string;
     }
   | {
       token: string;
@@ -82,14 +78,6 @@ export class TelegramAdapter
   // TODO: Only works when user send a message to the bot
   //  Need to handle the case that when user click on the button, message is updated
   async init(api: CoreApi<TGContainer>): Promise<void> {
-    if ("callbackUrl" in this.opts) {
-      if (this.opts.callbackUrl === undefined) {
-        throw new Error("callbackUrl is required for webhook mode");
-      }
-      Logger.log("Setting webhook", "blue");
-      await this.bot.setWebHook(this.opts.callbackUrl);
-    }
-
     //FIXME: If user click on the button multiple times at the same time,
     // the message only updated once and throw an error
     this.bot.on("callback_query", async (query) => {
