@@ -143,9 +143,6 @@ importers:
       '@rx-lab/storage':
         specifier: workspace:*
         version: link:../storage
-      '@rx-lab/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
       '@swc/core':
         specifier: ^1.7.10
         version: 1.7.10
@@ -177,6 +174,9 @@ importers:
         specifier: ^3.23.8
         version: 3.23.8
     devDependencies:
+      '@rx-lab/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
       '@types/jest':
         specifier: ^29.5.12
         version: 29.5.12
@@ -312,6 +312,9 @@ importers:
 
   packages/router:
     dependencies:
+      '@rx-lab/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
       '@types/react':
         specifier: ^18.3.3
         version: 18.3.3
@@ -322,9 +325,6 @@ importers:
       '@rx-lab/common':
         specifier: workspace:*
         version: link:../common
-      '@rx-lab/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
       '@testing-library/dom':
         specifier: ^10.3.0
         version: 10.3.0
@@ -358,9 +358,6 @@ importers:
       '@rx-lab/router':
         specifier: workspace:*
         version: link:../router
-      '@rx-lab/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
       '@types/react':
         specifier: ^18.3.3
         version: 18.3.3
@@ -368,6 +365,9 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
     devDependencies:
+      '@rx-lab/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
       '@testing-library/dom':
         specifier: ^10.3.0
         version: 10.3.0
@@ -395,6 +395,12 @@ importers:
 
   packages/telegram-adapter:
     dependencies:
+      '@rx-lab/common':
+        specifier: workspace:*
+        version: link:../common
+      '@rx-lab/router':
+        specifier: workspace:*
+        version: link:../router
       '@types/node-telegram-bot-api':
         specifier: ^0.64.6
         version: 0.64.6
@@ -408,12 +414,6 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
     devDependencies:
-      '@rx-lab/common':
-        specifier: workspace:*
-        version: link:../common
-      '@rx-lab/router':
-        specifier: workspace:*
-        version: link:../router
       '@rx-lab/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
