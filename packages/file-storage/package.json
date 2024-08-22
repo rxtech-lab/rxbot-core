@@ -12,6 +12,9 @@
     "test": "jest"
   },
   "files": ["dist"],
+  "publishConfig": {
+    "access": "public"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
