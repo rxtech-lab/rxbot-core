@@ -15,8 +15,7 @@
     "@rx-lab/common": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.5.4",
-    "@rx-lab/typescript-config": "workspace:*"
+    "typescript": "^5.5.4"
   },
   "scripts": {
     "build": "tsc"
