@@ -19,7 +19,7 @@
     "@rx-lab/telegram-adapter": "workspace:*",
     "@rx-lab/typescript-config": "workspace:*",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.5.4"
   },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.50",

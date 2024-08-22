@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "vercel dev",
-    "build": "ts-node compile.ts"
+    "build:bot": "ts-node compile.ts"
   },
   "keywords": [],
   "dependencies": {
