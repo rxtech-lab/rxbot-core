@@ -9,7 +9,8 @@
     }
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "tsc"
   },
   "files": ["dist"],
   "publishConfig": {
