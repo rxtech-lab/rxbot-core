@@ -2,7 +2,7 @@ import { RedirectOptions } from "./adapter.interface";
 import type { Container } from "./container.interface";
 import { RenderedComponent } from "./router.interface";
 
-export interface Renderer<T extends Container<any, any>> {
+export interface CoreInterface<T extends Container<any, any>> {
   /**
    * Redirects the user to the specified route.
    * @param container
