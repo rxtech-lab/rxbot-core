@@ -14,7 +14,7 @@ export async function POST(request: Request) {
       });
     }
     await global.core.handleMessageUpdate(body);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 4000));
   };
 
   waitUntil(result().catch(console.error));

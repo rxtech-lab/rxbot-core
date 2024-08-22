@@ -28,7 +28,10 @@ let core: Core<any>;
 app.post("/api/webhook", async (req, res) => {
   const { body } = req;
   try {
+    const start = Date.now();
     await core.handleMessageUpdate(body as any);
+    const end = Date.now();
+    console.log(`Message handled in ${end - start}ms`);
     return {
       status: "ok",
     };

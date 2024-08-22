@@ -1,5 +1,5 @@
-import { MemoryStorage } from "@rx-lab/storage/memory";
 import { TelegramAdapter } from "@rx-lab/telegram-adapter";
+import { UpstashStorage } from "@rx-lab/upstash-storage";
 
 const apiKey = process.env.API_KEY ?? process.env.TG_BOT_API_KEY;
 if (!apiKey) {
@@ -12,6 +12,9 @@ const adapter = new TelegramAdapter({
   token: apiKey,
 } as any);
 
-const storage = new MemoryStorage();
+const storage = new UpstashStorage({
+  url: process.env.UPSTASH_URL,
+  token: process.env.UPSTASH_TOKEN,
+});
 
 export { adapter, storage };
