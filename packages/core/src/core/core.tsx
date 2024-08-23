@@ -170,7 +170,18 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     let component: RenderedComponent | undefined;
     if (options?.shouldRender) {
       component = await this.loadAndRenderStoredRoute(key, route);
-      await this.render(container);
+      try {
+        await this.render(container);
+      } catch (e) {
+        const errorComponent = await this.router.renderSpecialRoute(
+          route,
+          "error",
+          {},
+        );
+        await this.setComponent(errorComponent);
+        await this.render(container);
+        component.isError = true;
+      }
     }
     // only save the route if the component is not an error page
     if (route && component?.isError !== true) {

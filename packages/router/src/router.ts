@@ -255,13 +255,13 @@ export class Router {
    * @param query Query string parameters passed to the route.
    */
   async renderSpecialRoute(
-    path: string,
+    path: string | undefined,
     type: SpecialRouteType,
     query: Record<string, string>,
   ): Promise<RenderedComponent> {
     const matchedRoute = await matchSpecialRouteWithPath(
       this.routeInfoFile.routes,
-      path,
+      path ?? DEFAULT_ROOT_ROUTE,
     );
     const component = await getSpecialRoute(matchedRoute, type);
     return {
