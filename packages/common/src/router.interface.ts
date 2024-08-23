@@ -27,6 +27,8 @@ export type RouteMetadata = z.infer<typeof RouteMetadataSchema>;
 /** The default folder name for application components */
 export const DEFAULT_APP_FOLDER = "app";
 
+export type SpecialRouteType = "error" | "404";
+
 /**
  * Represents a route in the application.
  * It's a string that defines the URL path.
@@ -69,6 +71,10 @@ export type RenderedComponent = {
   /** The full path that was matched */
   path: string;
   currentRoute: Route;
+  /**
+   * Indicates whether the component is an error page (404 or error).
+   */
+  isError?: boolean;
 };
 
 export type ComponentKeyProps = {
@@ -94,9 +100,21 @@ export interface RouteInfo {
   route: string;
 
   /**
-   * The file path of the component that will render this route.
+   * 404 page associated with this route.
+   * If no `404.tsx` is found, the default 404 page will be used.
    */
-  filePath: string;
+  404: string;
+
+  /**
+   * error page associated with this route.
+   * If no `error.tsx` is found, the default error page will be used.
+   */
+  error: string;
+
+  /**
+   * The page component associated with this route.
+   */
+  page: string;
 
   /**
    * Nested routes under this route, if any.

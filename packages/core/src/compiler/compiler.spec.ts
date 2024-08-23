@@ -1,11 +1,16 @@
+import * as fs from "fs";
 import * as path from "path";
-import swc from "@swc/core";
+import * as swc from "@swc/core";
 import { glob } from "glob";
 import { Compiler, CompilerOptions } from "./compiler";
 import { extractJSXKeyAttributes, readMetadata } from "./utils";
 // Mock dependencies
 jest.mock("@swc/core", () => ({
   transformFile: jest.fn(),
+  transform: jest.fn().mockResolvedValue({
+    code: "compiled code",
+    ast: {},
+  }),
 }));
 
 jest.mock("./utils", () => ({
@@ -56,7 +61,7 @@ describe("buildRouteInfo", () => {
     expect(result).toEqual([
       {
         route: "/home",
-        filePath: "apps/home/page.tsx",
+        page: "apps/home/page.tsx",
         subRoutes: [],
       },
     ]);
@@ -73,7 +78,7 @@ describe("buildRouteInfo", () => {
     expect(result).toEqual([
       {
         route: "/home",
-        filePath: "apps/home/page.tsx",
+        page: "apps/home/page.tsx",
         subRoutes: [],
       },
       {
@@ -81,7 +86,7 @@ describe("buildRouteInfo", () => {
         subRoutes: [
           {
             route: "/dashboard/settings",
-            filePath: "apps/dashboard/settings/page.tsx",
+            page: "apps/dashboard/settings/page.tsx",
             subRoutes: [],
           },
         ],
@@ -101,11 +106,11 @@ describe("buildRouteInfo", () => {
     expect(result).toEqual([
       {
         route: "/home",
-        filePath: "apps/home/page.tsx",
+        page: "apps/home/page.tsx",
         subRoutes: [
           {
             route: "/home/nested",
-            filePath: "apps/home/nested/page.tsx",
+            page: "apps/home/nested/page.tsx",
             subRoutes: [],
           },
         ],
@@ -115,10 +120,7 @@ describe("buildRouteInfo", () => {
         subRoutes: [
           {
             route: "/dashboard/nested",
-            filePath: path.join(
-              mockOptions.rootDir,
-              "dashboard/nested/page.tsx",
-            ),
+            page: path.join(mockOptions.rootDir, "dashboard/nested/page.tsx"),
             subRoutes: [],
           },
         ],
@@ -155,8 +157,8 @@ describe("Compiler.compile", () => {
     jest.clearAllMocks();
   });
 
-  it("should compile a single page", async () => {
-    const mockPages = ["/home/page.tsx"];
+  it("should compile a single page without root route", async () => {
+    const mockPages = ["/app/home/page.tsx"];
     (require("glob").glob.glob as jest.Mock).mockResolvedValue(mockPages);
     (swc.transformFile as jest.Mock).mockResolvedValue({
       code: "compiled code",
@@ -165,13 +167,51 @@ describe("Compiler.compile", () => {
 
     const result = await compiler.compile();
 
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       routes: [
         {
-          route: "/home",
-          filePath: "/path/to/output/home/page.js",
-          subRoutes: [],
+          route: "/",
+          page: "/path/to/output/app/page.js",
+          "404": "/path/to/output/app/404.js",
+          error: "/path/to/output/app/error.js",
+          subRoutes: [
+            {
+              route: "/home",
+              page: "/path/to/output/app/home/page.js",
+              "404": "/path/to/output/app/404.js",
+              error: "/path/to/output/app/error.js",
+              subRoutes: [],
+              metadata: { title: "Home" },
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  it("should compile a single page with root route", async () => {
+    const mockPages = ["/app/page.tsx"];
+    (require("glob").glob.glob as jest.Mock).mockResolvedValue(mockPages);
+    (swc.transformFile as jest.Mock).mockResolvedValue({
+      code: "compiled code",
+    });
+    (readMetadata as jest.Mock).mockResolvedValue({ title: "Home" });
+    (fs.existsSync as jest.Mock)
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(false);
+
+    const result = await compiler.compile();
+
+    expect(result).toStrictEqual({
+      routes: [
+        {
+          route: "/",
+          page: "/path/to/output/app/page.js",
+          "404": "/path/to/output/app/404.js",
+          error: "/path/to/output/app/error.js",
           metadata: { title: "Home" },
+          subRoutes: [],
         },
       ],
     });
@@ -220,25 +260,39 @@ describe("Compiler.compile", () => {
     expect(result).toStrictEqual({
       routes: [
         {
-          route: "/home",
-          filePath: "/path/to/output/path/to/project/home/page.js",
+          route: "/",
+          "404": "/path/to/output/app/404.js",
+          error: "/path/to/output/app/error.js",
+          page: "/path/to/output/app/page.js",
           subRoutes: [
             {
-              route: "/home/nested",
-              filePath: "/path/to/output/path/to/project/home/nested/page.js",
-              subRoutes: [],
+              route: "/home",
+              page: "/path/to/output/path/to/project/home/page.js",
+              "404": "/path/to/output/app/404.js",
+              error: "/path/to/output/app/error.js",
+              subRoutes: [
+                {
+                  route: "/home/nested",
+                  page: "/path/to/output/path/to/project/home/nested/page.js",
+                  "404": "/path/to/output/app/404.js",
+                  error: "/path/to/output/app/error.js",
+                  subRoutes: [],
+                  metadata: { title: "Nested" },
+                },
+              ],
               metadata: { title: "Nested" },
             },
+            {
+              route: "/admin",
+              page: "/path/to/output/path/to/project/admin/page.js",
+              "404": "/path/to/output/app/404.js",
+              error: "/path/to/output/app/error.js",
+              subRoutes: [],
+              metadata: {
+                title: "Nested",
+              },
+            },
           ],
-          metadata: { title: "Nested" },
-        },
-        {
-          route: "/admin",
-          filePath: "/path/to/output/path/to/project/admin/page.js",
-          subRoutes: [],
-          metadata: {
-            title: "Nested",
-          },
         },
       ],
     });
@@ -277,7 +331,15 @@ describe("Compiler.compile", () => {
     const result = await compiler.compile();
 
     expect(result).toEqual({
-      routes: [],
+      routes: [
+        {
+          "404": "/path/to/output/app/404.js",
+          error: "/path/to/output/app/error.js",
+          page: "/path/to/output/app/page.js",
+          route: "/",
+          subRoutes: [],
+        },
+      ],
     });
     expect(swc.transformFile).not.toHaveBeenCalled();
     expect(readMetadata).not.toHaveBeenCalled();

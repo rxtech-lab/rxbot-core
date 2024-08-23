@@ -164,21 +164,25 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     const key = this.adapter.getRouteKey(container);
     const route = await this.adapter.decodeRoute(routeOrObject);
     if (route) {
+      delete container.message.text;
+    }
+
+    let component: RenderedComponent | undefined;
+    if (options?.shouldRender) {
+      component = await this.loadAndRenderStoredRoute(key, route);
+      await this.render(container);
+    }
+    // only save the route if the component is not an error page
+    if (route && component?.isError !== true) {
       await this.router.navigateTo(key, route);
       if (options?.shouldAddToHistory) {
         await this.storage.addHistory(key, route);
       }
-      delete container.message.text;
-    }
-
-    if (options?.shouldRender) {
-      await this.loadAndRenderStoredRoute(key);
-      await this.render(container);
     }
   }
 
-  async loadAndRenderStoredRoute(key: string) {
-    const component = await this.router.render(key);
+  async loadAndRenderStoredRoute(key: string, defaultRoute?: string) {
+    const component = await this.router.render(key, defaultRoute);
     await this.setComponent(component);
     return component;
   }

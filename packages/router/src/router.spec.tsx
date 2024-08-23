@@ -1,5 +1,10 @@
 import { RouteInfo } from "@rx-lab/common";
-import { importRoute, matchRouteWithPath, Router } from "./router";
+import {
+  Router,
+  importRoute,
+  matchRouteWithPath,
+  matchSpecialRouteWithPath,
+} from "./router";
 
 const clientComponents = ["../tests/client/test-component1.tsx"];
 
@@ -10,12 +15,14 @@ describe("ImportRoute", () => {
     it(`should import component ${component}`, async () => {
       const route = await importRoute({
         route: "/",
-        filePath: component,
+        page: component,
+        error: "",
+        "404": "",
         metadata: {},
       });
       expect(route).toBeTruthy();
       expect(route.route).toBe("/");
-      expect(route.filePath).toBe(component);
+      expect(route.page).toBe(component);
       expect(route.component).toBeTruthy();
     });
   }
@@ -25,25 +32,33 @@ describe("matchRouteWithPath", () => {
   const routes: RouteInfo[] = [
     {
       route: "/user/[id]",
-      filePath: clientComponents[0],
+      page: clientComponents[0],
       metadata: {},
+      error: "",
+      "404": "",
     },
     {
       route: "/blog/[slug]",
-      filePath: clientComponents[0],
+      page: clientComponents[0],
       metadata: {},
+      error: "",
+      "404": "",
       subRoutes: [
         {
           route: "/blog/[slug]/comments",
-          filePath: clientComponents[0],
+          page: clientComponents[0],
           metadata: {},
+          error: "",
+          "404": "",
         },
       ],
     },
     {
       route: "/about",
-      filePath: clientComponents[0],
+      page: clientComponents[0],
       metadata: {},
+      error: "",
+      "404": "",
     },
   ];
 
@@ -111,13 +126,17 @@ describe("should be able to render", () => {
       routes: [
         {
           route: "/client",
-          filePath: clientComponents[0],
+          page: clientComponents[0],
+          error: "",
+          "404": "",
           metadata: {},
         },
         {
           route: "/server",
-          filePath: serverComponents[0],
+          page: serverComponents[0],
           metadata: {},
+          error: "",
+          "404": "",
         },
       ],
     });
@@ -129,5 +148,122 @@ describe("should be able to render", () => {
     const serverResult = await router.render("/server");
     expect(serverResult).toBeTruthy();
     expect(typeof serverResult.component).toBe("function");
+  });
+});
+
+describe("matchSpecialRouteWithPath", () => {
+  const mockRoutes: RouteInfo[] = [
+    {
+      route: "/",
+      404: "/404",
+      error: "/error",
+      page: "/index",
+      subRoutes: [
+        {
+          route: "/blog",
+          404: "/blog/404",
+          error: "/blog/error",
+          page: "/blog/index",
+          subRoutes: [
+            {
+              route: "/blog/[slug]",
+              404: "/blog/404",
+              error: "/blog/error",
+              page: "/blog/[slug]",
+            },
+          ],
+        },
+        {
+          route: "/about",
+          404: "/404",
+          error: "/error",
+          page: "/about",
+        },
+      ],
+    },
+  ];
+
+  it("should match exact routes", async () => {
+    const result = await matchSpecialRouteWithPath(mockRoutes, "/about");
+    expect(result.route).toBe("/about");
+  });
+
+  it("should match dynamic routes", async () => {
+    const result = await matchSpecialRouteWithPath(mockRoutes, "/blog/my-post");
+    expect(result.route).toBe("/blog/[slug]");
+  });
+
+  it("should return the nearest parent route if no exact match is found", async () => {
+    const result = await matchSpecialRouteWithPath(
+      mockRoutes,
+      "/blog/category/post",
+    );
+    expect(result.route).toBe("/blog/[slug]");
+  });
+
+  it("should return the root route if no match is found", async () => {
+    const result = await matchSpecialRouteWithPath(
+      mockRoutes,
+      "/nonexistent/path",
+    );
+    expect(result.route).toBe("/");
+  });
+
+  it("should handle trailing slashes", async () => {
+    const result = await matchSpecialRouteWithPath(mockRoutes, "/about/");
+    expect(result.route).toBe("/about");
+  });
+
+  it("should match the root route", async () => {
+    const result = await matchSpecialRouteWithPath(mockRoutes, "/");
+    expect(result.route).toBe("/");
+  });
+
+  it("should return root route for unmatched paths", async () => {
+    const result = await matchSpecialRouteWithPath(
+      mockRoutes,
+      "/completely/unknown/path",
+    );
+    expect(result.route).toBe("/");
+  });
+
+  it("should prefer longer matches over shorter ones", async () => {
+    const extendedRoutes: RouteInfo[] = [
+      ...mockRoutes,
+      {
+        route: "/blog/featured",
+        404: "/blog/404",
+        error: "/blog/error",
+        page: "/blog/featured",
+      },
+    ];
+    const result = await matchSpecialRouteWithPath(
+      extendedRoutes,
+      "/blog/featured/post",
+    );
+    expect(result.route).toBe("/blog/featured");
+  });
+
+  it("should not over-match dynamic routes", async () => {
+    const result = await matchSpecialRouteWithPath(
+      mockRoutes,
+      "/blog/post/comment",
+    );
+    expect(result.route).toBe("/blog/[slug]");
+  });
+
+  it("should handle empty routes array", async () => {
+    const result = await matchSpecialRouteWithPath(
+      [
+        {
+          route: "/",
+          404: "/404",
+          error: "/error",
+          page: "/index",
+        },
+      ],
+      "/any/path",
+    );
+    expect(result.route).toBe("/");
   });
 });
