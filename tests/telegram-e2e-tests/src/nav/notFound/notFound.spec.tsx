@@ -7,9 +7,9 @@ import {
   sleep,
 } from "../../utils";
 
-const chatroomId = 2000;
+const chatroomId = 2100;
 
-describe("Simple navigation Tests", () => {
+describe("404 page", () => {
   let api: Api<any>;
   let coreApi: any;
 
@@ -19,7 +19,7 @@ describe("Simple navigation Tests", () => {
     });
   });
 
-  it("should render the nav page", async () => {
+  it("should render the 404 page using the default one", async () => {
     const rootDir = path.join(__dirname, "src");
     const destinationDir = path.join(__dirname, ".rx-lab");
     const { core } = await initialize(chatroomId, api, {
@@ -38,22 +38,31 @@ describe("Simple navigation Tests", () => {
     const currentMessage = messages.data.messages[1];
     expect(currentMessage?.update_count).toBe(0);
     expect(currentMessage?.text).toContain("This is the home page");
-    await api.chatroom.clickOnMessageInChatroom(
-      chatroomId,
-      messages.data.messages[1]!.message_id!,
-      {
-        text: "Go to subpage 1",
-      },
-    );
+    await api.chatroom.sendMessageToChatroom(chatroomId, {
+      content: "/notfound",
+      type: MessageType.Text,
+    });
     await sleep(DEFAULT_RENDERING_WAIT_TIME);
-    // When user navigate to subpage 1, the message count should be 3
-    // since renderNewMessage is set to true
+    // When user navigate to /notfound,
+    // should render the 404 page
     const updatedMessages =
       await api.chatroom.getMessagesByChatroom(chatroomId);
-    expect(updatedMessages.data.count).toBe(3);
-    const updatedMessage = updatedMessages.data.messages[2];
+    expect(updatedMessages.data.count).toBe(4);
+    const updatedMessage = updatedMessages.data.messages[3];
     expect(updatedMessage?.update_count).toBe(0);
-    expect(updatedMessage?.text).toContain("This is subpage 1");
+    expect(updatedMessage?.text).toContain("404 - Page Not Found");
+
+    // but once user enter hello, it should go back to the home page
+    await api.chatroom.sendMessageToChatroom(chatroomId, {
+      content: "hello",
+      type: MessageType.Text,
+    });
+    await sleep(DEFAULT_RENDERING_WAIT_TIME);
+    const homeMessages = await api.chatroom.getMessagesByChatroom(chatroomId);
+    expect(homeMessages.data.count).toBe(6);
+    const homeMessage = homeMessages.data.messages[5];
+    expect(homeMessage?.update_count).toBe(0);
+    expect(homeMessage?.text).toContain("This is the home page");
   });
 
   afterEach(async () => {

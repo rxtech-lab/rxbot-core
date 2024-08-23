@@ -5,11 +5,11 @@ import {
   ImportedRoute,
   MatchedRoute,
   Menu,
-  ROUTE_METADATA_FILE,
   RenderedComponent,
   RouteInfo,
   RouteInfoFile,
   RouteMetadata,
+  SpecialRouteType,
   StorageInterface,
 } from "@rx-lab/common";
 import { matchRoute, parseQuery } from "./router.utils";
@@ -20,18 +20,29 @@ import { matchRoute, parseQuery } from "./router.utils";
  * @param info
  */
 export async function importRoute(info: RouteInfo): Promise<ImportedRoute> {
-  const component = await import(info.filePath);
+  const component = await import(info.page);
   const metadata: RouteMetadata = component.metadata ?? {};
   return {
-    filePath: info.filePath,
+    page: info.page,
     route: info.route,
     subRoutes: await Promise.all(
       (info.subRoutes ?? []).map((subRoute) => importRoute(subRoute)),
     ),
     metadata: metadata,
     component: component.default,
-    isAsync: info.isAsync,
+    error: info.error,
+    "404": info["404"],
   };
+}
+
+async function getSpecialRoute(info: RouteInfo, type: "error" | "404") {
+  let component: any | null = null;
+  if (type === "error") {
+    component = await import(info.error);
+  } else {
+    component = await import(info["404"]);
+  }
+  return component;
 }
 
 /**
@@ -66,6 +77,108 @@ export async function matchRouteWithPath(
   }
 
   return null;
+}
+
+/**
+ * Match a special route with the path.
+ * 1. If Matched, return the route.
+ * 2. If no match, find the nearest route.
+ *  - if the path is `/blog/post` and the route is `/blog/[slug]`,
+ *  the route `/blog/[slug]` will be returned.
+ *  - If the path is `/blog/post` and the route is `/blog`,
+ *  the route `/blog/` will be returned. Since the route `/blog` is the nearest route.
+ *  - If the path is `/blog/post` and the route is `/about`,
+ *    the route `/` will be returned. Since the route `/` is the nearest route.
+ *
+ * @param routes
+ * @param path
+ */
+export async function matchSpecialRouteWithPath(
+  routes: RouteInfo[],
+  path: string,
+): Promise<RouteInfo> {
+  // Helper function to check if a route matches the path
+  const isMatch = (route: string, inputPath: string): boolean => {
+    const routeParts = route.split("/").filter(Boolean);
+    const inputParts = inputPath.split("/").filter(Boolean);
+
+    if (routeParts.length > inputParts.length) return false;
+
+    for (let i = 0; i < routeParts.length; i++) {
+      if (routeParts[i] !== inputParts[i] && !routeParts[i].startsWith("[")) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  // Helper function to calculate the score of a match
+  const calculateScore = (route: string, inputPath: string): number => {
+    const routeParts = route.split("/").filter(Boolean);
+    const inputParts = inputPath.split("/").filter(Boolean);
+    let score = 0;
+
+    for (let i = 0; i < routeParts.length; i++) {
+      if (routeParts[i] === inputParts[i]) {
+        score += 2; // Exact match
+      } else if (routeParts[i].startsWith("[")) {
+        score += 1; // Dynamic segment match
+      } else {
+        break;
+      }
+    }
+
+    // Penalize for extra segments in the input path
+    score -= Math.max(0, inputParts.length - routeParts.length);
+
+    return score;
+  };
+
+  // Recursive function to search for the best matching route
+  const findBestMatch = (
+    currentRoutes: RouteInfo[],
+    inputPath: string,
+    bestMatch: { route: RouteInfo; score: number } | null = null,
+  ): { route: RouteInfo; score: number } | null => {
+    for (const route of currentRoutes) {
+      if (isMatch(route.route, inputPath)) {
+        const score = calculateScore(route.route, inputPath);
+        if (
+          !bestMatch ||
+          score > bestMatch.score ||
+          (score === bestMatch.score &&
+            route.route.length > bestMatch.route.route.length)
+        ) {
+          bestMatch = { route, score };
+        }
+      }
+
+      if (route.subRoutes) {
+        const subMatch = findBestMatch(route.subRoutes, inputPath, bestMatch);
+        if (
+          subMatch &&
+          (!bestMatch ||
+            subMatch.score > bestMatch.score ||
+            (subMatch.score === bestMatch.score &&
+              subMatch.route.route.length > bestMatch.route.route.length))
+        ) {
+          bestMatch = subMatch;
+        }
+      }
+    }
+
+    return bestMatch;
+  };
+
+  const bestMatch = findBestMatch(routes, path);
+
+  if (bestMatch && bestMatch.score > 0) {
+    return bestMatch.route;
+  }
+
+  // If no match found, return the root route
+  return routes.find((route) => route.route === DEFAULT_ROOT_ROUTE)!;
 }
 
 interface RouterOptions {
@@ -135,12 +248,51 @@ export class Router {
     return this.storage.restoreHistory(key);
   }
 
-  async render(key: string): Promise<RenderedComponent> {
-    const currentRoute =
-      (await this.storage.restoreRoute(key)) ?? DEFAULT_ROOT_ROUTE;
+  /**
+   * Render a special route with the type.
+   * @param path Current route
+   * @param type The type of the special route.
+   * @param query Query string parameters passed to the route.
+   */
+  async renderSpecialRoute(
+    path: string | undefined,
+    type: SpecialRouteType,
+    query: Record<string, string>,
+  ): Promise<RenderedComponent> {
+    const matchedRoute = await matchSpecialRouteWithPath(
+      this.routeInfoFile.routes,
+      path ?? DEFAULT_ROOT_ROUTE,
+    );
+    const component = await getSpecialRoute(matchedRoute, type);
+    return {
+      currentRoute: path,
+      path: matchedRoute.route,
+      matchedRoute: {
+        ...matchedRoute,
+        params: {},
+        query: {},
+        component: component.default,
+      },
+      component: component.default,
+      queryString: {},
+      params: {},
+      isError: type === "error" || type === "404",
+    };
+  }
+
+  async render(key: string, defaultRoute?: string): Promise<RenderedComponent> {
+    const currentRoute = defaultRoute
+      ? defaultRoute
+      : (await this.storage.restoreRoute(key)) ?? DEFAULT_ROOT_ROUTE;
     const parsedRoute = await this.adapter.decodeRoute(currentRoute);
+    // if the route is invalid, render the error page
     if (!parsedRoute) {
-      throw new Error(`Invalid route: ${currentRoute}`);
+      const errorQuery: Record<string, any> = {
+        error: new Error(`Invalid route: ${currentRoute}`),
+        //TODO: Use error package in the future
+        code: 500,
+      };
+      return await this.renderSpecialRoute(currentRoute, "error", errorQuery);
     }
     const matchedRoute = await matchRouteWithPath(
       this.routeInfoFile.routes,
@@ -148,7 +300,10 @@ export class Router {
     );
     const queryString = parseQuery(parsedRoute);
     if (!matchedRoute) {
-      throw new Error(`Route not found: ${parsedRoute}`);
+      const errorQuery: Record<string, any> = {
+        error: new Error(`Route not found: ${parsedRoute}`),
+      };
+      return await this.renderSpecialRoute(parsedRoute, "404", errorQuery);
     }
     return {
       matchedRoute,
