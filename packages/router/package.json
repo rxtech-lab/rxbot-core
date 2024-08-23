@@ -25,6 +25,7 @@
   "license": "ISC",
   "devDependencies": {
     "@rx-lab/common": "workspace:*",
+    "@rx-lab/errors": "workspace:*",
     "@testing-library/dom": "^10.3.0",
     "@testing-library/react": "^16.0.0",
     "@types/jest": "^29.5.12",
