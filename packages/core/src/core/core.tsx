@@ -13,6 +13,7 @@ import {
   RenderedComponent,
   StorageInterface,
 } from "@rx-lab/common";
+import { RedirectError } from "@rx-lab/errors";
 import React from "react";
 import { Compiler } from "../compiler";
 import { Renderer } from "./renderer";
@@ -144,7 +145,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
 
   async handleMessageUpdate(message: BaseMessage) {
     await this.adapter.handleMessageUpdate(message);
-    this.lastCommitUpdateTime = Date.now();
+    this.updateLastCommitUpdateTime();
     return new Promise<void>((resolve) => {
       const checkCommitUpdates = () => {
         const currentTime = Date.now();
@@ -230,37 +231,53 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
       text: container.message.text,
     };
 
-    const wrappedElement = React.createElement(
-      WrappedElement,
-      {
-        element: this.element,
-        storage: this.storage,
-        chatroomInfo: container.chatroomInfo,
-        message: container.message,
-        api: this.coreApi,
-      },
-      await renderServerComponent(Component, pageProps),
-    );
-
-    this.lastCommitUpdateTime = Date.now();
-
-    await new Promise<void>((resolve) => {
-      this.reconciler.updateContainer(
-        wrappedElement,
-        container._rootContainer,
-        null,
-        async () => {
-          await this.adapter.componentOnMount(container);
-          resolve();
+    try {
+      const wrappedElement = React.createElement(
+        WrappedElement,
+        {
+          element: this.element,
+          storage: this.storage,
+          chatroomInfo: container.chatroomInfo,
+          message: container.message,
+          api: this.coreApi,
         },
+        await renderServerComponent(Component, pageProps),
       );
-    });
+      this.updateLastCommitUpdateTime();
 
-    return container;
+      await new Promise<void>((resolve) => {
+        this.reconciler.updateContainer(
+          wrappedElement,
+          container._rootContainer,
+          null,
+          async () => {
+            await this.adapter.componentOnMount(container);
+            resolve();
+          },
+        );
+      });
+
+      return container;
+    } catch (e) {
+      this.updateLastCommitUpdateTime();
+      // redirect to the target location if a redirect error is thrown
+      if (e instanceof RedirectError) {
+        await this.redirect(container, e.newLocation, {
+          shouldRender: true,
+          shouldAddToHistory: true,
+        });
+        return container;
+      }
+      throw e;
+    }
   }
 
   async onDestroy() {
     await this.adapter.onDestroy();
     this.listeners.clear();
+  }
+
+  private updateLastCommitUpdateTime() {
+    this.lastCommitUpdateTime = Date.now();
   }
 }

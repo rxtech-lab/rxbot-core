@@ -43,6 +43,11 @@ export default function page() {
             Navigate to Post 1
           </CommandButton>
         </div>
+        <div>
+          <CommandButton command={"/nav/redirect"}>
+            Navigate to redirect example
+          </CommandButton>
+        </div>
       </menu>
     </div>
   );

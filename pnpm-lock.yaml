@@ -337,6 +337,9 @@ importers:
       '@rx-lab/common':
         specifier: workspace:*
         version: link:../common
+      '@rx-lab/errors':
+        specifier: workspace:*
+        version: link:../errors
       '@testing-library/dom':
         specifier: ^10.3.0
         version: 10.3.0
