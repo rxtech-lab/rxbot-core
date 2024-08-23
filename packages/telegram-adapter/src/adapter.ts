@@ -9,7 +9,7 @@ import {
 import TelegramBot from "node-telegram-bot-api";
 import { CallbackParser, CallbackType } from "./callbackParser";
 import { renderElement } from "./renderer";
-import { DEFAULT_ROOT_PATH, RenderedElement } from "./types";
+import { DEFAULT_ROOT_PATH, RenderedElement, START_COMMAND } from "./types";
 import { convertRouteToTGRoute, convertTGRouteToRoute } from "./utils";
 
 export type TelegramAppOpts =
@@ -318,7 +318,11 @@ export class TelegramAdapter
 
     for (const entity of message.entities) {
       if (entity.type === "bot_command") {
-        return message.text?.slice(entity.offset, entity.length);
+        const command = message.text?.slice(entity.offset, entity.length);
+        if (command === START_COMMAND) {
+          return DEFAULT_ROOT_PATH;
+        }
+        return command;
       }
     }
   }
