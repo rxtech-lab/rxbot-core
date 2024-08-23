@@ -11,7 +11,11 @@ import {
 } from "@rx-lab/common";
 import * as swc from "@swc/core";
 import { glob } from "glob";
-import { DEFAULT_404_PAGE, DEFAULT_ERROR_PAGE } from "./templates";
+import {
+  DEFAULT_404_PAGE,
+  DEFAULT_ERROR_PAGE,
+  DEFAULT_PAGE,
+} from "./templates";
 import {
   generateClientComponentTag,
   isTypeScript,
@@ -122,6 +126,14 @@ export class CompilerUtils {
     }
 
     if (rootRouteIndex === -1) {
+      // write page.js file
+      const outputPagePath = path.join(outputDir, APP_FOLDER, outputFileName);
+      await this.addAndCompileSpecialPages(
+        outputPagePath,
+        path.join(outputDir, APP_FOLDER),
+        DEFAULT_PAGE,
+      );
+
       copiedRoutes = [rootRoute, ...copiedRoutes];
     } else {
       copiedRoutes[rootRouteIndex] = rootRoute;
