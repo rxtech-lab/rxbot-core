@@ -1,8 +1,9 @@
 import * as fs from "fs";
+import { describe } from "node:test";
 import * as path from "path";
 import * as swc from "@swc/core";
 import { glob } from "glob";
-import { Compiler, CompilerOptions } from "./compiler";
+import { Compiler, CompilerOptions, CompilerUtils } from "./compiler";
 import { extractJSXKeyAttributes, readMetadata } from "./utils";
 // Mock dependencies
 jest.mock("@swc/core", () => ({
@@ -343,5 +344,30 @@ describe("Compiler.compile", () => {
     });
     expect(swc.transformFile).not.toHaveBeenCalled();
     expect(readMetadata).not.toHaveBeenCalled();
+  });
+});
+
+describe("Compiler.getOutputPath", () => {
+  const testCases = [
+    {
+      input: "/path/to/project/home/page.ts",
+      output: "page.js",
+    },
+    {
+      input: "/path/to/project/page.tsx",
+      output: "page.js",
+    },
+    {
+      input: "/path/to/project/home/page.tsx",
+      output: "page.js",
+    },
+  ];
+
+  testCases.forEach(({ input, output }) => {
+    it(`should correctly generate output path for ${input}`, () => {
+      const utils = new CompilerUtils("/path/to/project", "/path/to/output");
+      const result = utils.getOutputPath(input);
+      expect(result.outputFileName).toContain(output);
+    });
   });
 });
