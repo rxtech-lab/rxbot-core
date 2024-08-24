@@ -230,10 +230,14 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     // the components can access the router and storage
     const Component = this.element.component;
 
+    /**
+     * Default props to pass to the page component.
+     */
     const pageProps: PageProps = {
       searchQuery: this.element.queryString,
       params: this.element.params,
       text: container.message.text,
+      routeInfoFile: this.router.routeInfoFile,
     };
 
     try {

@@ -188,7 +188,7 @@ interface RouterOptions {
 }
 
 export class Router {
-  private routeInfoFile: RouteInfoFile | null = null;
+  private _routeInfoFile: RouteInfoFile | null = null;
   private adapter: AdapterInterface<any, any, any>;
   private storage: StorageInterface;
 
@@ -199,14 +199,21 @@ export class Router {
 
   async init(fromFile: string) {
     // read the file and parse the routes
-    this.routeInfoFile = JSON.parse(
+    this._routeInfoFile = JSON.parse(
       fs.readFileSync(fromFile, "utf-8"),
     ) as RouteInfoFile;
     await this.updateMenu();
   }
 
+  /**
+   * Get the route info file.
+   */
+  get routeInfoFile() {
+    return this._routeInfoFile;
+  }
+
   async initFromRoutes(routeFile: RouteInfoFile) {
-    this.routeInfoFile = routeFile;
+    this._routeInfoFile = routeFile;
     await this.updateMenu();
   }
 
