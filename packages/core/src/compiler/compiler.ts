@@ -141,9 +141,15 @@ export class CompilerUtils {
     return copiedRoutes;
   }
 
-  private getOutputPath(filePath: string) {
-    const outputFileName =
-      path.basename(filePath, ".tsx") + OUTPUT_FILE_EXTENSION;
+  /**
+   * Get the output Javascript file path for a given file path.
+   * @param filePath
+   * @private
+   */
+  getOutputPath(filePath: string) {
+    const extension = path.extname(filePath);
+    const filenameWithoutExtension = path.basename(filePath, extension);
+    const outputFileName = filenameWithoutExtension + OUTPUT_FILE_EXTENSION;
     const originalDir = path.dirname(filePath);
     const outputRootDir =
       this.destinationDir || path.join(__dirname, DEFAULT_DESTINATION_DIR);
