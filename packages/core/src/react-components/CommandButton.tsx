@@ -1,4 +1,3 @@
-import React from "react";
 import { ReactCommandProps } from "./Command";
 
 export interface ReactCommandButtonProps extends ReactCommandProps {

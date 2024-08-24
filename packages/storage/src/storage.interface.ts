@@ -8,8 +8,6 @@ export abstract class Storage implements StorageInterface {
   stateChangeListeners: Map<string, () => void> = new Map();
   routeChangeListeners: Map<string, () => void> = new Map();
 
-  constructor() {}
-
   abstract restoreState<T>(key: string, route: Route): Promise<T | undefined>;
 
   abstract saveState<T>(key: string, route: Route, state: T): Promise<void>;

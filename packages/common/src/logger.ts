@@ -37,6 +37,7 @@ function colorize(text: string, color: ColorName): string {
   return `${colors[color]}${text}${colors.reset}`;
 }
 
+// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class Logger {
   static shouldLog = process.env.NODE_ENV === "development";
 
@@ -46,10 +47,12 @@ export class Logger {
       const stack = new Error().stack;
       if (stack) {
         const callerLine = stack.split("\n")[2];
+        // biome-ignore lint/suspicious/noConsoleLog: <explanation>
         console.log(
           `${colorize(`[${callerLine?.trim()}]`, "yellow")} ${color ? colorize(message, color) : message}`,
         );
       } else {
+        // biome-ignore lint/suspicious/noConsoleLog: <explanation>
         console.log(message);
       }
     }

@@ -2,8 +2,8 @@ import path from "path";
 import { Api, MessageType } from "@rx-lab/mock-telegram-client";
 import {
   DEFAULT_RENDERING_WAIT_TIME,
-  PORT,
   initialize,
+  PORT,
   sleep,
 } from "../../utils";
 

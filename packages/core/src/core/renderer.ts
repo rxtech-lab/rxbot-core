@@ -10,8 +10,8 @@ import {
   StorageInterface,
 } from "@rx-lab/common";
 import { Router } from "@rx-lab/router";
-import Reconciler from "react-reconciler";
 import type ReactReconciler from "react-reconciler";
+import Reconciler from "react-reconciler";
 import { BaseComponent, Suspendable, Text } from "../components";
 import { ComponentBuilder } from "../components/builder/componentBuilder";
 
@@ -53,7 +53,7 @@ export class Renderer<T extends Container<BaseChatroomInfo, BaseMessage>> {
    * @example
    * this.lastCommitUpdateTime = Date.now();
    */
-  protected lastCommitUpdateTime: number = 0;
+  protected lastCommitUpdateTime = 0;
   /**
    * Holds the resolve function for the Promise returned by handleMessageUpdate.
    * This allows us to resolve the Promise when we determine that no more

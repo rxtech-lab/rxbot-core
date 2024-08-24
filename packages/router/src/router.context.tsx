@@ -5,9 +5,9 @@ import {
   PathParams,
   QueryString,
 } from "@rx-lab/common";
-import React, {
-  createContext,
+import {
   type ReactNode,
+  createContext,
   useCallback,
   useContext,
   useEffect,
@@ -86,6 +86,7 @@ export function RouterProvider<ChatroomInfo extends BaseChatroomInfo, Message>({
   const isQueueEmpty = useCallback(() => queue.length === 0, [queue]);
 
   const notifyRouteChange = useCallback(() => {
+    // biome-ignore lint/complexity/noForEach: <explanation>
     queue.forEach((callback) => callback());
     setQueue([]);
   }, [queue]);

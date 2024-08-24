@@ -170,7 +170,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     const key = this.adapter.getRouteKey(container);
     const route = await this.adapter.decodeRoute(routeOrObject);
     if (route) {
-      delete container.message.text;
+      container.message.text = undefined;
     }
 
     let component: RenderedComponent | undefined;

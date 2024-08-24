@@ -522,7 +522,7 @@ export class Compiler extends CompilerUtils {
         // use self error or parent error
         error: errorPage!,
         page: outputPageFile.path,
-        subRoutes: subPages.map((p) => p.routes).flat(),
+        subRoutes: subPages.flatMap((p) => p.routes),
         metadata: outputPageFile.metadata,
       };
       info.push(routeInfo);
@@ -533,7 +533,7 @@ export class Compiler extends CompilerUtils {
           route.subRoutes.map((r) => this.compileHelper(r, artifacts)),
         )
       ).flat();
-      info = [...info, ...subPages.map((p) => p.routes).flat()];
+      info = [...info, ...subPages.flatMap((p) => p.routes)];
     }
 
     return {
@@ -587,7 +587,7 @@ export class Compiler extends CompilerUtils {
       .replace(/^\//, "");
     const parts = relativePath.split("/");
     const routeParts = parts.slice(0, -1); // Exclude the 'page.tsx' part
-    const route = "/" + routeParts.filter((r) => r !== APP_FOLDER).join("/");
+    const route = `/${routeParts.filter((r) => r !== APP_FOLDER).join("/")}`;
 
     const notFoundPage = this.findSpecialPages(filePath, "404");
     const errorPage = this.findSpecialPages(filePath, "error");
@@ -654,7 +654,7 @@ export class Compiler extends CompilerUtils {
     let currentPath = "";
 
     for (let i = 0; i < parts.length; i++) {
-      currentPath += "/" + parts[i];
+      currentPath += `/${parts[i]}`;
       const existingRouteIndex = currentTree.findIndex(
         (r) => r.route === currentPath,
       );

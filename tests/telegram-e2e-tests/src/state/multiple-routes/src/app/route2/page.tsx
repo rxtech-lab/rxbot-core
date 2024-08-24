@@ -1,7 +1,6 @@
 "use client";
 import { CommandButton } from "@rx-lab/core";
 import { useState } from "@rx-lab/storage";
-import React from "react";
 
 export default function Page() {
   const [state, setState] = useState("counter", 0);

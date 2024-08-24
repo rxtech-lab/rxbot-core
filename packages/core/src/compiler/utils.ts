@@ -51,7 +51,7 @@ export function isTypeScript(filename: string): boolean {
  * @param code The source code
  */
 export async function parseSourceCode(
-  type: "typescript" | "javascript" = "typescript",
+  type: "typescript" | "javascript",
   code: string,
 ) {
   if (type === "typescript") {
@@ -198,6 +198,7 @@ export async function extractJSXKeyAttributes(
   function traverse(node: swc.Node) {
     if (node.type === "JSXElement") {
       const jsxElement = node as swc.JSXElement;
+      // biome-ignore lint/complexity/useOptionalChain: <explanation>
       if (jsxElement.opening && jsxElement.opening.attributes) {
         for (const attr of jsxElement.opening.attributes) {
           if (
@@ -233,6 +234,7 @@ export async function extractJSXKeyAttributes(
         const child = (node as any)[key];
         if (child && typeof child === "object") {
           if (Array.isArray(child)) {
+            // biome-ignore lint/complexity/noForEach: <explanation>
             child.forEach((item) => traverse(item));
           } else if (child.type) {
             traverse(child);
