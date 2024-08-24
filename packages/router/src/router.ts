@@ -141,6 +141,7 @@ export async function matchSpecialRouteWithPath(
     inputPath: string,
     bestMatch: { route: RouteInfo; score: number } | null = null,
   ): { route: RouteInfo; score: number } | null => {
+    let foundBestMatch = bestMatch;
     for (const route of currentRoutes) {
       if (isMatch(route.route, inputPath)) {
         const score = calculateScore(route.route, inputPath);
@@ -150,7 +151,7 @@ export async function matchSpecialRouteWithPath(
           (score === bestMatch.score &&
             route.route.length > bestMatch.route.route.length)
         ) {
-          bestMatch = { route, score };
+          foundBestMatch = { route, score };
         }
       }
 
@@ -163,12 +164,12 @@ export async function matchSpecialRouteWithPath(
             (subMatch.score === bestMatch.score &&
               subMatch.route.route.length > bestMatch.route.route.length))
         ) {
-          bestMatch = subMatch;
+          foundBestMatch = subMatch;
         }
       }
     }
 
-    return bestMatch;
+    return foundBestMatch;
   };
 
   const bestMatch = findBestMatch(routes, path);

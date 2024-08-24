@@ -1,6 +1,5 @@
 "use client";
 import { useRouter } from "@rx-lab/router/hooks";
-import React from "react";
 
 export default function Page() {
   const { redirectTo } = useRouter();

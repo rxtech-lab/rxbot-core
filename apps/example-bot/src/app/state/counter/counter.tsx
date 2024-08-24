@@ -1,5 +1,4 @@
 import { useState } from "@rx-lab/storage";
-import * as React from "react";
 
 export function Counter() {
   const [state, setState] = useState("counter", 0);

@@ -1,4 +1,5 @@
 import path from "path";
+import { Logger } from "@rx-lab/common";
 import { Core } from "@rx-lab/core";
 import { TelegramAdapter } from "@rx-lab/telegram-adapter";
 import { UpstashStorage } from "@rx-lab/upstash-storage";
@@ -31,7 +32,7 @@ app.post("/api/webhook", async (req, res) => {
     const start = Date.now();
     await core.handleMessageUpdate(body as any);
     const end = Date.now();
-    console.log(`Message handled in ${end - start}ms`);
+    Logger.log(`Message handled in ${end - start}ms`);
     return {
       status: "ok",
     };
@@ -51,7 +52,7 @@ app.post("/api/webhook", async (req, res) => {
       rootDir: path.join(__dirname, "src"),
       destinationDir: path.join(__dirname, ".rx-lab"),
     });
-    console.log("Bot is running");
+    Logger.log("Bot is running");
     await app.listen({
       port: 3000,
     });

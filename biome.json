@@ -9,6 +9,40 @@
     "indentStyle": "space"
   },
   "linter": {
-    "enabled": false
+    "enabled": true,
+    "ignore": [
+      "node_modules",
+      "dist",
+      "build",
+      "out",
+      "coverage",
+      "*.js",
+      "*.d.ts",
+      "*.spec.ts",
+      "*.spec.tsx",
+      "*.jsx",
+      "mock-*"
+    ],
+    "rules": {
+      "suspicious": {
+        "noConsoleLog": "error",
+        "noExplicitAny": "off",
+        "noPrototypeBuiltins": "off"
+      },
+      "correctness": {
+        "noUnusedImports": "error",
+        "useExhaustiveDependencies": "off"
+      },
+      "style": {
+        "useNodejsImportProtocol": "off",
+        "useImportType": "off",
+        "noNonNullAssertion": "off",
+        "noUnusedTemplateLiteral": "off",
+        "useTemplate": "off"
+      },
+      "a11y": {
+        "useButtonType": "off"
+      }
+    }
   }
 }

@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "@rx-lab/storage";
-import React from "react";
 
 export default function Page() {
   const [state, setState] = useState("counter", 0);

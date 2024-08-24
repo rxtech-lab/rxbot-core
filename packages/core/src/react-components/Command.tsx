@@ -1,5 +1,3 @@
-import React from "react";
-
 export interface ReactCommandProps {
   /**
    * The content of the command.

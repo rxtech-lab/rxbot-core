@@ -15,7 +15,7 @@ export interface Post {
 
 const POST_PER_PAGE = 10;
 
-async function fetchPosts(page: number = 1) {
+async function fetchPosts(page = 1) {
   const url = "https://jsonplaceholder.org/posts";
   const posts: Post[] = await fetch(url).then((response) => response.json());
   const count = posts.length;
@@ -33,7 +33,7 @@ async function fetchPosts(page: number = 1) {
 }
 
 export default async function Page(props: PageProps) {
-  const page = parseInt((props.searchQuery.page as any) ?? "1");
+  const page = Number.parseInt((props.searchQuery.page as any) ?? "1");
   const { posts, count, pageCount } = await fetchPosts(page);
 
   return (
@@ -42,9 +42,9 @@ export default async function Page(props: PageProps) {
       <p>There are {count} posts</p>
       <menu>
         {posts.map((post, index) => (
-          <div key={index}>
+          <div key={`post-${post.id}`}>
             <CommandButton command={`/post/${post.id}`} renderNewMessage={true}>
-              {post.id + " - " + post.title}
+              {`${post.id} - ${post.title}`}
             </CommandButton>
           </div>
         ))}

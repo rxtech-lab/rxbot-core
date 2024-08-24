@@ -13,14 +13,14 @@ const storage = new FileStorage();
 
 (async () => {
   try {
-    console.log("Bot is starting");
+    Logger.log("Bot is starting");
     await Core.Compile({
       rootDir: path.join(__dirname, "src"),
       destinationDir: path.join(__dirname, ".rx-lab"),
       adapter,
       storage,
     });
-    console.log("Bot is running");
+    Logger.log("Bot is running");
   } catch (err: any) {
     // log error trace
     console.error(err.stack);

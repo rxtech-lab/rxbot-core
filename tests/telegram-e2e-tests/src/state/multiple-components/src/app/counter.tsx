@@ -2,9 +2,7 @@
 
 import { useState } from "@rx-lab/storage";
 
-type Props = {};
-
-export default function Counter(props: Props) {
+export default function Counter() {
   const [state, setState] = useState("counter", 0);
 
   return (

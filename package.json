@@ -4,7 +4,7 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
-    "lint": "turbo lint",
+    "lint": "biome lint",
     "test": "turbo test",
     "format": "biome format --write .",
     "format:version": "syncpack fix-mismatches",

@@ -23,6 +23,7 @@ export const renderElement = (
   }
   switch (element.type) {
     case InstanceType.Command:
+      // biome-ignore lint/correctness/noSwitchDeclarations: <explanation>
       const commandElement = element as any;
 
       if (commandElement.props.variant === "button") {
@@ -50,7 +51,7 @@ export const renderElement = (
         callback_data: parser.encode(element),
       };
 
-    case InstanceType.Menu:
+    case InstanceType.Menu: {
       let elements: any[] = element.children.map((child) =>
         renderElement(child, parser),
       );
@@ -63,6 +64,7 @@ export const renderElement = (
       return {
         inline_keyboard: elements,
       } as RenderedElement;
+    }
     default:
       return children;
   }
