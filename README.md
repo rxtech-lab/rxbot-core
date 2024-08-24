@@ -1,3 +1,5 @@
+![logo](./assets/bg.jpeg)
+
 # RX-Bot: React-based Bot Framework for all Platforms
 
 RX-Bot is an innovative framework for building bots using React inspired by Next.js. It combines the power of React's
