@@ -1,3 +1,4 @@
+import { RedirectOptions } from "@rx-lab/common";
 import { ErrorCode } from "../errorCode";
 import { CustomError } from "./error";
 
@@ -17,13 +18,15 @@ import { CustomError } from "./error";
  */
 export class RedirectError extends CustomError {
   readonly newLocation: string;
+  readonly redirectOptions?: RedirectOptions;
 
-  constructor(newLocation: string) {
+  constructor(newLocation: string, redirectOptions?: RedirectOptions) {
     super(
       `Redirect to new location: ${newLocation}`,
       ErrorCode.RedirectToNewLocation,
     );
 
     this.newLocation = newLocation;
+    this.redirectOptions = redirectOptions;
   }
 }

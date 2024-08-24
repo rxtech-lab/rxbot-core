@@ -121,6 +121,11 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
         await this.redirect(container, path, options);
         return container;
       },
+      redirectToWithMessage: async (message, path, options) => {
+        const container = this.adapter.createContainer(message);
+        await this.redirect(container, path, options);
+        return container;
+      },
     };
   }
 
@@ -262,10 +267,14 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
       this.updateLastCommitUpdateTime();
       // redirect to the target location if a redirect error is thrown
       if (e instanceof RedirectError) {
-        await this.redirect(container, e.newLocation, {
-          shouldRender: true,
-          shouldAddToHistory: true,
-        });
+        await this.redirect(
+          container,
+          e.newLocation,
+          e.redirectOptions ?? {
+            shouldRender: true,
+            shouldAddToHistory: true,
+          },
+        );
         return container;
       }
       throw e;
