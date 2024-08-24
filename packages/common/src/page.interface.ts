@@ -1,3 +1,5 @@
+import { RouteInfoFile } from "./router.interface";
+
 /**
  * Properties that will be passed to each page component.
  *
@@ -14,4 +16,8 @@ export interface PageProps {
    * the text is treated as a command.
    */
   text?: string;
+  /**
+   * A file containing information about the routes in the application.
+   */
+  routeInfoFile: RouteInfoFile;
 }
