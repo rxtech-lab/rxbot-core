@@ -45,7 +45,12 @@ export default function page() {
         </div>
         <div>
           <CommandButton command={"/nav/redirect"}>
-            Navigate to redirect example
+            Navigate to redirect in server component
+          </CommandButton>
+        </div>
+        <div>
+          <CommandButton command={"/nav/redirect/client"}>
+            Navigate to redirect in client component
           </CommandButton>
         </div>
       </menu>

@@ -1,8 +1,19 @@
-import { Container } from "./container.interface";
+import { BaseMessage, Container } from "./container.interface";
 import { Route } from "./router.interface";
 
 export interface RedirectOptions {
+  /**
+   * Indicates whether the application should re-render after the redirect.
+   *
+   * @default false
+   */
   shouldRender: boolean;
+  /**
+   * Indicates whether the route should be added to the application routing history.
+   * If set to false, old message may not be interacted with.
+   *
+   * @default false
+   */
   shouldAddToHistory: boolean;
 }
 
@@ -46,6 +57,24 @@ export interface CoreApi<C extends Container<any, any>> {
    */
   redirectTo: (
     container: C,
+    path: string,
+    options: RedirectOptions,
+  ) => Promise<C | undefined>;
+
+  /**
+   * Redirects the user using message. This api provides
+   * exactly the same functionality as redirectTo but needs
+   * a message object instead of a container.
+   *
+   * It will create a container from the message and then
+   * call redirectTo.
+   *
+   * @param message The message object representing the current state of the UI.
+   * @param path The path to redirect to.
+   * @param options Options for the redirect operation.
+   */
+  redirectToWithMessage: (
+    message: BaseMessage,
     path: string,
     options: RedirectOptions,
   ) => Promise<C | undefined>;
@@ -200,4 +229,10 @@ export interface AdapterInterface<
    * @param message The message to be updated.
    */
   handleMessageUpdate: (message: Message) => Promise<void>;
+
+  /**
+   * Creates a container from a message.
+   * @param message
+   */
+  createContainer: (message: Message) => C;
 }

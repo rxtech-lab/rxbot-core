@@ -40,22 +40,6 @@ interface InternalTGContainer extends TGContainer {
   updateMessageId?: number;
 }
 
-function createTelegramContainer(message: TelegramBot.Message): TGContainer {
-  return {
-    type: "ROOT",
-    children: [],
-    chatroomInfo: {
-      id: message?.chat?.id as number,
-      messageId: message?.message_id,
-    },
-    message: {
-      ...message,
-      id: message.message_id,
-      text: message.text,
-    } as any,
-  };
-}
-
 export class TelegramAdapter
   implements
     AdapterInterface<
@@ -347,6 +331,22 @@ export class TelegramAdapter
     });
   }
 
+  createContainer(message: TelegramBot.Message): TGContainer {
+    return {
+      type: "ROOT",
+      children: [],
+      chatroomInfo: {
+        id: message?.chat?.id as number,
+        messageId: message?.message_id,
+      },
+      message: {
+        ...message,
+        id: message.message_id,
+        text: message.text,
+      } as any,
+    };
+  }
+
   subscribeToMessageChanged(
     callback: (
       container: TGContainer,
@@ -354,7 +354,7 @@ export class TelegramAdapter
     ) => Promise<void>,
   ) {
     this.bot.on("message", (message) => {
-      const container = createTelegramContainer(message);
+      const container = this.createContainer(message);
       return callback(container, message);
     });
   }

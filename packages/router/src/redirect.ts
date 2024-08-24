@@ -1,3 +1,4 @@
+import { RedirectOptions } from "@rx-lab/common";
 import { RedirectError } from "@rx-lab/errors";
 
 /**
@@ -9,6 +10,7 @@ import { RedirectError } from "@rx-lab/errors";
  * use the `useRouter` hook instead.
  *
  * @param to - The URL to redirect to. This should be a valid relative or absolute URL.
+ * @param options - Optional redirect options.
  * @throws {RedirectError} Always throws a RedirectError to be caught by the server runtime.
  * @returns {never} This function never returns as it always throws an error.
  *
@@ -23,6 +25,6 @@ import { RedirectError } from "@rx-lab/errors";
  * }
  *
  */
-export function redirect(to: string): never {
-  throw new RedirectError(to);
+export function redirect(to: string, options?: RedirectOptions): never {
+  throw new RedirectError(to, options);
 }
