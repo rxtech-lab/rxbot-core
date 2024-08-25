@@ -2,8 +2,8 @@ import path from "path";
 import { Api, MessageType } from "@rx-lab/mock-telegram-client";
 import {
   DEFAULT_RENDERING_WAIT_TIME,
-  initialize,
   PORT,
+  initialize,
   sleep,
 } from "../../utils";
 
@@ -19,7 +19,7 @@ describe("Simple server-side redirect Tests", () => {
     });
   });
 
-  it("should redirect", async () => {
+  it("should redirect in server component", async () => {
     const rootDir = path.join(__dirname, "src");
     const destinationDir = path.join(__dirname, ".rx-lab");
     const { core } = await initialize(chatroomId, api, {
@@ -51,6 +51,27 @@ describe("Simple server-side redirect Tests", () => {
     const updatedMessage = updatedMessages.data.messages[3];
     expect(updatedMessage?.update_count).toBe(0);
     expect(updatedMessage?.text).toContain("This is subpage 1");
+  });
+
+  it("should redirect in callback in server component", async () => {
+    const rootDir = path.join(__dirname, "src");
+    const destinationDir = path.join(__dirname, ".rx-lab");
+    const { core } = await initialize(chatroomId, api, {
+      rootDir,
+      destinationDir,
+    });
+    coreApi = core;
+
+    await api.chatroom.sendMessageToChatroom(chatroomId, {
+      content: "/redirect-2",
+      type: MessageType.Text,
+    });
+    await sleep(DEFAULT_RENDERING_WAIT_TIME);
+    const messages = await api.chatroom.getMessagesByChatroom(chatroomId);
+    expect(messages.data.count).toBe(2);
+    const currentMessage = messages.data.messages[1];
+    expect(currentMessage?.update_count).toBe(0);
+    expect(currentMessage?.text).toContain("This is subpage 1");
   });
 
   afterEach(async () => {
