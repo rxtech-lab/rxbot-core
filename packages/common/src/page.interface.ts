@@ -21,3 +21,8 @@ export interface PageProps {
    */
   routeInfoFile: RouteInfoFile;
 }
+
+export interface ErrorPageProps {
+  error: Error;
+  code: number;
+}

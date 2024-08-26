@@ -7,6 +7,7 @@ import {
   ROUTE_METADATA_FILE,
   RouteInfo,
   RouteInfoFile,
+  RouteMetadata,
   SpecialRouteType,
 } from "@rx-lab/common";
 import * as swc from "@swc/core";
@@ -46,6 +47,19 @@ type RoutePath = {
   subRoutes: RoutePath[];
 };
 
+type PageRelatedFile = {
+  metadata?: RouteMetadata;
+  path: string;
+};
+
+type ErrorRelatedFile = {
+  path: string;
+};
+
+type NotFoundRelatedFile = {
+  path: string;
+};
+
 export interface BuildSourceCodeOutput {
   /**
    * Built source code
@@ -71,10 +85,13 @@ export interface BuildSourceCodeOutput {
 
 export type AppRelatedFileType = "page";
 
+//Add more special files here
+export const SPECIAL_FILES = ["404.js", "page.js", "error.js"];
+
 export class CompilerUtils {
   constructor(
-    private readonly sourceDir: string,
-    private readonly destinationDir: string,
+    protected readonly sourceDir: string,
+    protected readonly destinationDir: string,
   ) {}
 
   /**
@@ -133,8 +150,8 @@ export class CompilerUtils {
         path.join(outputDir, APP_FOLDER),
         DEFAULT_PAGE,
       );
-
-      copiedRoutes = [rootRoute, ...copiedRoutes];
+      rootRoute.subRoutes = copiedRoutes;
+      copiedRoutes = [rootRoute];
     } else {
       copiedRoutes[rootRouteIndex] = rootRoute;
     }
@@ -266,12 +283,11 @@ export class CompilerUtils {
    * console.log(result.path); // "/dist/app/home/page.js"
    */
   async buildAppRelatedFiles(
-    artifact: BuildSourceCodeOutput,
+    artifact: BuildSourceCodeOutput | undefined,
     fileType: AppRelatedFileType,
   ) {
     return {
-      metadata: await readMetadata(artifact.ast),
-      path: artifact.outputFilePath,
+      metadata: artifact ? await readMetadata(artifact.ast) : undefined,
     };
   }
 
@@ -338,13 +354,16 @@ export class Compiler extends CompilerUtils {
    *
    * @example
    * const compiler = new Compiler({ rootDir: "/path/to/project" });
-   * const pages = await compiler.findAvailablePages();
-   * console.log(pages); // ["app/home/page.tsx", "app/about/page.tsx", ...]
+   * const artifacts = await compiler.buildAllFilesInSourceDir();
+   * const pages = await compiler.findAvailablePages(artifacts);
+   * console.log(pages); // ["app/home/page.js", "app/about/page.js", ...]
    */
-  private findAvailablePages() {
-    return glob.glob(PAGE_FILE_PATTERN, {
-      cwd: this.options.rootDir,
-    });
+  private findAvailablePages(artifacts: BuildSourceCodeOutput[]) {
+    return artifacts
+      .filter((a) =>
+        SPECIAL_FILES.some((file) => a.outputFilePath.endsWith(file)),
+      )
+      .map((a) => a.outputFilePath);
   }
 
   /**
@@ -377,10 +396,12 @@ export class Compiler extends CompilerUtils {
    * //   }
    * // ]
    */
-  async buildRouteInfo(): Promise<RoutePath[]> {
-    const pages = await this.findAvailablePages();
+  async buildRouteInfo(
+    artifacts: BuildSourceCodeOutput[],
+  ): Promise<RoutePath[]> {
+    const pages = this.findAvailablePages(artifacts);
     return pages.reduce((routeInfo, page) => {
-      const routePath = this.createRoutePath(page);
+      const routePath = this.createRoutePath(page, artifacts);
       return this.addRouteToTree(routeInfo, routePath);
     }, [] as RoutePath[]);
   }
@@ -411,9 +432,6 @@ export class Compiler extends CompilerUtils {
    * // }
    */
   async compile(): Promise<RouteInfoFile> {
-    const buildRouteInfo = await this.buildRouteInfo();
-    let info: RouteInfo[] = [];
-    // check if the output directory exists
     if (fs.existsSync(this.options.destinationDir ?? DEFAULT_DESTINATION_DIR)) {
       // remove the output directory
       Logger.log(
@@ -425,11 +443,14 @@ export class Compiler extends CompilerUtils {
         recursive: true,
       });
     }
+    const artifacts = await this.buildAllFilesInSourceDir();
+    // check if the output directory exists
+    let info: RouteInfo[] = [];
     // if root path doesn't contain special pages, add default ones
+    const buildRouteInfo = await this.buildRouteInfo(artifacts);
     const updatedRoutes =
       await this.addCompiledDefaultSpecialPagesToRoot(buildRouteInfo);
 
-    const artifacts = await this.buildAllFilesInSourceDir();
     const rootRoute = updatedRoutes.find((r) => r.route === DEFAULT_ROOT_ROUTE);
 
     for (const route of updatedRoutes) {
@@ -492,23 +513,38 @@ export class Compiler extends CompilerUtils {
   }> {
     let info: RouteInfo[] = [];
 
-    // if the route has a file path, compile the source code
-    // and add the route information to the list
-    // If the page is added by the addCompiledDefaultSpecialPagesToRoot method
-    // we don't need to compile it again since it's already compiled
-    if (route.page && !route.page.endsWith(OUTPUT_FILE_EXTENSION)) {
-      const outputPageFile = await this.buildAppRelatedFiles(
-        artifacts.find(
-          (a) =>
-            a.sourceCodePath ===
-            path.join(this.options.rootDir, route.page ?? ""),
-        )!,
-        "page",
-      );
+    const notFoundPage = route["404"] ?? parent?.["404"];
+    const errorPage = route.error ?? parent?.error;
+    const outputPageFile = await this.buildAppRelatedFiles(
+      artifacts.find((a) => a.outputFilePath === route.page)!,
+      "page",
+    );
+    const subPages = (
+      await Promise.all(
+        route.subRoutes.map((r) =>
+          this.compileHelper(r, artifacts, {
+            ...route,
+            "404": notFoundPage,
+            error: errorPage,
+          }),
+        ),
+      )
+    ).flat();
 
-      const notFoundPage = route["404"] ?? parent?.["404"];
-      const errorPage = route.error ?? parent?.error;
-
+    if (route.page || route["404"] || route.error) {
+      const routeInfo: RouteInfo = {
+        route: route.route,
+        // use self 404 or parent 404
+        "404": notFoundPage!,
+        // use self error or parent error
+        error: errorPage!,
+        page: route.page,
+        subRoutes: subPages.flatMap((p) => p.routes),
+        metadata: outputPageFile.metadata,
+      };
+      info.push(routeInfo);
+    } else {
+      // if the route does not have a file path, compile the sub-routes
       const subPages = (
         await Promise.all(
           route.subRoutes.map((r) =>
@@ -518,25 +554,6 @@ export class Compiler extends CompilerUtils {
               error: errorPage,
             }),
           ),
-        )
-      ).flat();
-
-      const routeInfo: RouteInfo = {
-        route: route.route,
-        // use self 404 or parent 404
-        "404": notFoundPage!,
-        // use self error or parent error
-        error: errorPage!,
-        page: outputPageFile.path,
-        subRoutes: subPages.flatMap((p) => p.routes),
-        metadata: outputPageFile.metadata,
-      };
-      info.push(routeInfo);
-    } else {
-      // if the route does not have a file path, compile the sub-routes
-      const subPages = (
-        await Promise.all(
-          route.subRoutes.map((r) => this.compileHelper(r, artifacts)),
         )
       ).flat();
       info = [...info, ...subPages.flatMap((p) => p.routes)];
@@ -549,58 +566,91 @@ export class Compiler extends CompilerUtils {
 
   /**
    * Find special pages like 404.tsx and error.tsx in the project by the file path.
-   * @param filePath
+   * @param route
    * @param type
+   * @param artifacts The compiled artifacts for all source files
    * @private
    *
    * @example
-   * this.findSpecialPages("/path/to/project/app/home/page.tsx", "404"); // "/path/to/project/app/404.tsx"
-   * this.findSpecialPages("/path/to/project/app/home/page.tsx", "error"); // "/path/to/project/app/error.tsx"
-   * this.findSpecialPages("/path/to/project/app/home/nested/page.tsx", "404"); // undefined
+   * const artifacts = await compiler.buildAllFilesInSourceDir();
+   * this.findSpecialPages("/path/to/project/app/home/page.tsx",artifacts ,"404"); // "/path/to/project/app/404.js"
+   * this.findSpecialPages("/path/to/project/app/home/page.tsx",artifacts, "error"); // "/path/to/project/app/error.js"
+   * this.findSpecialPages("/path/to/project/app/home/nested/page.tsx",artifacts ,"404"); // undefined
    *
    */
-  private findSpecialPages(filePath: string, type: SpecialRouteType) {
-    const parts = filePath.split("/");
+  private findSpecialPages(
+    route: string,
+    artifacts: BuildSourceCodeOutput[],
+    type: SpecialRouteType,
+  ) {
+    let specialPage: string | undefined;
     if (type === "error") {
-      const specialPage = path.join(parts.slice(0, -1).join("/"), "error.tsx");
-      return fs.existsSync(specialPage) ? specialPage : undefined;
+      specialPage = path.join(
+        this.options.destinationDir ?? DEFAULT_DESTINATION_DIR,
+        APP_FOLDER,
+        route,
+        "error.js",
+      );
     }
 
     if (type === "404") {
-      const specialPage = path.join(parts.slice(0, -1).join("/"), "404.tsx");
-      return fs.existsSync(specialPage) ? specialPage : undefined;
+      specialPage = path.join(
+        this.options.destinationDir ?? DEFAULT_DESTINATION_DIR,
+        APP_FOLDER,
+        route,
+        "404.js",
+      );
     }
-    return undefined;
+
+    if (type === "page") {
+      specialPage = path.join(
+        this.options.destinationDir ?? DEFAULT_DESTINATION_DIR,
+        APP_FOLDER,
+        route,
+        "page.js",
+      );
+    }
+
+    const specialPageExists = artifacts.find(
+      (a) => path.relative(a.outputFilePath, specialPage ?? "") === "",
+    );
+    return specialPageExists ? specialPage : undefined;
   }
 
   /**
    * Create a route path object from a file path.
    * This method parses a file path and generates the corresponding route structure.
    *
-   * @param filePath The full path to a page.tsx file
+   * @param filePath The full path to a page.js file
+   * @param artifacts The compiled artifacts for all source files
    * @returns A RoutePath object representing the route
    *
    * @example
    * const compiler = new Compiler({ rootDir: "/path/to/project" });
-   * const routePath = compiler.createRoutePath("/path/to/project/app/home/page.tsx");
+   * const artifacts = await compiler.buildAllFilesInSourceDir();
+   * const routePath = compiler.createRoutePath("/path/to/project/app/home/page.tsx", artifacts);
    * console.log(routePath);
    * // Output: { route: "/home", page: "/path/to/project/app/home/page.tsx", subRoutes: [] }
    */
-  private createRoutePath(filePath: string): RoutePath {
+  private createRoutePath(
+    filePath: string,
+    artifacts: BuildSourceCodeOutput[],
+  ): RoutePath {
     const normalizedPath = filePath.replace(/\\/g, "/");
     const relativePath = normalizedPath
-      .replace(this.options.rootDir, "")
+      .replace(this.destinationDir, "")
       .replace(/^\//, "");
     const parts = relativePath.split("/");
-    const routeParts = parts.slice(0, -1); // Exclude the 'page.tsx' part
+    const routeParts = parts.slice(0, -1); // Exclude the file name part
     const route = `/${routeParts.filter((r) => r !== APP_FOLDER).join("/")}`;
 
-    const notFoundPage = this.findSpecialPages(filePath, "404");
-    const errorPage = this.findSpecialPages(filePath, "error");
+    const pageFile = this.findSpecialPages(route, artifacts, "page");
+    const notFoundPage = this.findSpecialPages(route, artifacts, "404");
+    const errorPage = this.findSpecialPages(route, artifacts, "error");
 
     return {
       route,
-      page: filePath,
+      page: pageFile,
       subRoutes: [],
       404: notFoundPage,
       error: errorPage,
@@ -667,6 +717,7 @@ export class Compiler extends CompilerUtils {
 
       if (existingRouteIndex === -1) {
         const newRoute: RoutePath = {
+          ...routePath,
           route: currentPath,
           page: i === parts.length - 1 ? routePath.page : undefined,
           subRoutes: [],

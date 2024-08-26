@@ -1,5 +1,6 @@
 import type React from "react";
 import { z } from "zod";
+import { ErrorPageProps, PageProps } from "./page.interface";
 
 export const RouteMetadataSchema = z.object({
   title: z
@@ -27,7 +28,7 @@ export type RouteMetadata = z.infer<typeof RouteMetadataSchema>;
 /** The default folder name for application components */
 export const DEFAULT_APP_FOLDER = "app";
 
-export type SpecialRouteType = "error" | "404";
+export type SpecialRouteType = "error" | "404" | "page";
 
 /**
  * Represents a route in the application.
@@ -56,6 +57,11 @@ export type QueryString = Record<string, string | null | boolean>;
  */
 export type PathParams = Record<string, string>;
 
+export type RenderedComponentProps =
+  | PageProps
+  | ErrorPageProps
+  | Record<any, any>;
+
 /**
  * Represents a component that has been rendered for a specific route.
  */
@@ -68,6 +74,8 @@ export type RenderedComponent = {
   queryString: QueryString;
   /** Path parameters extracted from the URL */
   params: PathParams;
+  /** Properties passed to the component */
+  props: RenderedComponentProps;
   /** The full path that was matched */
   path: string;
   currentRoute: Route;
@@ -114,7 +122,7 @@ export interface RouteInfo {
   /**
    * The page component associated with this route.
    */
-  page: string;
+  page?: string;
 
   /**
    * Nested routes under this route, if any.
@@ -140,7 +148,7 @@ export interface ImportedRoute extends RouteInfo {
    * A function that returns the component for this route.
    * The component can be either a client-side or server-side rendered component.
    */
-  component: () => ClientComponent | ServerComponent;
+  component?: () => ClientComponent | ServerComponent;
 }
 
 /**

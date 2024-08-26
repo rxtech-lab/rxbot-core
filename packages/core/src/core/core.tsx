@@ -7,6 +7,7 @@ import {
   type Container,
   CoreApi,
   CoreInterface,
+  ErrorPageProps,
   PageProps,
   ROUTE_METADATA_FILE,
   RedirectOptions,
@@ -178,11 +179,17 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
       component = await this.loadAndRenderStoredRoute(key, route);
       try {
         await this.render(container);
-      } catch (e) {
+      } catch (e: any) {
+        console.error(e);
+        const props: ErrorPageProps = {
+          error: e,
+          code: 500,
+        };
         const errorComponent = await this.router.renderSpecialRoute(
           route,
           "error",
           {},
+          props,
         );
         await this.setComponent(errorComponent);
         await this.render(container);
@@ -238,6 +245,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
       params: this.element.params,
       text: container.message.text,
       routeInfoFile: this.router.routeInfoFile,
+      ...this.element.props,
     };
 
     try {

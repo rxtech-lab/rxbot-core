@@ -2,8 +2,8 @@ import path from "path";
 import { Api, MessageType } from "@rx-lab/mock-telegram-client";
 import {
   DEFAULT_RENDERING_WAIT_TIME,
-  initialize,
   PORT,
+  initialize,
   sleep,
 } from "../../utils";
 
@@ -63,6 +63,27 @@ describe("404 page", () => {
     const homeMessage = homeMessages.data.messages[5];
     expect(homeMessage?.update_count).toBe(0);
     expect(homeMessage?.text).toContain("This is the home page");
+  });
+
+  it("should render the 404 page using custom one", async () => {
+    const rootDir = path.join(__dirname, "src");
+    const destinationDir = path.join(__dirname, ".rx-lab");
+    const { core } = await initialize(chatroomId, api, {
+      rootDir,
+      destinationDir,
+    });
+    coreApi = core;
+
+    await api.chatroom.sendMessageToChatroom(chatroomId, {
+      content: "/nested/page/not/found",
+      type: MessageType.Text,
+    });
+    await sleep(DEFAULT_RENDERING_WAIT_TIME);
+    const messages = await api.chatroom.getMessagesByChatroom(chatroomId);
+    expect(messages.data.count).toBe(2);
+    const currentMessage = messages.data.messages[1];
+    expect(currentMessage?.update_count).toBe(0);
+    expect(currentMessage?.text).toContain("Custom 404 page");
   });
 
   afterEach(async () => {
