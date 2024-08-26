@@ -2,13 +2,14 @@ import fs from "fs";
 import {
   AdapterInterface,
   DEFAULT_ROOT_ROUTE,
+  ErrorPageProps,
   ImportedRoute,
   MatchedRoute,
   Menu,
   RenderedComponent,
+  RenderedComponentProps,
   RouteInfo,
   RouteInfoFile,
-  RouteMetadata,
   SpecialRouteType,
   StorageInterface,
 } from "@rx-lab/common";
@@ -20,22 +21,21 @@ import { matchRoute, parseQuery } from "./router.utils";
  * @param info
  */
 export async function importRoute(info: RouteInfo): Promise<ImportedRoute> {
-  const component = await import(info.page);
-  const metadata: RouteMetadata = component.metadata ?? {};
+  const component = info.page ? await import(info.page) : undefined;
   return {
     page: info.page,
     route: info.route,
     subRoutes: await Promise.all(
       (info.subRoutes ?? []).map((subRoute) => importRoute(subRoute)),
     ),
-    metadata: metadata,
-    component: component.default,
+    metadata: info.metadata,
+    component: component?.default,
     error: info.error,
     "404": info["404"],
   };
 }
 
-async function getSpecialRoute(info: RouteInfo, type: "error" | "404") {
+async function getSpecialRoute(info: RouteInfo, type: SpecialRouteType) {
   let component: any | null = null;
   if (type === "error") {
     component = await import(info.error);
@@ -261,11 +261,13 @@ export class Router {
    * @param path Current route
    * @param type The type of the special route.
    * @param query Query string parameters passed to the route.
+   * @param props The Properties passed to the component
    */
   async renderSpecialRoute(
     path: string | undefined,
     type: SpecialRouteType,
     query: Record<string, string>,
+    props: RenderedComponentProps,
   ): Promise<RenderedComponent> {
     const matchedRoute = await matchSpecialRouteWithPath(
       this.routeInfoFile.routes,
@@ -283,6 +285,7 @@ export class Router {
       },
       component: component.default,
       queryString: {},
+      props: props,
       params: {},
       isError: type === "error" || type === "404",
     };
@@ -295,12 +298,17 @@ export class Router {
     const parsedRoute = await this.adapter.decodeRoute(currentRoute);
     // if the route is invalid, render the error page
     if (!parsedRoute) {
-      const errorQuery: Record<string, any> = {
+      const errorQuery: ErrorPageProps = {
         error: new Error(`Invalid route: ${currentRoute}`),
         //TODO: Use error package in the future
         code: 500,
       };
-      return await this.renderSpecialRoute(currentRoute, "error", errorQuery);
+      return await this.renderSpecialRoute(
+        currentRoute,
+        "error",
+        {},
+        errorQuery,
+      );
     }
     const matchedRoute = await matchRouteWithPath(
       this.routeInfoFile.routes,
@@ -308,10 +316,11 @@ export class Router {
     );
     const queryString = parseQuery(parsedRoute);
     if (!matchedRoute) {
-      const errorQuery: Record<string, any> = {
+      const errorQuery: ErrorPageProps = {
         error: new Error(`Route not found: ${parsedRoute}`),
+        code: 404,
       };
-      return await this.renderSpecialRoute(parsedRoute, "404", errorQuery);
+      return await this.renderSpecialRoute(parsedRoute, "404", {}, errorQuery);
     }
     return {
       matchedRoute,
@@ -320,6 +329,7 @@ export class Router {
       params: matchedRoute.params,
       path: matchedRoute.route,
       currentRoute: currentRoute,
+      props: {},
     };
   }
 }

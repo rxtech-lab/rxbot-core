@@ -1,7 +1,6 @@
 import * as process from "node:process";
 import type { AdapterInterface, Container, Menu } from "@rx-lab/common";
 import { MemoryStorage } from "@rx-lab/storage/memory";
-import React from "react";
 import { Core } from "./core";
 
 // Mock adapter
@@ -70,8 +69,10 @@ describe.skip("Reconciler(Suspendable)", () => {
 
   it("should not send any message when app is suspended", async () => {
     const App = () => (
+      // @ts-ignore
       <suspendable shouldSuspend={true}>
         <SuspendableComponent />
+        {/*// @ts-ignore*/}
       </suspendable>
     );
 
@@ -88,8 +89,10 @@ describe.skip("Reconciler(Suspendable)", () => {
 
   it("should send message when app is not suspended", async () => {
     const App = () => (
+      // @ts-ignore
       <suspendable shouldSuspend={false}>
         <SuspendableComponent />
+        {/*// @ts-ignore*/}
       </suspendable>
     );
 
