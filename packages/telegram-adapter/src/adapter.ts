@@ -354,6 +354,9 @@ export class TelegramAdapter
     ) => Promise<void>,
   ) {
     this.bot.on("message", (message) => {
+      if (message.web_app_data !== undefined) {
+        return;
+      }
       const container = this.createContainer(message);
       return callback(container, message);
     });

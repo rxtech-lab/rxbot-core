@@ -17,6 +17,12 @@ export interface PageProps {
    */
   text?: string;
   /**
+   * Data is a json like object that can be passed from the adapter.
+   * For example, if you are building a web app in telegram, then
+   * this data represents the data you passed through `window.Telegram.WebApp.sendData(JSON.stringify(YOUR_DATA));`.
+   */
+  data?: Record<string, any>;
+  /**
    * A file containing information about the routes in the application.
    */
   routeInfoFile: RouteInfoFile;

@@ -27,6 +27,16 @@ export const renderElement = (
       const commandElement = element as any;
 
       if (commandElement.props.variant === "button") {
+        if (commandElement.props.command.startsWith("http")) {
+          return [
+            {
+              text: commandElement.props.children,
+              web_app: {
+                url: commandElement.props.command,
+              },
+            },
+          ];
+        }
         const callbackData: CommandButtonCallback = {
           route: convertRouteToTGRoute(commandElement.props.command),
           new: commandElement.props.renderNewMessage,

@@ -6,6 +6,12 @@ export type RenderedElement =
   | {
       inline_keyboard: RenderedElement[][] | RenderedElement[];
     }
+  | {
+      text: string;
+      web_app: {
+        url: string;
+      };
+    }
   | string;
 
 export const DEFAULT_ROOT_PATH = "/";
