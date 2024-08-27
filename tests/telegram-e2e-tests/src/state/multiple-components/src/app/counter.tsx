@@ -12,7 +12,7 @@ export default function Counter() {
       <p>Choose an option</p>
       <hr />
       <p>Current state: {state}</p>
-      <menu>
+      <div>
         <div>
           <button
             key={"button1"}
@@ -41,7 +41,7 @@ export default function Counter() {
             Reset
           </button>
         </div>
-      </menu>
+      </div>
     </div>
   );
 }

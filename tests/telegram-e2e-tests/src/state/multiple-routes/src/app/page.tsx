@@ -10,7 +10,7 @@ export default function Page() {
       <h1>Page 1</h1>
       <hr />
       <p>Current state: {state}</p>
-      <menu>
+      <div>
         <div>
           <button
             key={"button1"}
@@ -42,7 +42,7 @@ export default function Page() {
             Go to page 2
           </CommandButton>
         </div>
-      </menu>
+      </div>
     </div>
   );
 }

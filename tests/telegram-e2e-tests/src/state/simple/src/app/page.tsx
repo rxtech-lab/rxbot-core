@@ -11,7 +11,7 @@ export default function Page() {
       <p>Choose an option</p>
       <hr />
       <p>Current state: {state}</p>
-      <menu>
+      <div>
         <div>
           <button
             key={"button1"}
@@ -40,7 +40,7 @@ export default function Page() {
             Reset
           </button>
         </div>
-      </menu>
+      </div>
     </div>
   );
 }

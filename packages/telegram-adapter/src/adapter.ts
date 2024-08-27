@@ -193,34 +193,20 @@ export class TelegramAdapter
     );
     const chatRoomId = container.chatroomInfo.id;
 
-    const textContent = this.getMessageContent(message);
-    const hasInlineKeyboard = this.hasInlineKeyboard(message);
-    let options: TelegramBot.SendMessageOptions = {};
-    if (hasInlineKeyboard) {
-      const inlineKeyboard = this.getInlineKeyboard(message);
-      options = {
-        reply_markup: {
-          inline_keyboard: inlineKeyboard as any,
-        },
-        parse_mode: "HTML",
-      };
-    } else {
-      options = {
-        parse_mode: "HTML",
-      };
-    }
-
     Logger.log(`Sending message`, "blue");
     try {
       if (isUpdate && container.updateMessageId) {
-        await this.bot.editMessageText(textContent, {
-          ...options,
-          reply_markup: options.reply_markup as any,
+        await this.bot.editMessageText(message.text, {
+          parse_mode: "HTML",
+          reply_markup: message.reply_markup as any,
           chat_id: chatRoomId,
           message_id: container.updateMessageId as number,
         });
       } else {
-        await this.bot.sendMessage(chatRoomId, textContent, options);
+        await this.bot.sendMessage(chatRoomId, message.text, {
+          reply_markup: message.reply_markup as any,
+          parse_mode: "HTML",
+        });
       }
 
       return message as any;
@@ -246,19 +232,6 @@ export class TelegramAdapter
       return message.flatMap(this.getInlineKeyboard);
     }
     return (message as any).inline_keyboard ?? [];
-  }
-
-  private getMessageContent(
-    element: RenderedElement[] | RenderedElement,
-  ): string {
-    if (Array.isArray(element)) {
-      return element.map(this.getMessageContent).join("");
-    }
-
-    if (typeof element === "string") {
-      return element;
-    }
-    return (element as any).text ?? "";
   }
 
   async setMenus(menus: Menu[]): Promise<void> {

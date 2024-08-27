@@ -1,18 +1,13 @@
-export type RenderedElement =
-  | {
-      text: string;
-      callback_data: string;
-    }
-  | {
-      inline_keyboard: RenderedElement[][] | RenderedElement[];
-    }
-  | {
-      text: string;
-      web_app: {
-        url: string;
-      };
-    }
-  | string;
+import { InlineKeyboardButton, KeyboardButton } from "node-telegram-bot-api";
+
+export type RenderedElement = {
+  text: string;
+  reply_markup?: {
+    inline_keyboard?: InlineKeyboardButton[][];
+    keyboard?: KeyboardButton[][];
+    remove_keyboard?: boolean;
+  };
+};
 
 export const DEFAULT_ROOT_PATH = "/";
 /**
