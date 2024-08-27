@@ -7,7 +7,7 @@ export default function Page() {
   return (
     <div>
       <div>This is the home page</div>
-      <menu>
+      <div>
         <div>
           <button
             key={"redirect"}
@@ -18,7 +18,7 @@ export default function Page() {
             Redirect
           </button>
         </div>
-      </menu>
+      </div>
     </div>
   );
 }

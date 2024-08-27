@@ -40,8 +40,8 @@ export default async function Page(props: PageProps) {
     <div>
       <h1>Posts</h1>
       <p>There are {count} posts</p>
-      <menu>
-        {posts.map((post, index) => (
+      <div>
+        {posts.map((post) => (
           <div key={`post-${post.id}`}>
             <CommandButton command={`/post/${post.id}`} renderNewMessage={true}>
               {`${post.id} - ${post.title}`}
@@ -60,7 +60,7 @@ export default async function Page(props: PageProps) {
             </CommandButton>
           )}
         </div>
-      </menu>
+      </div>
     </div>
   );
 }

@@ -26,7 +26,7 @@ export default function page() {
         navigate to a specific page with the information you need. Check out the
         inline button below.
       </p>
-      <menu>
+      <div>
         <div>
           <CommandButton command="/state">State Management</CommandButton>
         </div>
@@ -53,7 +53,7 @@ export default function page() {
             Navigate to redirect in client component
           </CommandButton>
         </div>
-      </menu>
+      </div>
     </div>
   );
 }

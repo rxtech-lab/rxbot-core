@@ -24,11 +24,9 @@ export default function page() {
         application. Instead, Rx-Lab utilizes external storage for state
         management.
       </p>
-      <menu>
-        <div>
-          <CommandButton command={"/state/counter"}>Counter Demo</CommandButton>
-        </div>
-      </menu>
+      <div>
+        <CommandButton command={"/state/counter"}>Counter Demo</CommandButton>
+      </div>
     </div>
   );
 }
