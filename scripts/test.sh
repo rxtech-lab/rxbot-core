@@ -1,5 +1,5 @@
 # Download the mock-telegram server
-wget https://github.com/rxtech-lab/mock-telegram-server/releases/download/latest/mock-telegram-linux-x86_64 -O mock-telegram
+wget https://github.com/rxtech-lab/mock-telegram-server/releases/download/v1.1.2/mock-telegram-linux-x86_64 -O mock-telegram
 chmod +x mock-telegram
 
 # Add the mock-telegram server to the PATH
