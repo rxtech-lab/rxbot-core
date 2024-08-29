@@ -26,36 +26,42 @@ type CompileOptions =
   | {
       rootDir: string;
       destinationDir: string;
+      timeout?: number;
     }
   | {
       adapter: AdapterInterface<any, any, any>;
       storage: StorageInterface;
       rootDir: string;
       destinationDir: string;
+      timeout?: number;
     };
 
 type StartOptions = {
   outputDir: string;
+  timeout?: number;
 };
-
-/**
- * Debounce timeout for commit updates.
- */
-const DEFAULT_TIMEOUT = 2_000; // 2 seconds
 
 interface CoreOptions {
   adapter: AdapterInterface<any, any, any>;
   storage: StorageInterface;
+  timeout?: number;
 }
+
+const DEFAULT_TIMEOUT = 2000;
 
 export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
   extends Renderer<T>
   implements CoreInterface<any>
 {
   private element: RenderedComponent | undefined;
+  /**
+   * Debounce timeout for commit updates.
+   */
+  private readonly timeout: number;
 
-  constructor({ adapter, storage }: CoreOptions) {
+  constructor({ adapter, storage, timeout }: CoreOptions) {
     super({ adapter, storage });
+    this.timeout = timeout ?? DEFAULT_TIMEOUT;
   }
 
   static async Compile(opts: CompileOptions) {
@@ -82,6 +88,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     const core = new Core({
       adapter: adapter,
       storage: storage,
+      timeout: opts.timeout,
     });
 
     await core.router.initFromRoutes(routeInfo);
@@ -99,6 +106,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     const core = new Core({
       adapter: adapter,
       storage: storage,
+      timeout: opts.timeout,
     });
 
     await core.router.init(path.join(opts.outputDir, ROUTE_METADATA_FILE));
@@ -155,7 +163,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     return new Promise<void>((resolve) => {
       const checkCommitUpdates = () => {
         const currentTime = Date.now();
-        if (currentTime - this.lastCommitUpdateTime >= DEFAULT_TIMEOUT) {
+        if (currentTime - this.lastCommitUpdateTime >= this.timeout) {
           resolve();
         } else {
           setTimeout(checkCommitUpdates, 100); // Check every 100ms

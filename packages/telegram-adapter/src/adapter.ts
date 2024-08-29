@@ -216,24 +216,6 @@ export class TelegramAdapter
     }
   }
 
-  private hasInlineKeyboard(
-    message: RenderedElement[] | RenderedElement,
-  ): boolean {
-    if (Array.isArray(message)) {
-      return message.some(this.hasInlineKeyboard);
-    }
-    return (message as any).inline_keyboard !== undefined;
-  }
-
-  private getInlineKeyboard(
-    message: RenderedElement[] | RenderedElement,
-  ): RenderedElement[] {
-    if (Array.isArray(message)) {
-      return message.flatMap(this.getInlineKeyboard);
-    }
-    return (message as any).inline_keyboard ?? [];
-  }
-
   async setMenus(menus: Menu[]): Promise<void> {
     const commands: TelegramBot.BotCommand[] = menus
       .flatMap((menu) => {
