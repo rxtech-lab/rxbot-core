@@ -129,9 +129,6 @@ describe("renderElement", () => {
       photo: "image.jpg",
       caption: "An image",
       text: "",
-      reply_markup: {
-        remove_keyboard: true,
-      },
     });
   });
 
@@ -231,6 +228,5 @@ describe("renderElement", () => {
     expect(rendered.reply_markup.inline_keyboard.length).toBe(2);
     expect(rendered.reply_markup.inline_keyboard[0].length).toBe(2);
     expect(rendered.reply_markup.inline_keyboard[1].length).toBe(1);
-    expect(rendered.reply_markup.remove_keyboard).toBeTruthy();
   });
 });

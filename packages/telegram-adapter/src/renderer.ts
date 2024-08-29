@@ -207,11 +207,5 @@ export const renderElement = (
     finalResult.reply_markup.inline_keyboard = inlineKeyboardButtons;
   }
 
-  if (finalResult.reply_markup?.keyboard === undefined) {
-    finalResult.reply_markup = {
-      ...finalResult.reply_markup,
-      remove_keyboard: true,
-    };
-  }
   return finalResult;
 };
