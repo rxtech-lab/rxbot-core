@@ -30,6 +30,11 @@ export function isReactClientElement(jsx: any): boolean {
     return false;
   }
 
+  // check if jsx is type of Symbol
+  if (typeof jsx === "symbol") {
+    return false;
+  }
+
   if ("type" in jsx) {
     if (typeof jsx.type !== "object") {
       return false;
@@ -136,6 +141,9 @@ async function renderServerComponentHelper(
   }
 
   // render server component
+  if (typeof jsx !== "function") {
+    return jsx;
+  }
   const result = await renderServerComponentHelper(
     false,
     await jsx(props),
