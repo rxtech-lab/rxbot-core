@@ -287,6 +287,9 @@ export class TelegramAdapter
   }
 
   createContainer(message: TelegramBot.Message): TGContainer {
+    // only process message from user
+    // this prevents the bot from processing message from itself
+    const messageText = message.from?.is_bot ? undefined : message.text;
     return {
       type: "ROOT",
       children: [],
@@ -297,7 +300,7 @@ export class TelegramAdapter
       message: {
         ...message,
         id: message.message_id,
-        text: message.text,
+        text: messageText,
       } as any,
     };
   }
