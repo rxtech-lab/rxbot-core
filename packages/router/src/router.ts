@@ -202,7 +202,6 @@ export class Router {
     this._routeInfoFile = JSON.parse(
       fs.readFileSync(fromFile, "utf-8"),
     ) as RouteInfoFile;
-    await this.updateMenu();
   }
 
   /**
@@ -231,7 +230,10 @@ export class Router {
       });
   }
 
-  private async updateMenu() {
+  /**
+   * Use adapter to update menu reflects the current page structure
+   */
+  async updateMenu() {
     const menu = this.generateMenu(this.routeInfoFile.routes);
     await this.adapter.setMenus(menu);
   }
