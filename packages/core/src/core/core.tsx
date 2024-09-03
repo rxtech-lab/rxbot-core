@@ -92,6 +92,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     });
 
     await core.router.initFromRoutes(routeInfo);
+    await core.router.updateMenu();
     await core.init();
     return core;
   }
