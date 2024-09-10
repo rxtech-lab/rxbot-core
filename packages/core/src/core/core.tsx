@@ -180,7 +180,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     const key = this.adapter.getRouteKey(container);
     const route = await this.adapter.decodeRoute(routeOrObject);
     if (route) {
-      container.message.text = undefined;
+      if (container.message) container.message.text = undefined;
     }
 
     let component: RenderedComponent | undefined;
@@ -252,7 +252,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     const pageProps: PageProps = {
       searchQuery: this.element.queryString,
       params: this.element.params,
-      text: container.message.text,
+      text: container.message?.text,
       userId: container.chatroomInfo.userId,
       routeInfoFile: this.router.routeInfoFile,
       ...this.element.props,
