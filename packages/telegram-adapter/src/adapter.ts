@@ -75,7 +75,8 @@ export class TelegramAdapter
           messageId: query.message?.message_id,
           userId: query.from.id,
         },
-        message: query.message as any,
+        // sometimes, tg api will send a bot message back, we need to ignore it
+        message: query.message?.from?.is_bot ? null : (query.message as any),
         hasUpdated: false,
         //@ts-ignore
         id: new Date().getTime(),
