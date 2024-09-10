@@ -73,6 +73,7 @@ export class TelegramAdapter
         chatroomInfo: {
           id: query.message?.chat.id as number,
           messageId: query.message?.message_id,
+          userId: query.from.id,
         },
         message: query.message as any,
         hasUpdated: false,
@@ -296,6 +297,7 @@ export class TelegramAdapter
       chatroomInfo: {
         id: message?.chat?.id as number,
         messageId: message?.message_id,
+        userId: message?.from?.id,
       },
       message: {
         ...message,

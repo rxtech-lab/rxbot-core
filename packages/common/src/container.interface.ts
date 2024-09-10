@@ -7,6 +7,7 @@ export enum ContainerType {
 export interface BaseChatroomInfo {
   id: string | number;
   messageId?: string | number;
+  userId: string | number;
 }
 
 export interface BaseMessage {

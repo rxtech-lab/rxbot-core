@@ -253,6 +253,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
       searchQuery: this.element.queryString,
       params: this.element.params,
       text: container.message.text,
+      userId: container.chatroomInfo.userId,
       routeInfoFile: this.router.routeInfoFile,
       ...this.element.props,
     };
