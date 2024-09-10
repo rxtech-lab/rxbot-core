@@ -24,7 +24,7 @@ export interface Container<
   _rootContainer?: React.ReactElement;
   type: string;
   chatroomInfo: ChatroomInfo;
-  message: Message;
+  message?: Message;
   /**
    * If the container's hasUpdated field been set,
    * it means the container has a pending update whether it is resolved or not.
