@@ -177,7 +177,7 @@ export class TelegramAdapter
       return [];
     }
 
-    if (container.message.callback_query) {
+    if (container.message?.callback_query) {
       return [];
     }
 
