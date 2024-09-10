@@ -23,6 +23,10 @@ export interface PageProps {
    */
   data?: Record<string, any>;
   /**
+   * The user ID of the user who sent the message.
+   */
+  userId: string | number;
+  /**
    * A file containing information about the routes in the application.
    */
   routeInfoFile: RouteInfoFile;

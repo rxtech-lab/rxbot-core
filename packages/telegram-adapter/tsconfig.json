@@ -3,6 +3,7 @@
   "exclude": ["**/*.spec.ts"],
   "extends": "../typescript-config/react-library.json",
   "compilerOptions": {
-    "outDir": "dist"
+    "outDir": "dist",
+    "skipLibCheck": true
   }
 }
