@@ -34,7 +34,7 @@ export const renderElementHelper = (
     case InstanceType.Button:
       return {
         type: "button",
-        text: element.props.children,
+        text: children.join(""),
         callback_data: parser.encode(element),
       };
 
@@ -46,7 +46,7 @@ export const renderElementHelper = (
         if (element.props.command.startsWith("http")) {
           return {
             type: "button",
-            text: element.props.children,
+            text: children.join(""),
             web_app: {
               url: element.props.command,
             },
@@ -58,7 +58,7 @@ export const renderElementHelper = (
         };
         return {
           type: "button",
-          text: element.props.children,
+          text: children.join(""),
           callback_data: parser.encode(callbackData),
         };
       }
