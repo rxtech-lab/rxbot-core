@@ -9,7 +9,6 @@ import {
   ReactInstanceType,
 } from "@rx-lab/common";
 import {
-  DuplicatedKeyPropsError,
   MissingRequiredKeyPropsError,
   UnsupportedComponentError,
   UnsupportedReactComponentError,
@@ -169,11 +168,6 @@ export class ComponentBuilder implements Builder {
     if (!props.key) {
       throw new MissingRequiredKeyPropsError(instanceType);
     }
-
-    if (this.keys.includes(props.key)) {
-      throw new DuplicatedKeyPropsError(instanceType, props.key);
-    }
-    this.keys.push(props.key);
   }
 
   clear() {
