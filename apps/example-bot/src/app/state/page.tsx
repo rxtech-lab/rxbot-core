@@ -27,6 +27,11 @@ export default function page() {
       <div>
         <CommandButton command={"/state/counter"}>Counter Demo</CommandButton>
       </div>
+      <div>
+        <CommandButton command={"/state/conditional"}>
+          Conditional Rendering Demo
+        </CommandButton>
+      </div>
     </div>
   );
 }

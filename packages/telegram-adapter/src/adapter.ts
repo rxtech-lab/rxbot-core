@@ -78,6 +78,7 @@ export class TelegramAdapter
         // sometimes, tg api will send a bot message back, we need to ignore it
         message: query.message?.from?.is_bot ? null : (query.message as any),
         hasUpdated: false,
+        updateMessageId: query.message?.message_id,
         //@ts-ignore
         id: new Date().getTime(),
       };
@@ -99,61 +100,53 @@ export class TelegramAdapter
       // we need to render the app with the old message.
       // And if the message is on different route,
       // we need to render the app with the new route as well.
-      const updatedContainer = await api.renderApp(
-        container,
-        async (container: InternalTGContainer) => {
-          if (container.hasUpdated || container.hasUpdated === undefined) {
+      await api.renderApp(container, async (container: InternalTGContainer) => {
+        if (container.hasUpdated || container.hasUpdated === undefined) {
+          return;
+        }
+
+        if (container.children[0].props.shouldSuspend) {
+          return;
+        }
+
+        // handle command button
+        // if the component is a string, it means that it is a route,
+        // so we need to redirect to the route
+        if (callbackType === CallbackType.onCommand) {
+          const route = await this.decodeRoute(component.route);
+          if (!route) {
+            Logger.log(`Invalid route: ${component.route}`, "red");
             return;
           }
-
-          if (container.children[0].props.shouldSuspend) {
-            return;
-          }
-
-          // handle command button
-          // if the component is a string, it means that it is a route,
-          // so we need to redirect to the route
-          if (callbackType === CallbackType.onCommand) {
-            const route = await this.decodeRoute(component.route);
-            if (!route) {
-              Logger.log(`Invalid route: ${component.route}`, "red");
-              return;
-            }
-            Logger.log(`Redirecting to ${route}`, "blue");
-            container.hasUpdated = true;
-            // if component is set to render new message
-            // we need to reset the updateMessageId
-            if (component.new) {
-              container.updateMessageId = undefined;
-            }
-
-            try {
-              await api.redirectTo(container, route, {
-                shouldRender: true,
-                shouldAddToHistory: true,
-              });
-            } catch (err: any) {
-              Logger.log(
-                `Error redirecting to ${route}: ${err.message}`,
-                "red",
-              );
-            }
-            return;
-          }
-
-          // find the route based on the key
-          const componentKey = component!.id;
-          const componentToRender = this.callbackParser.findComponentByKey(
-            componentKey,
-            container.children,
-          );
-          componentToRender?.props.onClick?.();
+          Logger.log(`Redirecting to ${route}`, "blue");
           container.hasUpdated = true;
-          Logger.log("Callback query", "blue");
-        },
-      );
-      (updatedContainer as InternalTGContainer).updateMessageId =
-        query.message?.message_id;
+          // if component is set to render new message
+          // we need to reset the updateMessageId
+          if (component.new) {
+            container.updateMessageId = undefined;
+          }
+
+          try {
+            await api.redirectTo(container, route, {
+              shouldRender: true,
+              shouldAddToHistory: true,
+            });
+          } catch (err: any) {
+            Logger.log(`Error redirecting to ${route}: ${err.message}`, "red");
+          }
+          return;
+        }
+
+        // find the route based on the key
+        const componentKey = component!.id;
+        const componentToRender = this.callbackParser.findComponentByKey(
+          componentKey,
+          container.children,
+        );
+        componentToRender?.props.onClick?.();
+        container.hasUpdated = true;
+        Logger.log("Callback query", "blue");
+      });
     });
   }
 
