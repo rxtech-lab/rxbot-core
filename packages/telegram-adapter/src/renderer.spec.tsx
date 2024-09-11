@@ -9,6 +9,11 @@ class MockComponent extends Component {
     public props: any,
   ) {
     super();
+    if (Array.isArray(props.children)) {
+      this.children = props.children;
+    } else {
+      if (props.children) this.children = [props.children];
+    }
   }
 
   commitUpdate(oldProps: any, newProps: any): boolean {
@@ -30,10 +35,12 @@ describe("renderElement", () => {
 
   it("should render button element", () => {
     const buttonElement = new MockComponent("2", InstanceType.Button, {
-      children: {
-        type: "text",
-        props: { nodeValue: "Click me" },
-      },
+      children: [
+        {
+          type: "text",
+          props: { nodeValue: "Click me" },
+        },
+      ],
     });
     const rendered = renderElement(buttonElement, parser);
     expect(rendered.text).toBe("");
@@ -48,6 +55,26 @@ describe("renderElement", () => {
         type: "onClick",
       },
     ]);
+  });
+
+  it("should render button element with multiple children", () => {
+    const buttonElement = new MockComponent("2", InstanceType.Button, {
+      children: [
+        {
+          type: InstanceType.Text,
+          props: { nodeValue: "Current State:" },
+        },
+        {
+          type: InstanceType.Text,
+          props: { nodeValue: "2" },
+        },
+      ],
+    });
+    const rendered = renderElement(buttonElement, parser);
+    expect(rendered.text).toBe("");
+    expect((rendered.reply_markup!.inline_keyboard[0][0] as any).text).toEqual(
+      "Current State:2",
+    );
   });
 
   it("should render link element", () => {
@@ -95,13 +122,22 @@ describe("renderElement", () => {
     const row1 = new MockComponent("9", InstanceType.Container, {});
     const row2 = new MockComponent("10", InstanceType.Container, {});
     const button1 = new MockComponent("11", InstanceType.Button, {
-      children: "Button 1",
+      children: {
+        type: InstanceType.Text,
+        props: { nodeValue: "Button 1" },
+      },
     });
     const button2 = new MockComponent("12", InstanceType.Button, {
-      children: "Button 2",
+      children: {
+        type: InstanceType.Text,
+        props: { nodeValue: "Button 2" },
+      },
     });
     const button3 = new MockComponent("13", InstanceType.Button, {
-      children: "Button 3",
+      children: {
+        type: InstanceType.Text,
+        props: { nodeValue: "Button 3" },
+      },
     });
 
     row1.appendChild(button1);
