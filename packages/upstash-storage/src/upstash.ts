@@ -51,7 +51,7 @@ export class UpstashStorage extends Storage {
   async restoreHistory(key: string): Promise<Route | undefined> {
     const storedKey = `${HISTORY_KEY}-${key}`;
     const data = await this.redis.get<string>(storedKey);
-    if (data) {
+    if (data !== null) {
       return data as any;
     }
     return undefined;
@@ -60,7 +60,7 @@ export class UpstashStorage extends Storage {
   async restoreRoute(key: string): Promise<Route | undefined> {
     const storedKey = `${ROUTE_KEY}-${key}`;
     const data = await this.redis.get<string>(storedKey);
-    if (data) {
+    if (data !== null) {
       return data as any;
     }
     return undefined;
@@ -68,11 +68,11 @@ export class UpstashStorage extends Storage {
 
   async restoreState<T>(key: string, route: Route): Promise<T | undefined> {
     const storedKey = `${STATE_KEY}-${key}`;
-    const data = await this.redis.get(storedKey);
-    if (data) {
-      return data as T;
+    const exists = await this.redis.exists(storedKey);
+    if (exists === 0) {
+      return undefined;
     }
-    return undefined;
+    return (await this.redis.get(storedKey)) as any;
   }
 
   async saveRoute(key: string, path: string): Promise<void> {
