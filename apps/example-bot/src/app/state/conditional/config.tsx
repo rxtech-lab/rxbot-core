@@ -1,4 +1,5 @@
 "use client";
+import { Logger } from "@rx-lab/common";
 import { useState } from "@rx-lab/storage";
 import { Dayjs } from "dayjs";
 import { useStartProvider } from "./layout";
@@ -21,6 +22,8 @@ export function ConfigurationArea(props: Props) {
   const [mode, setMode] = useState(`${props.id}-mode`, Mode.Default);
   const { startTime, isStartValid, isEndValid, endTime } = useStartProvider();
 
+  // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+  console.log("Mode", mode);
   if (mode === Mode.ConfigStart) {
     return (
       <TimeArea
@@ -50,6 +53,7 @@ export function ConfigurationArea(props: Props) {
           <button
             key={"start"}
             onClick={() => {
+              Logger.log("Setting mode to ConfigStart");
               setMode(Mode.ConfigStart);
             }}
           >
