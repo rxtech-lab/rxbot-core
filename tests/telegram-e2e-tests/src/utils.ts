@@ -1,6 +1,6 @@
 import { Core } from "@rx-lab/core";
 import { Api } from "@rx-lab/mock-telegram-client";
-import { MemoryStorage } from "@rx-lab/storage/memory";
+import { DelaySimulationFunction, MemoryStorage } from "@rx-lab/storage/memory";
 import { TelegramAdapter } from "@rx-lab/telegram-adapter";
 
 /**
@@ -20,6 +20,7 @@ export const DEFAULT_LONG_RENDERING_WAIT_TIME = 4000;
 interface Options {
   rootDir: string;
   destinationDir: string;
+  delaySimulation?: DelaySimulationFunction;
 }
 
 /**
@@ -33,7 +34,7 @@ export const initialize = async (
   api: Api<any>,
   opts: Options,
 ) => {
-  const client = new MemoryStorage();
+  const client = new MemoryStorage(opts.delaySimulation);
   const adapter = new TelegramAdapter({
     token: "Some token",
     url: `http://0.0.0.0:${PORT}/webhook/chatroom/${chatroomId}`,
