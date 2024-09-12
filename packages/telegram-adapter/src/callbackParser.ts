@@ -1,7 +1,7 @@
 import type { Component } from "@rx-lab/common";
 import { CommandButtonCallback } from "./types";
 
-interface EncodeData {
+export interface EncodeData {
   /**
    * The id of the component.
    */

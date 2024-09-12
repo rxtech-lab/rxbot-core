@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "@rx-lab/storage";
+import { DateTimeNumberPad } from "./TimeNumberPad";
 
 export function ConditionalComponent() {
   const [mode, setMode] = useState("mode", "default");
   const [counter, setCounter] = useState("counter", 0);
-  const [modeChangeCounter, setModeChangeCounter] = useState(
-    "modeChangeCounter",
-    0,
-  );
+  const [startTime, setStartTime] = useState("startTime", "****-**-** **:**");
 
   if (mode === "default") {
     return (
@@ -17,6 +15,15 @@ export function ConditionalComponent() {
           This is a conditional rendering demo. You can switch between two
           modes.
         </p>
+        <h1>Start Time: {startTime}</h1>
+        <DateTimeNumberPad
+          onChange={(newValue) => {
+            // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+            console.log("newValue", newValue);
+            setStartTime(newValue);
+          }}
+          value={startTime}
+        />
         <div>
           <button key={"mode"} onClick={() => setMode("counter")}>
             Switch to Counter

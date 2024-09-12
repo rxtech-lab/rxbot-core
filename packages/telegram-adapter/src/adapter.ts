@@ -7,7 +7,7 @@ import {
   type Menu,
 } from "@rx-lab/common";
 import TelegramBot from "node-telegram-bot-api";
-import { CallbackParser, CallbackType } from "./callbackParser";
+import { CallbackParser, CallbackType, DecodeType } from "./callbackParser";
 import { renderElement } from "./renderer";
 import { DEFAULT_ROOT_PATH, RenderedElement, START_COMMAND } from "./types";
 import { convertRouteToTGRoute, convertTGRouteToRoute } from "./utils";
@@ -38,6 +38,7 @@ export interface TGContainer extends Container<TGChatroomInfo, TGMessage> {}
 interface InternalTGContainer extends TGContainer {
   // internal field used to store the message id for updating the message
   updateMessageId?: number;
+  decodedData: DecodeType;
 }
 
 export class TelegramAdapter
@@ -83,7 +84,13 @@ export class TelegramAdapter
         id: new Date().getTime(),
       };
 
-      const [callbackType, component] = this.callbackParser.decode(data);
+      const decodedData = this.callbackParser.decode(data);
+      // Put data into the container so that we can process it later
+      // should not use component directly inside the closure because it is outdated
+      // in some situation. For example, when user click component A, then click component B,
+      // the closure will use component A twice instead of component A and B.
+      container.decodedData = decodedData;
+      const [callbackType] = decodedData;
       if (callbackType === CallbackType.onClick) {
         // find the route and redirect to the route
         const routeFromCallback = await api.restoreRoute(
@@ -101,6 +108,7 @@ export class TelegramAdapter
       // And if the message is on different route,
       // we need to render the app with the new route as well.
       await api.renderApp(container, async (container: InternalTGContainer) => {
+        const [callbackType, component] = container.decodedData ?? [];
         if (container.hasUpdated || container.hasUpdated === undefined) {
           return;
         }
@@ -138,7 +146,7 @@ export class TelegramAdapter
         }
 
         // find the route based on the key
-        const componentKey = component!.id;
+        const componentKey = component?.id;
         const componentToRender = this.callbackParser.findComponentByKey(
           componentKey,
           container.children,
