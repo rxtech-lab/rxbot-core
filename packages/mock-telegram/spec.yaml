@@ -32,6 +32,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListMessageResponse'
+  /message/registerWebhook:
+    post:
+      summary: Register a webhook
+      operationId: registerWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+      responses:
+        '200':
+          description: Webhook registered successfully
+        '400':
+          description: Invalid URL supplied
 
   /message/{id}:
     get:
@@ -122,6 +140,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListMessageResponse'
+  /chatroom/{chatroomId}/registerWebhook:
+    post:
+      summary: Register a webhook for a specific chatroom
+      operationId: registerWebhookForChatroom
+      parameters:
+        - name: chatroomId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+      responses:
+        '200':
+          description: Webhook registered successfully
+        '400':
+          description: Invalid URL supplied
 
   /chatroom/{chatroomId}/message/{id}:
     get:
