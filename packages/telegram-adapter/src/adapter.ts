@@ -143,9 +143,13 @@ export class TelegramAdapter
           componentKey,
           container.children,
         );
-        componentToRender?.props.onClick?.();
-        container.hasUpdated = true;
-        Logger.log("Callback query", "blue");
+        if (componentToRender) {
+          componentToRender?.props.onClick?.();
+          container.hasUpdated = true;
+          Logger.log("Callback query", "blue");
+        } else {
+          Logger.log(`Component with key ${componentKey} not found`, "red");
+        }
       });
     });
   }
