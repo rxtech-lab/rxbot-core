@@ -47,6 +47,10 @@ class MockAdapter implements AdapterInterface<Container<any, any>, any, any> {
   createContainer(message: any) {
     return {} as any;
   }
+
+  handleSendMessage(message: any): Promise<void> {
+    return Promise.resolve(undefined);
+  }
 }
 
 process.env.NODE_ENV = "development";
