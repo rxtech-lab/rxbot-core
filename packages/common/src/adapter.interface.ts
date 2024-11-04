@@ -1,4 +1,5 @@
 import { BaseMessage, Container } from "./container.interface";
+import { SendMessage } from "./core.interface";
 import { Route } from "./router.interface";
 
 export interface RedirectOptions {
@@ -15,6 +16,11 @@ export interface RedirectOptions {
    * @default false
    */
   shouldAddToHistory: boolean;
+
+  /**
+   * Should keep the text message in the container.
+   */
+  keepTextMessage?: boolean;
 }
 
 export interface CoreApi<C extends Container<any, any>> {
@@ -229,6 +235,8 @@ export interface AdapterInterface<
    * @param message The message to be updated.
    */
   handleMessageUpdate: (message: Message) => Promise<void>;
+
+  handleSendMessage: (message: SendMessage) => Promise<void>;
 
   /**
    * Creates a container from a message.

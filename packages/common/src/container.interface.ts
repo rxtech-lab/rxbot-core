@@ -13,7 +13,7 @@ export interface BaseChatroomInfo {
 export interface BaseMessage {
   id: string | number;
   text?: string;
-  data?: any;
+  data?: Record<string, any>;
 }
 
 export interface Container<

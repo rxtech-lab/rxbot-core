@@ -2,6 +2,30 @@ import { RedirectOptions } from "./adapter.interface";
 import type { Container } from "./container.interface";
 import { RenderedComponent } from "./router.interface";
 
+export interface SendMessage {
+  /**
+   * Path is the path of the chatroom where the message should be sent.
+   */
+  path: string;
+  /**
+   * Data is an object that contains the message to be sent to the user.
+   * User can define the message in any format they want and use the React components to render the message.
+   *
+   *
+   */
+  data?: Record<string, any>;
+  /**
+   * Text is the text message to be sent to the user.
+   * You can store other data in the data object and put the text message here.
+   */
+  text?: string;
+
+  /**
+   * To which user id
+   */
+  to: string;
+}
+
 export interface CoreInterface<T extends Container<any, any>> {
   /**
    * Redirects the user to the specified route.
@@ -97,4 +121,9 @@ export interface CoreInterface<T extends Container<any, any>> {
    * });
    */
   handleMessageUpdate: (message: any) => Promise<void>;
+
+  /**
+   * Send message to the user.
+   */
+  sendMessage: (message: SendMessage) => Promise<void>;
 }
