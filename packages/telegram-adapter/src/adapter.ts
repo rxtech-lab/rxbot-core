@@ -2,9 +2,11 @@ import {
   type AdapterInterface,
   type BaseChatroomInfo,
   type Container,
+  ContainerType,
   type CoreApi,
   Logger,
   type Menu,
+  SendMessage,
 } from "@rx-lab/common";
 import TelegramBot from "node-telegram-bot-api";
 import { CallbackParser, CallbackType, DecodeType } from "./callbackParser";
@@ -31,6 +33,7 @@ export interface TGChatroomInfo extends BaseChatroomInfo {}
 export interface TGMessage extends TelegramBot.Update {
   id: string | number;
   text?: string;
+  data?: Record<string, any>;
 }
 
 export interface TGContainer extends Container<TGChatroomInfo, TGMessage> {}
@@ -51,6 +54,7 @@ export class TelegramAdapter
 {
   bot: TelegramBot;
   private readonly callbackParser = new CallbackParser();
+  private coreApi: CoreApi<TGContainer>;
 
   constructor(private readonly opts: TelegramAppOpts) {
     const supportLongPolling = "longPolling" in opts ? opts.longPolling : false;
@@ -63,6 +67,8 @@ export class TelegramAdapter
   // TODO: Only works when user send a message to the bot
   //  Need to handle the case that when user click on the button, message is updated
   async init(api: CoreApi<TGContainer>): Promise<void> {
+    this.coreApi = api;
+
     //FIXME: If user click on the button multiple times at the same time,
     // the message only updated once and throw an error
     this.bot.on("callback_query", async (query) => {
@@ -330,5 +336,32 @@ export class TelegramAdapter
 
   async handleMessageUpdate(message: TelegramBot.Message) {
     this.bot.processUpdate(message as any);
+  }
+
+  async handleSendMessage(message: SendMessage) {
+    // create a container
+    const container: InternalTGContainer = {
+      chatroomInfo: {
+        id: message.to,
+        userId: message.to,
+      },
+      children: [],
+      decodedData: undefined,
+      hasUpdated: true,
+      message: {
+        id: "",
+        update_id: 0,
+        text: message.text,
+        data: message.data,
+      },
+      type: ContainerType.ROOT,
+      updateMessageId: 0,
+    };
+
+    await this.coreApi.redirectTo(container, message.path, {
+      shouldRender: true,
+      shouldAddToHistory: false,
+      keepTextMessage: true,
+    });
   }
 }

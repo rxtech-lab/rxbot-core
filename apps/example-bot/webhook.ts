@@ -44,6 +44,35 @@ app.post("/api/webhook", async (req, res) => {
   }
 });
 
+app.post(
+  "/api/message",
+  {
+    schema: {
+      body: {
+        type: "object",
+        properties: {
+          path: { type: "string" },
+          data: { type: "object" },
+          to: { type: "string" },
+          text: { type: "string" },
+        },
+        required: ["path", "to", "text"],
+      },
+    },
+  },
+  async (req) => {
+    const { body } = req;
+    try {
+      await core.sendMessage(body as any);
+    } catch (error) {
+      console.error(error);
+      return {
+        status: "error",
+      };
+    }
+  },
+);
+
 (async () => {
   try {
     core = await Core.Compile({

@@ -12,6 +12,7 @@ import {
   ROUTE_METADATA_FILE,
   RedirectOptions,
   RenderedComponent,
+  SendMessage,
   StorageInterface,
 } from "@rx-lab/common";
 import { RedirectError } from "@rx-lab/errors";
@@ -180,7 +181,8 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     const key = this.adapter.getRouteKey(container);
     const route = await this.adapter.decodeRoute(routeOrObject);
     if (route) {
-      if (container.message) container.message.text = undefined;
+      if (container.message && options?.keepTextMessage !== true)
+        container.message.text = undefined;
     }
 
     let component: RenderedComponent | undefined;
@@ -255,6 +257,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
       text: container.message?.text,
       userId: container.chatroomInfo.userId,
       routeInfoFile: this.router.routeInfoFile,
+      data: container.message?.data,
       ...this.element.props,
     };
 
@@ -310,5 +313,9 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
 
   private updateLastCommitUpdateTime() {
     this.lastCommitUpdateTime = Date.now();
+  }
+
+  async sendMessage(message: SendMessage) {
+    await this.adapter.handleSendMessage(message);
   }
 }
