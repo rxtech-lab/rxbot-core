@@ -10,8 +10,11 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "jsx": "react",
+    "allowUmdGlobalAccess": true,
+    "resolveJsonModule": true
   },
-  "exclude": ["dist"],
+  "exclude": ["dist", "**/*.spec.ts", "**/*.spec.tsx"],
   "include": ["src/**/*", "bin/**/*"]
 }

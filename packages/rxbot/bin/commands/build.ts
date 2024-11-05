@@ -5,9 +5,10 @@ import { defineConfig } from "@rspack/cli";
 import { RspackOptions, rspack } from "@rspack/core";
 import { Logger } from "@rx-lab/common";
 import * as glob from "glob";
+import { BuildRouteMetadataPlugin } from "../../src/plugins/build-route-metadata.plugin";
 
-function getPageEntries(): string[] {
-  const pages = glob.sync("./src/app/**/page.{ts,tsx}");
+function getPageEntries(srcFolder: string): string[] {
+  const pages = glob.sync(`${srcFolder}/app/**/page.{ts,tsx}`);
   const entries: string[] = [];
   for (const page of pages) {
     entries.push(path.resolve(page));
@@ -16,12 +17,12 @@ function getPageEntries(): string[] {
 }
 
 // Build command
-export async function runBuild() {
+export async function runBuild(srcFolder = "./src") {
   try {
     // Get the current working directory
     const cwd = process.cwd();
     Logger.log(`Building project in ${cwd}`, "blue");
-    const entries = getPageEntries();
+    const entries = getPageEntries(srcFolder);
     const outputDir = path.resolve(".rx-lab");
     Logger.log(`Found ${Object.keys(entries).length} entries`, "blue");
     Logger.log(`Output will be in ${outputDir}`, "blue");
@@ -39,6 +40,12 @@ export async function runBuild() {
       target: ["node", "es2020"],
       // skip any @rx-lab/* packages
       // and react, react-dom, react/jsx-runtime
+      plugins: [
+        new BuildRouteMetadataPlugin({
+          srcDir: srcFolder,
+          outputDir: path.join(outputDir, "temp"),
+        }),
+      ],
       externals: [/^@rx-lab\//, "react", "react-dom", "react/jsx-runtime"],
       resolve: {
         extensions: [".ts", ".js", ".json", ".tsx"],
