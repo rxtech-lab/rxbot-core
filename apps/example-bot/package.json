@@ -19,6 +19,7 @@
     "@rx-lab/telegram-adapter": "workspace:*",
     "@rx-lab/typescript-config": "workspace:*",
     "@rx-lab/upstash-storage": "workspace:*",
+    "rxbot-cli": "workspace:*",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   },
