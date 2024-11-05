@@ -47,3 +47,4 @@ packit.yaml
 mock-telegram
 .rx-lab
 !jest.config.js
+packages/rxbot/test.ts

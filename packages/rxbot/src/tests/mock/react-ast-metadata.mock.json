@@ -1,0 +1,886 @@
+{
+  "type": "Module",
+  "span": {
+    "start": 1717,
+    "end": 2691
+  },
+  "body": [
+    {
+      "type": "ImportDeclaration",
+      "span": {
+        "start": 1717,
+        "end": 1764
+      },
+      "specifiers": [
+        {
+          "type": "ImportSpecifier",
+          "span": {
+            "start": 1726,
+            "end": 1739
+          },
+          "local": {
+            "type": "Identifier",
+            "span": {
+              "start": 1726,
+              "end": 1739
+            },
+            "ctxt": 2,
+            "value": "RouteMetadata",
+            "optional": false
+          },
+          "imported": null,
+          "isTypeOnly": false
+        }
+      ],
+      "source": {
+        "type": "StringLiteral",
+        "span": {
+          "start": 1747,
+          "end": 1763
+        },
+        "value": "@rx-lab/common",
+        "raw": "\"@rx-lab/common\""
+      },
+      "typeOnly": false,
+      "with": null,
+      "phase": "evaluation"
+    },
+    {
+      "type": "ImportDeclaration",
+      "span": {
+        "start": 1765,
+        "end": 1810
+      },
+      "specifiers": [
+        {
+          "type": "ImportSpecifier",
+          "span": {
+            "start": 1774,
+            "end": 1787
+          },
+          "local": {
+            "type": "Identifier",
+            "span": {
+              "start": 1774,
+              "end": 1787
+            },
+            "ctxt": 2,
+            "value": "CommandButton",
+            "optional": false
+          },
+          "imported": null,
+          "isTypeOnly": false
+        }
+      ],
+      "source": {
+        "type": "StringLiteral",
+        "span": {
+          "start": 1795,
+          "end": 1809
+        },
+        "value": "@rx-lab/core",
+        "raw": "\"@rx-lab/core\""
+      },
+      "typeOnly": false,
+      "with": null,
+      "phase": "evaluation"
+    },
+    {
+      "type": "ExportDeclaration",
+      "span": {
+        "start": 1812,
+        "end": 1964
+      },
+      "declaration": {
+        "type": "VariableDeclaration",
+        "span": {
+          "start": 1819,
+          "end": 1964
+        },
+        "ctxt": 0,
+        "kind": "const",
+        "declare": false,
+        "declarations": [
+          {
+            "type": "VariableDeclarator",
+            "span": {
+              "start": 1825,
+              "end": 1963
+            },
+            "id": {
+              "type": "Identifier",
+              "span": {
+                "start": 1825,
+                "end": 1833
+              },
+              "ctxt": 2,
+              "value": "metadata",
+              "optional": false,
+              "typeAnnotation": {
+                "type": "TsTypeAnnotation",
+                "span": {
+                  "start": 1833,
+                  "end": 1848
+                },
+                "typeAnnotation": {
+                  "type": "TsTypeReference",
+                  "span": {
+                    "start": 1835,
+                    "end": 1848
+                  },
+                  "typeName": {
+                    "type": "Identifier",
+                    "span": {
+                      "start": 1835,
+                      "end": 1848
+                    },
+                    "ctxt": 2,
+                    "value": "RouteMetadata",
+                    "optional": false
+                  },
+                  "typeParams": null
+                }
+              }
+            },
+            "init": {
+              "type": "ObjectExpression",
+              "span": {
+                "start": 1851,
+                "end": 1963
+              },
+              "properties": [
+                {
+                  "type": "KeyValueProperty",
+                  "key": {
+                    "type": "Identifier",
+                    "span": {
+                      "start": 1855,
+                      "end": 1860
+                    },
+                    "value": "title"
+                  },
+                  "value": {
+                    "type": "StringLiteral",
+                    "span": {
+                      "start": 1862,
+                      "end": 1880
+                    },
+                    "value": "State Management",
+                    "raw": "\"State Management\""
+                  }
+                },
+                {
+                  "type": "KeyValueProperty",
+                  "key": {
+                    "type": "Identifier",
+                    "span": {
+                      "start": 1884,
+                      "end": 1895
+                    },
+                    "value": "description"
+                  },
+                  "value": {
+                    "type": "StringLiteral",
+                    "span": {
+                      "start": 1897,
+                      "end": 1937
+                    },
+                    "value": "Learn how to manage states in your bot",
+                    "raw": "\"Learn how to manage states in your bot\""
+                  }
+                },
+                {
+                  "type": "KeyValueProperty",
+                  "key": {
+                    "type": "Identifier",
+                    "span": {
+                      "start": 1941,
+                      "end": 1954
+                    },
+                    "value": "includeInMenu"
+                  },
+                  "value": {
+                    "type": "BooleanLiteral",
+                    "span": {
+                      "start": 1956,
+                      "end": 1960
+                    },
+                    "value": true
+                  }
+                }
+              ]
+            },
+            "definite": false
+          }
+        ]
+      }
+    },
+    {
+      "type": "ExportDefaultDeclaration",
+      "span": {
+        "start": 1966,
+        "end": 2691
+      },
+      "decl": {
+        "type": "FunctionExpression",
+        "identifier": {
+          "type": "Identifier",
+          "span": {
+            "start": 1990,
+            "end": 1994
+          },
+          "ctxt": 2,
+          "value": "page",
+          "optional": false
+        },
+        "params": [],
+        "decorators": [],
+        "span": {
+          "start": 1981,
+          "end": 2691
+        },
+        "ctxt": 3,
+        "body": {
+          "type": "BlockStatement",
+          "span": {
+            "start": 1997,
+            "end": 2691
+          },
+          "ctxt": 3,
+          "stmts": [
+            {
+              "type": "ReturnStatement",
+              "span": {
+                "start": 2001,
+                "end": 2689
+              },
+              "argument": {
+                "type": "ParenthesisExpression",
+                "span": {
+                  "start": 2008,
+                  "end": 2688
+                },
+                "expression": {
+                  "type": "JSXElement",
+                  "span": {
+                    "start": 2014,
+                    "end": 2684
+                  },
+                  "opening": {
+                    "type": "JSXOpeningElement",
+                    "name": {
+                      "type": "Identifier",
+                      "span": {
+                        "start": 2015,
+                        "end": 2018
+                      },
+                      "ctxt": 1,
+                      "value": "div",
+                      "optional": false
+                    },
+                    "span": {
+                      "start": 2014,
+                      "end": 2019
+                    },
+                    "attributes": [],
+                    "selfClosing": false,
+                    "typeArguments": null
+                  },
+                  "children": [
+                    {
+                      "type": "JSXText",
+                      "span": {
+                        "start": 2019,
+                        "end": 2026
+                      },
+                      "value": "\n      ",
+                      "raw": "\n      "
+                    },
+                    {
+                      "type": "JSXElement",
+                      "span": {
+                        "start": 2026,
+                        "end": 2049
+                      },
+                      "opening": {
+                        "type": "JSXOpeningElement",
+                        "name": {
+                          "type": "Identifier",
+                          "span": {
+                            "start": 2027,
+                            "end": 2029
+                          },
+                          "ctxt": 1,
+                          "value": "h1",
+                          "optional": false
+                        },
+                        "span": {
+                          "start": 2026,
+                          "end": 2030
+                        },
+                        "attributes": [],
+                        "selfClosing": false,
+                        "typeArguments": null
+                      },
+                      "children": [
+                        {
+                          "type": "JSXText",
+                          "span": {
+                            "start": 2030,
+                            "end": 2044
+                          },
+                          "value": "Use State Demo",
+                          "raw": "Use State Demo"
+                        }
+                      ],
+                      "closing": {
+                        "type": "JSXClosingElement",
+                        "span": {
+                          "start": 2044,
+                          "end": 2049
+                        },
+                        "name": {
+                          "type": "Identifier",
+                          "span": {
+                            "start": 2046,
+                            "end": 2048
+                          },
+                          "ctxt": 1,
+                          "value": "h1",
+                          "optional": false
+                        }
+                      }
+                    },
+                    {
+                      "type": "JSXText",
+                      "span": {
+                        "start": 2049,
+                        "end": 2056
+                      },
+                      "value": "\n      ",
+                      "raw": "\n      "
+                    },
+                    {
+                      "type": "JSXElement",
+                      "span": {
+                        "start": 2056,
+                        "end": 2289
+                      },
+                      "opening": {
+                        "type": "JSXOpeningElement",
+                        "name": {
+                          "type": "Identifier",
+                          "span": {
+                            "start": 2057,
+                            "end": 2058
+                          },
+                          "ctxt": 1,
+                          "value": "p",
+                          "optional": false
+                        },
+                        "span": {
+                          "start": 2056,
+                          "end": 2059
+                        },
+                        "attributes": [],
+                        "selfClosing": false,
+                        "typeArguments": null
+                      },
+                      "children": [
+                        {
+                          "type": "JSXText",
+                          "span": {
+                            "start": 2059,
+                            "end": 2285
+                          },
+                          "value": "\n        State management is a fundamental aspect of the Rx-Lab framework. We\n        offer a straightforward approach to managing states in your bot, which\n        differs from traditional single-page web applications.\n      ",
+                          "raw": "\n        State management is a fundamental aspect of the Rx-Lab framework. We\n        offer a straightforward approach to managing states in your bot, which\n        differs from traditional single-page web applications.\n      "
+                        }
+                      ],
+                      "closing": {
+                        "type": "JSXClosingElement",
+                        "span": {
+                          "start": 2285,
+                          "end": 2289
+                        },
+                        "name": {
+                          "type": "Identifier",
+                          "span": {
+                            "start": 2287,
+                            "end": 2288
+                          },
+                          "ctxt": 1,
+                          "value": "p",
+                          "optional": false
+                        }
+                      }
+                    },
+                    {
+                      "type": "JSXText",
+                      "span": {
+                        "start": 2289,
+                        "end": 2296
+                      },
+                      "value": "\n      ",
+                      "raw": "\n      "
+                    },
+                    {
+                      "type": "JSXElement",
+                      "span": {
+                        "start": 2296,
+                        "end": 2302
+                      },
+                      "opening": {
+                        "type": "JSXOpeningElement",
+                        "name": {
+                          "type": "Identifier",
+                          "span": {
+                            "start": 2297,
+                            "end": 2299
+                          },
+                          "ctxt": 1,
+                          "value": "br",
+                          "optional": false
+                        },
+                        "span": {
+                          "start": 2296,
+                          "end": 2302
+                        },
+                        "attributes": [],
+                        "selfClosing": true,
+                        "typeArguments": null
+                      },
+                      "children": [],
+                      "closing": null
+                    },
+                    {
+                      "type": "JSXText",
+                      "span": {
+                        "start": 2302,
+                        "end": 2309
+                      },
+                      "value": "\n      ",
+                      "raw": "\n      "
+                    },
+                    {
+                      "type": "JSXElement",
+                      "span": {
+                        "start": 2309,
+                        "end": 2315
+                      },
+                      "opening": {
+                        "type": "JSXOpeningElement",
+                        "name": {
+                          "type": "Identifier",
+                          "span": {
+                            "start": 2310,
+                            "end": 2312
+                          },
+                          "ctxt": 1,
+                          "value": "br",
+                          "optional": false
+                        },
+                        "span": {
+                          "start": 2309,
+                          "end": 2315
+                        },
+                        "attributes": [],
+                        "selfClosing": true,
+                        "typeArguments": null
+                      },
+                      "children": [],
+                      "closing": null
+                    },
+                    {
+                      "type": "JSXText",
+                      "span": {
+                        "start": 2315,
+                        "end": 2322
+                      },
+                      "value": "\n      ",
+                      "raw": "\n      "
+                    },
+                    {
+                      "type": "JSXElement",
+                      "span": {
+                        "start": 2322,
+                        "end": 2345
+                      },
+                      "opening": {
+                        "type": "JSXOpeningElement",
+                        "name": {
+                          "type": "Identifier",
+                          "span": {
+                            "start": 2323,
+                            "end": 2325
+                          },
+                          "ctxt": 1,
+                          "value": "h1",
+                          "optional": false
+                        },
+                        "span": {
+                          "start": 2322,
+                          "end": 2326
+                        },
+                        "attributes": [],
+                        "selfClosing": false,
+                        "typeArguments": null
+                      },
+                      "children": [
+                        {
+                          "type": "JSXText",
+                          "span": {
+                            "start": 2326,
+                            "end": 2340
+                          },
+                          "value": "Key Difference",
+                          "raw": "Key Difference"
+                        }
+                      ],
+                      "closing": {
+                        "type": "JSXClosingElement",
+                        "span": {
+                          "start": 2340,
+                          "end": 2345
+                        },
+                        "name": {
+                          "type": "Identifier",
+                          "span": {
+                            "start": 2342,
+                            "end": 2344
+                          },
+                          "ctxt": 1,
+                          "value": "h1",
+                          "optional": false
+                        }
+                      }
+                    },
+                    {
+                      "type": "JSXText",
+                      "span": {
+                        "start": 2345,
+                        "end": 2352
+                      },
+                      "value": "\n      ",
+                      "raw": "\n      "
+                    },
+                    {
+                      "type": "JSXElement",
+                      "span": {
+                        "start": 2352,
+                        "end": 2536
+                      },
+                      "opening": {
+                        "type": "JSXOpeningElement",
+                        "name": {
+                          "type": "Identifier",
+                          "span": {
+                            "start": 2353,
+                            "end": 2354
+                          },
+                          "ctxt": 1,
+                          "value": "p",
+                          "optional": false
+                        },
+                        "span": {
+                          "start": 2352,
+                          "end": 2355
+                        },
+                        "attributes": [],
+                        "selfClosing": false,
+                        "typeArguments": null
+                      },
+                      "children": [
+                        {
+                          "type": "JSXText",
+                          "span": {
+                            "start": 2355,
+                            "end": 2532
+                          },
+                          "value": "\n        Unlike web applications, bot states cannot be stored directly in the\n        application. Instead, Rx-Lab utilizes external storage for state\n        management.\n      ",
+                          "raw": "\n        Unlike web applications, bot states cannot be stored directly in the\n        application. Instead, Rx-Lab utilizes external storage for state\n        management.\n      "
+                        }
+                      ],
+                      "closing": {
+                        "type": "JSXClosingElement",
+                        "span": {
+                          "start": 2532,
+                          "end": 2536
+                        },
+                        "name": {
+                          "type": "Identifier",
+                          "span": {
+                            "start": 2534,
+                            "end": 2535
+                          },
+                          "ctxt": 1,
+                          "value": "p",
+                          "optional": false
+                        }
+                      }
+                    },
+                    {
+                      "type": "JSXText",
+                      "span": {
+                        "start": 2536,
+                        "end": 2543
+                      },
+                      "value": "\n      ",
+                      "raw": "\n      "
+                    },
+                    {
+                      "type": "JSXElement",
+                      "span": {
+                        "start": 2543,
+                        "end": 2673
+                      },
+                      "opening": {
+                        "type": "JSXOpeningElement",
+                        "name": {
+                          "type": "Identifier",
+                          "span": {
+                            "start": 2544,
+                            "end": 2548
+                          },
+                          "ctxt": 1,
+                          "value": "menu",
+                          "optional": false
+                        },
+                        "span": {
+                          "start": 2543,
+                          "end": 2549
+                        },
+                        "attributes": [],
+                        "selfClosing": false,
+                        "typeArguments": null
+                      },
+                      "children": [
+                        {
+                          "type": "JSXText",
+                          "span": {
+                            "start": 2549,
+                            "end": 2558
+                          },
+                          "value": "\n        ",
+                          "raw": "\n        "
+                        },
+                        {
+                          "type": "JSXElement",
+                          "span": {
+                            "start": 2558,
+                            "end": 2659
+                          },
+                          "opening": {
+                            "type": "JSXOpeningElement",
+                            "name": {
+                              "type": "Identifier",
+                              "span": {
+                                "start": 2559,
+                                "end": 2562
+                              },
+                              "ctxt": 1,
+                              "value": "div",
+                              "optional": false
+                            },
+                            "span": {
+                              "start": 2558,
+                              "end": 2563
+                            },
+                            "attributes": [],
+                            "selfClosing": false,
+                            "typeArguments": null
+                          },
+                          "children": [
+                            {
+                              "type": "JSXText",
+                              "span": {
+                                "start": 2563,
+                                "end": 2574
+                              },
+                              "value": "\n          ",
+                              "raw": "\n          "
+                            },
+                            {
+                              "type": "JSXElement",
+                              "span": {
+                                "start": 2574,
+                                "end": 2644
+                              },
+                              "opening": {
+                                "type": "JSXOpeningElement",
+                                "name": {
+                                  "type": "Identifier",
+                                  "span": {
+                                    "start": 2575,
+                                    "end": 2588
+                                  },
+                                  "ctxt": 2,
+                                  "value": "CommandButton",
+                                  "optional": false
+                                },
+                                "span": {
+                                  "start": 2574,
+                                  "end": 2616
+                                },
+                                "attributes": [
+                                  {
+                                    "type": "JSXAttribute",
+                                    "span": {
+                                      "start": 2589,
+                                      "end": 2615
+                                    },
+                                    "name": {
+                                      "type": "Identifier",
+                                      "span": {
+                                        "start": 2589,
+                                        "end": 2596
+                                      },
+                                      "value": "command"
+                                    },
+                                    "value": {
+                                      "type": "JSXExpressionContainer",
+                                      "span": {
+                                        "start": 2597,
+                                        "end": 2615
+                                      },
+                                      "expression": {
+                                        "type": "StringLiteral",
+                                        "span": {
+                                          "start": 2598,
+                                          "end": 2614
+                                        },
+                                        "value": "/state/counter",
+                                        "raw": "\"/state/counter\""
+                                      }
+                                    }
+                                  }
+                                ],
+                                "selfClosing": false,
+                                "typeArguments": null
+                              },
+                              "children": [
+                                {
+                                  "type": "JSXText",
+                                  "span": {
+                                    "start": 2616,
+                                    "end": 2628
+                                  },
+                                  "value": "Counter Demo",
+                                  "raw": "Counter Demo"
+                                }
+                              ],
+                              "closing": {
+                                "type": "JSXClosingElement",
+                                "span": {
+                                  "start": 2628,
+                                  "end": 2644
+                                },
+                                "name": {
+                                  "type": "Identifier",
+                                  "span": {
+                                    "start": 2630,
+                                    "end": 2643
+                                  },
+                                  "ctxt": 2,
+                                  "value": "CommandButton",
+                                  "optional": false
+                                }
+                              }
+                            },
+                            {
+                              "type": "JSXText",
+                              "span": {
+                                "start": 2644,
+                                "end": 2653
+                              },
+                              "value": "\n        ",
+                              "raw": "\n        "
+                            }
+                          ],
+                          "closing": {
+                            "type": "JSXClosingElement",
+                            "span": {
+                              "start": 2653,
+                              "end": 2659
+                            },
+                            "name": {
+                              "type": "Identifier",
+                              "span": {
+                                "start": 2655,
+                                "end": 2658
+                              },
+                              "ctxt": 1,
+                              "value": "div",
+                              "optional": false
+                            }
+                          }
+                        },
+                        {
+                          "type": "JSXText",
+                          "span": {
+                            "start": 2659,
+                            "end": 2666
+                          },
+                          "value": "\n      ",
+                          "raw": "\n      "
+                        }
+                      ],
+                      "closing": {
+                        "type": "JSXClosingElement",
+                        "span": {
+                          "start": 2666,
+                          "end": 2673
+                        },
+                        "name": {
+                          "type": "Identifier",
+                          "span": {
+                            "start": 2668,
+                            "end": 2672
+                          },
+                          "ctxt": 1,
+                          "value": "menu",
+                          "optional": false
+                        }
+                      }
+                    },
+                    {
+                      "type": "JSXText",
+                      "span": {
+                        "start": 2673,
+                        "end": 2678
+                      },
+                      "value": "\n    ",
+                      "raw": "\n    "
+                    }
+                  ],
+                  "closing": {
+                    "type": "JSXClosingElement",
+                    "span": {
+                      "start": 2678,
+                      "end": 2684
+                    },
+                    "name": {
+                      "type": "Identifier",
+                      "span": {
+                        "start": 2680,
+                        "end": 2683
+                      },
+                      "ctxt": 1,
+                      "value": "div",
+                      "optional": false
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "generator": false,
+        "async": false,
+        "typeParameters": null,
+        "returnType": null
+      }
+    }
+  ],
+  "interpreter": null
+}
