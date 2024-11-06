@@ -21,12 +21,12 @@ import { matchRoute, parseQuery } from "./router.utils";
  */
 export async function importRoute(info: RouteInfo): Promise<ImportedRoute> {
   return {
-    page: await info.page(),
+    page: await info.page().then((mod: any) => mod.default),
     route: info.route,
     subRoutes: info.subRoutes,
     metadata: info.metadata,
-    error: await info.error(),
-    "404": await info["404"](),
+    error: await info.error().then((mod: any) => mod.default),
+    "404": await info["404"]().then((mod: any) => mod.default),
   };
 }
 

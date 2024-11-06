@@ -11,7 +11,7 @@ export function getRspackConfig(
   return {
     entry: entry,
     output: {
-      filename: "index.js",
+      filename: "[name].js",
       chunkFilename: "chunks/[name].[contenthash].js",
       path: outputDir,
       // Change these output settings
@@ -58,9 +58,6 @@ export function getRspackConfig(
         sourceDir: sourceDir,
         outputDir: tempDir,
       }),
-      // new RemoveTempPlugin({
-      //   outputDir: outputDir,
-      // }),
     ],
   };
 }

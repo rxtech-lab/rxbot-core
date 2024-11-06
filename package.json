@@ -16,10 +16,14 @@
     "@types/node": "^22.4.2",
     "lerna": "^8.1.8",
     "prettier": "^3.2.5",
+    "syncpack": "12.3.2",
     "turbo": "2.0.6",
-    "typescript": "^5.5.4",
-    "syncpack": "12.3.2"
+    "typescript": "^5.5.4"
   },
   "packageManager": "pnpm@9.4.0",
-  "version": "^3.23.8"
+  "version": "^3.23.8",
+  "dependencies": {
+    "chokidar": "^4.0.1",
+    "webpack-watch-external-files-plugin": "^3.1.0"
+  }
 }
