@@ -314,7 +314,7 @@ export class Router {
     return {
       matchedRoute,
       queryString,
-      component: matchedRoute.page(),
+      component: matchedRoute.page,
       params: matchedRoute.params,
       path: matchedRoute.route,
       currentRoute: currentRoute,

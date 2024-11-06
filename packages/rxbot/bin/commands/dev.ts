@@ -10,14 +10,19 @@ import express from "express";
 import fs from "fs/promises";
 import { getRspackConfig, getSrcAndOutputDir } from "../utils";
 
-export default async function runDev(srcFolder = "./src") {
+export default async function runDev(srcFolder = "./src", outputFolder = "./") {
   try {
-    const { outputDir, tempFolder, cwd } = getSrcAndOutputDir(srcFolder);
+    const { outputDir, tempFolder, cwd } = getSrcAndOutputDir(
+      srcFolder,
+      outputFolder,
+    );
     await fs.rm(outputDir, { recursive: true, force: true });
     Logger.log(`Output will be in ${outputDir}`, "blue");
 
     // Default config
-    const defaultConfig = getRspackConfig(srcFolder, tempFolder, outputDir);
+    const defaultConfig = getRspackConfig(srcFolder, tempFolder, outputDir, {
+      hasAdapterFile: true,
+    });
 
     // Try to load user config
     let userConfig: RspackOptions = {};

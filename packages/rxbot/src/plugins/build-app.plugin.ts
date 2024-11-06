@@ -11,6 +11,10 @@ const PLUGIN_NAME = "BuildAppPlugin";
 interface PluginOptions {
   sourceDir: string;
   outputDir: string;
+  /**
+   * Should we compile the adapter.ts file? If this field is false, the adapter.ts file will be ignored.
+   */
+  hasAdapterFile: boolean;
 }
 export class BuildAppPlugin implements RspackPluginInstance {
   private readonly sourceDir: string;

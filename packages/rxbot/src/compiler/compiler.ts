@@ -35,6 +35,10 @@ export interface CompilerOptions {
    * Output directory for the compiled source code
    */
   destinationDir?: string;
+  /**
+   * Has the adapter file
+   */
+  hasAdapterFile?: boolean;
 }
 
 const PAGE_FILE_PATTERN = "app/**/page.tsx";
@@ -490,7 +494,10 @@ export class Compiler extends CompilerUtils {
       routes: info as any,
     };
     nunjucks.configure({ autoescape: false });
-    const output = nunjucks.renderString(METADATA_FILE_TEMPLATE, file);
+    const output = nunjucks.renderString(METADATA_FILE_TEMPLATE, {
+      ...file,
+      hasAdapterFile: this.options.hasAdapterFile,
+    });
     fs.writeFileSync(outputPath, output);
 
     Logger.log(`Route metadata written to ${outputPath}`, "green");

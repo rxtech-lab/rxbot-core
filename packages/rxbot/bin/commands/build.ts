@@ -6,14 +6,23 @@ import { Logger } from "@rx-lab/common";
 import { getRspackConfig, getSrcAndOutputDir } from "../utils";
 
 // Build command
-export default async function runBuild(srcFolder = "./src") {
+export default async function runBuild(
+  srcFolder = "./src",
+  outputFolder = "./",
+  hasAdapterFile = true,
+) {
   return new Promise((resolve, reject) => {
     try {
       // Get the current working directory
-      const { outputDir, tempFolder, cwd } = getSrcAndOutputDir(srcFolder);
+      const { outputDir, tempFolder, cwd } = getSrcAndOutputDir(
+        srcFolder,
+        outputFolder,
+      );
       Logger.log(`Output will be in ${outputDir}`, "blue");
       // Default config
-      const defaultConfig = getRspackConfig(srcFolder, tempFolder, outputDir);
+      const defaultConfig = getRspackConfig(srcFolder, tempFolder, outputDir, {
+        hasAdapterFile,
+      });
       // Try to load user config
       let userConfig: RspackOptions = {};
       const userConfigPath = path.resolve(cwd, "rspack.config.ts");

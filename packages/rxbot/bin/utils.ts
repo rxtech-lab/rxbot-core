@@ -6,6 +6,7 @@ export function getRspackConfig(
   sourceDir: string,
   tempDir: string,
   outputDir: string,
+  options: { hasAdapterFile: boolean },
 ): RspackOptions {
   const entry = path.resolve(tempDir, "index.ts");
   return {
@@ -57,14 +58,15 @@ export function getRspackConfig(
       new BuildAppPlugin({
         sourceDir: sourceDir,
         outputDir: tempDir,
+        hasAdapterFile: options.hasAdapterFile,
       }),
     ],
   };
 }
 
-export function getSrcAndOutputDir(srcFolder: string) {
+export function getSrcAndOutputDir(srcFolder: string, outputFolder: string) {
   const cwd = process.cwd();
-  const outputDir = path.resolve(".rx-lab");
+  const outputDir = path.resolve(outputFolder, ".rx-lab");
   const tempFolder = path.resolve(outputDir, "temp");
   return { cwd, srcFolder, tempFolder, outputDir };
 }
