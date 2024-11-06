@@ -64,3 +64,10 @@ export function getRspackConfig(
     ],
   };
 }
+
+export function getSrcAndOutputDir(srcFolder: string) {
+  const cwd = process.cwd();
+  const outputDir = path.resolve(".rx-lab");
+  const tempFolder = path.resolve(outputDir, "temp");
+  return { cwd, srcFolder, tempFolder, outputDir };
+}

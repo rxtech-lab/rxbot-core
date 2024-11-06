@@ -18,9 +18,12 @@
   "dependencies": {
     "@rspack/cli": "^1.0.14",
     "@rspack/core": "^1.0.14",
+    "@rspack/dev-server": "^1.0.9",
     "@rx-lab/common": "workspace:*",
     "@swc/core": "^1.7.10",
+    "@types/express": "^5.0.0",
     "@types/jest": "^29.5.12",
+    "express": "^4.21.1",
     "glob": "^11.0.0"
   },
   "devDependencies": {

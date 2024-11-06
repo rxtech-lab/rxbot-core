@@ -3,16 +3,14 @@ import path from "path";
 import { defineConfig } from "@rspack/cli";
 import { RspackOptions, rspack } from "@rspack/core";
 import { Logger } from "@rx-lab/common";
-import { getRspackConfig } from "../utils";
+import { getRspackConfig, getSrcAndOutputDir } from "../utils";
 
 // Build command
-export async function runBuild(srcFolder = "./src") {
+export default async function runBuild(srcFolder = "./src") {
   return new Promise((resolve, reject) => {
     try {
       // Get the current working directory
-      const cwd = process.cwd();
-      const outputDir = path.resolve(".rx-lab");
-      const tempFolder = path.resolve(outputDir, "temp");
+      const { outputDir, tempFolder, cwd } = getSrcAndOutputDir(srcFolder);
       Logger.log(`Output will be in ${outputDir}`, "blue");
       // Default config
       const defaultConfig = getRspackConfig(srcFolder, tempFolder);

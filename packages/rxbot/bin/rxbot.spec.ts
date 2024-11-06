@@ -1,6 +1,6 @@
 import { Logger } from "@rx-lab/common";
 
-import { runBuild } from "./commands/build";
+import build from "./commands/build";
 import { runRxbot } from "./run-command";
 
 jest.mock("@rx-lab/common");
@@ -15,7 +15,7 @@ describe("runRxbot", () => {
     process.argv = ["node", "rxbot", "build"];
     await runRxbot();
     expect(Logger.log).toHaveBeenCalledWith("Running command build", "blue");
-    expect(runBuild).toHaveBeenCalled();
+    expect(build).toHaveBeenCalled();
   });
 
   it("should log an error for an unknown command", async () => {
