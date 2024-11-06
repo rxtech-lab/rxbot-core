@@ -1,5 +1,6 @@
 import { Logger } from "@rx-lab/common";
-import { runBuild } from "./commands/build";
+import build from "./commands/build";
+import dev from "./commands/dev";
 
 export async function runRxbot() {
   // get user command
@@ -11,7 +12,11 @@ export async function runRxbot() {
   switch (command) {
     case "build":
       Logger.log(`Running command ${command}`, "blue");
-      await runBuild();
+      await build();
+      break;
+    case "dev":
+      Logger.log(`Running command ${command}`, "blue");
+      await dev();
       break;
     default:
       Logger.log(`Command ${command} not found`, "red");

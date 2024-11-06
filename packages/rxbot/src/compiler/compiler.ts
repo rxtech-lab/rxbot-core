@@ -7,17 +7,24 @@ import {
   ROUTE_METADATA_TS_FILE,
   RouteInfo,
   RouteInfoFile,
+  RouteMetadata,
   SpecialRouteType,
 } from "@rx-lab/common";
 import * as swc from "@swc/core";
 import { glob } from "glob";
-import * as nunjucks from "nunjucks";
+import nunjucks from "nunjucks";
 import {
   DEFAULT_404_PAGE,
   DEFAULT_ERROR_PAGE,
+  DEFAULT_PAGE,
   METADATA_FILE_TEMPLATE,
 } from "./templates";
-import { isTypeScript, parseSourceCode, readMetadata } from "./utils";
+import {
+  generateClientComponentTag,
+  isTypeScript,
+  parseSourceCode,
+  readMetadata,
+} from "./utils";
 
 export interface CompilerOptions {
   /**
@@ -42,11 +49,36 @@ export type RoutePath = {
   subRoutes: RoutePath[];
 };
 
+type PageRelatedFile = {
+  metadata?: RouteMetadata;
+  path: string;
+};
+
+type ErrorRelatedFile = {
+  path: string;
+};
+
+type NotFoundRelatedFile = {
+  path: string;
+};
+
 export interface BuildSourceCodeOutput {
+  /**
+   * Built source code
+   */
+  code: string;
   /**
    * The abstract syntax tree of the source code
    */
   ast: swc.Module;
+  /**
+   * The path to the compiled source code
+   */
+  outputFilePath: string;
+  /**
+   * The directory where the compiled source code is located
+   */
+  outputDir: string;
   /**
    * The path to the source code
    */
@@ -56,32 +88,13 @@ export interface BuildSourceCodeOutput {
 export type AppRelatedFileType = "page";
 
 //Add more special files here
-export const SPECIAL_FILES: RegExp[] = [
-  // 404.tsx or 404.js
-  /404\.(js|tsx)/,
-  // error.tsx or error.js
-  /error\.(js|tsx)/,
-  // page.tsx or page.js
-  /page\.(js|tsx)/,
-];
+export const SPECIAL_FILES = ["404.js", "page.js", "error.js"];
 
 export class CompilerUtils {
   constructor(
     protected readonly sourceDir: string,
     protected readonly destinationDir: string,
   ) {}
-
-  /**
-   * Given a path, add a relative path to it. Only add a relative path if the path not starts with a slash.
-   * @param path Path to add relative path to
-   * @protected
-   */
-  protected addRelativePathToPath(path: string) {
-    if (path.startsWith("/")) {
-      return path;
-    }
-    return `./${path}`;
-  }
 
   /**
    * Add default special pages to the root path if they don't exist.
@@ -97,10 +110,9 @@ export class CompilerUtils {
     );
 
     const { outputDir, outputFileName } = this.getOutputPath(`page.tsx`);
-    const appImportPath = "./" + path.join(APP_FOLDER, outputFileName);
     const rootRoute = copiedRoutes[rootRouteIndex] ?? {
       route: DEFAULT_ROOT_ROUTE,
-      page: appImportPath,
+      page: path.join(outputDir, APP_FOLDER, outputFileName),
       subRoutes: [],
     };
 
@@ -110,13 +122,12 @@ export class CompilerUtils {
         APP_FOLDER,
         `404${OUTPUT_FILE_EXTENSION}`,
       );
-      const importPath = path.join(APP_FOLDER, `404${OUTPUT_FILE_EXTENSION}`);
       await this.addAndCompileSpecialPages(
         output404Path,
         path.join(outputDir, APP_FOLDER),
         DEFAULT_404_PAGE,
       );
-      rootRoute["404"] = "./" + importPath;
+      rootRoute["404"] = output404Path;
     }
 
     if (!rootRoute.error) {
@@ -125,17 +136,22 @@ export class CompilerUtils {
         APP_FOLDER,
         `error${OUTPUT_FILE_EXTENSION}`,
       );
-      const importPath = path.join(APP_FOLDER, `error${OUTPUT_FILE_EXTENSION}`);
       await this.addAndCompileSpecialPages(
         outputErrorPath,
         path.join(outputDir, APP_FOLDER),
         DEFAULT_ERROR_PAGE,
       );
-      rootRoute.error = "./" + importPath;
+      rootRoute.error = outputErrorPath;
     }
 
     if (rootRouteIndex === -1) {
       // write page.js file
+      const outputPagePath = path.join(outputDir, APP_FOLDER, outputFileName);
+      await this.addAndCompileSpecialPages(
+        outputPagePath,
+        path.join(outputDir, APP_FOLDER),
+        DEFAULT_PAGE,
+      );
       rootRoute.subRoutes = copiedRoutes;
       copiedRoutes = [rootRoute];
     } else {
@@ -217,14 +233,39 @@ export class CompilerUtils {
   async buildSourceCode(
     sourceCodePath: string,
   ): Promise<BuildSourceCodeOutput> {
+    const { outputDir, outputFileName } = this.getOutputPath(sourceCodePath);
     const srcCode = fs.readFileSync(sourceCodePath, "utf-8");
+    const outputFile = path.join(outputDir, outputFileName);
+    const result = await swc.transformFile(sourceCodePath, {
+      jsc: {
+        target: "es2016",
+        transform: {
+          react: {
+            runtime: "automatic",
+          },
+        },
+      },
+      module: {
+        type: "commonjs",
+      },
+    });
+
+    let codeToWrite = result.code;
     const ast = await parseSourceCode(
       isTypeScript(sourceCodePath) ? "typescript" : "javascript",
       srcCode,
     );
+    const clientTag = await generateClientComponentTag(ast);
+    if (clientTag) {
+      codeToWrite = codeToWrite + clientTag;
+    }
+
     return {
+      code: codeToWrite,
       ast,
       sourceCodePath,
+      outputFilePath: outputFile,
+      outputDir,
     };
   }
 
@@ -265,7 +306,7 @@ export class CompilerUtils {
    */
   private async getAllTsFilesInDir(dir: string) {
     return glob.glob("**/*.ts*", {
-      cwd: path.join(dir, APP_FOLDER),
+      cwd: dir,
     });
   }
 
@@ -286,9 +327,14 @@ export class CompilerUtils {
     return await Promise.all(
       tsFiles.map(async (file) => {
         Logger.log(`Compiling ${file}`, "blue");
-        return await this.buildSourceCode(
-          path.join(this.sourceDir, APP_FOLDER, file),
+        const result = await this.buildSourceCode(
+          path.join(this.sourceDir, file),
         );
+        if (!fs.existsSync(result.outputDir)) {
+          fs.mkdirSync(result.outputDir, { recursive: true });
+        }
+        fs.writeFileSync(result.outputFilePath, result.code);
+        return result;
       }),
     );
   }
@@ -296,11 +342,25 @@ export class CompilerUtils {
 
 export class Compiler extends CompilerUtils {
   constructor(private readonly options: CompilerOptions) {
-    super(
-      options.rootDir,
-      options.destinationDir ??
-        path.join(options.rootDir, DEFAULT_DESTINATION_DIR),
+    const isAbsoluteRootDir = path.isAbsolute(options.rootDir);
+    const isAbsoluteDestinationDir = path.isAbsolute(
+      options.destinationDir ?? DEFAULT_DESTINATION_DIR,
     );
+    let rootDir = options.rootDir;
+    let destinationDir: string =
+      options.destinationDir ?? DEFAULT_DESTINATION_DIR;
+
+    if (!isAbsoluteRootDir) {
+      // join the rootDir with the current working directory
+      rootDir = path.join(process.cwd(), options.rootDir);
+    }
+
+    if (!isAbsoluteDestinationDir) {
+      // join the destinationDir with the current working directory
+      destinationDir = path.join(process.cwd(), destinationDir);
+    }
+
+    super(rootDir, destinationDir);
   }
 
   /**
@@ -316,8 +376,10 @@ export class Compiler extends CompilerUtils {
    */
   private findAvailablePages(artifacts: BuildSourceCodeOutput[]) {
     return artifacts
-      .filter((a) => SPECIAL_FILES.some((file) => file.test(a.sourceCodePath)))
-      .map((a) => a.sourceCodePath);
+      .filter((a) =>
+        SPECIAL_FILES.some((file) => a.outputFilePath.endsWith(file)),
+      )
+      .map((a) => a.outputFilePath);
   }
 
   /**
@@ -386,14 +448,10 @@ export class Compiler extends CompilerUtils {
    * // }
    */
   async compile(): Promise<RouteInfoFile> {
-    Logger.log(`Compiling project in ${this.options.rootDir}`, "blue");
-    if (fs.existsSync(this.options.destinationDir ?? DEFAULT_DESTINATION_DIR)) {
+    if (fs.existsSync(this.destinationDir)) {
       // remove the output directory
-      Logger.log(
-        `Removing ${this.options.destinationDir ?? DEFAULT_DESTINATION_DIR}`,
-        "yellow",
-      );
-      fs.rmSync(this.options.destinationDir ?? DEFAULT_DESTINATION_DIR, {
+      Logger.log(`Removing ${this.destinationDir}`, "yellow");
+      fs.rmSync(this.destinationDir, {
         force: true,
         recursive: true,
       });
@@ -426,17 +484,15 @@ export class Compiler extends CompilerUtils {
       info = [rootInfo];
     }
 
-    // create route-metadata.ts file if it doesn't exist
-    const outputPath = path.join(
-      this.options.destinationDir ?? DEFAULT_DESTINATION_DIR,
-      ROUTE_METADATA_TS_FILE,
-    );
+    // create route-metadata.json file if it doesn't exist
+    const outputPath = path.join(this.destinationDir, ROUTE_METADATA_TS_FILE);
     const file: RouteInfoFile = {
       routes: info,
     };
     nunjucks.configure({ autoescape: false });
     const output = nunjucks.renderString(METADATA_FILE_TEMPLATE, file);
     fs.writeFileSync(outputPath, output);
+
     Logger.log(`Route metadata written to ${outputPath}`, "green");
     return file;
   }
@@ -473,7 +529,7 @@ export class Compiler extends CompilerUtils {
     const notFoundPage = route["404"] ?? parent?.["404"];
     const errorPage = route.error ?? parent?.error;
     const outputPageFile = await this.buildAppRelatedFiles(
-      artifacts.find((a) => "./" + a.sourceCodePath === route.page)!,
+      artifacts.find((a) => a.outputFilePath === route.page)!,
       "page",
     );
     const subPages = (
@@ -543,33 +599,28 @@ export class Compiler extends CompilerUtils {
     let specialPage: string | undefined;
     if (type === "error") {
       specialPage = path.join(
-        this.options.rootDir,
+        this.destinationDir,
         APP_FOLDER,
         route,
-        "error.tsx",
+        "error.js",
       );
     }
 
     if (type === "404") {
-      specialPage = path.join(
-        this.options.rootDir,
-        APP_FOLDER,
-        route,
-        "404.tsx",
-      );
+      specialPage = path.join(this.destinationDir, APP_FOLDER, route, "404.js");
     }
 
     if (type === "page") {
       specialPage = path.join(
-        this.options.rootDir,
+        this.destinationDir,
         APP_FOLDER,
         route,
-        "page.tsx",
+        "page.js",
       );
     }
 
     const specialPageExists = artifacts.find(
-      (a) => path.relative(a.sourceCodePath, specialPage ?? "") === "",
+      (a) => path.relative(a.outputFilePath, specialPage ?? "") === "",
     );
     return specialPageExists ? specialPage : undefined;
   }
@@ -589,12 +640,12 @@ export class Compiler extends CompilerUtils {
    * console.log(routePath);
    * // Output: { route: "/home", page: "/path/to/project/app/home/page.tsx", subRoutes: [] }
    */
-  createRoutePath(
+  private createRoutePath(
     filePath: string,
     artifacts: BuildSourceCodeOutput[],
   ): RoutePath {
     const normalizedPath = filePath.replace(/\\/g, "/");
-    const relativePath = path.relative(this.options.rootDir, normalizedPath);
+    const relativePath = path.relative(this.destinationDir, normalizedPath);
     const parts = relativePath.split("/");
     const routeParts = parts.slice(0, -1); // Exclude the file name part
     const route = `/${routeParts.filter((r) => r !== APP_FOLDER).join("/")}`;
@@ -605,10 +656,10 @@ export class Compiler extends CompilerUtils {
 
     return {
       route,
-      page: pageFile ? this.addRelativePathToPath(pageFile) : undefined,
+      page: pageFile,
       subRoutes: [],
-      404: notFoundPage ? this.addRelativePathToPath(notFoundPage) : undefined,
-      error: errorPage ? this.addRelativePathToPath(errorPage) : undefined,
+      404: notFoundPage,
+      error: errorPage,
     };
   }
 

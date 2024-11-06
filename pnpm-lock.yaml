@@ -375,19 +375,28 @@ importers:
     dependencies:
       '@rspack/cli':
         specifier: ^1.0.14
-        version: 1.0.14(@rspack/core@1.0.14)(@types/express@4.17.21)
+        version: 1.0.14(@rspack/core@1.0.14)(@types/express@5.0.0)
       '@rspack/core':
         specifier: ^1.0.14
         version: 1.0.14
+      '@rspack/dev-server':
+        specifier: ^1.0.9
+        version: 1.0.9(@rspack/core@1.0.14)(@types/express@5.0.0)
       '@rx-lab/common':
         specifier: workspace:*
         version: link:../common
       '@swc/core':
         specifier: ^1.7.10
         version: 1.7.14
+      '@types/express':
+        specifier: ^5.0.0
+        version: 5.0.0
       '@types/jest':
         specifier: ^29.5.12
         version: 29.5.12
+      express:
+        specifier: ^4.21.1
+        version: 4.21.1
       glob:
         specifier: ^11.0.0
         version: 11.0.0
@@ -401,6 +410,9 @@ importers:
       nunjucks:
         specifier: ^3.2.4
         version: 3.2.4(chokidar@3.6.0)
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
       ts-jest:
         specifier: ^29.1.4
         version: 29.1.4(@babel/core@7.23.3)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.23.3))(jest@29.7.0(@types/node@22.4.2)(ts-node@10.9.2(@swc/core@1.7.14)(@types/node@22.4.2)(typescript@5.5.4)))(typescript@5.5.4)
@@ -1573,6 +1585,11 @@ packages:
     peerDependencies:
       '@rspack/core': '*'
 
+  '@rspack/dev-server@1.0.9':
+    resolution: {integrity: sha512-VF+apLFfl5LWIhVbfkJ5ccU0Atl5mi+sGTkx+XtE1tbUmMJkde0nm/4+eaQCud7oGl+ZCzt4kW14uuzLSiEGDw==}
+    peerDependencies:
+      '@rspack/core': '*'
+
   '@rspack/lite-tapable@1.0.1':
     resolution: {integrity: sha512-VynGOEsVw2s8TAlLf/uESfrgfrq2+rcXB1muPJYBWbsm1Oa6r5qVQhjA5ggM6z/coYPrsVMgovl3Ff7Q7OCp1w==}
     engines: {node: '>=16.0.0'}
@@ -1879,6 +1896,9 @@ packages:
 
   '@types/express@4.17.21':
     resolution: {integrity: sha512-ejlPM315qwLpaQlQDTjPdsUFSc6ZsP4AN6AlWnogPjQ7CVi7PYF3YVz+CY3jE2pwYf7E/7HlDAN0rV2GxTG0HQ==}
+
+  '@types/express@5.0.0':
+    resolution: {integrity: sha512-DvZriSMehGHL1ZNLzi6MidnsDhUZM/x2pRdDIKdwbUNqqwHxMlRdkxtn6/EPKyqKpHqTl/4nRZsRNLpZxZRpPQ==}
 
   '@types/glob@8.1.0':
     resolution: {integrity: sha512-IO+MJPVhoqz+28h1qLAcBEH2+xHMK6MTyHJc7MTnnYb6wsoLR29POVGJ7LycmVXIqyy/4/2ShP5sUwTXuOwb/w==}
@@ -6050,10 +6070,6 @@ packages:
   set-cookie-parser@2.6.0:
     resolution: {integrity: sha512-RVnVQxTXuerk653XfuliOxBP81Sf0+qfQE73LIYKcyMYHG94AuH0kgrQpRDuTZnSmjpysHmzxJXKNfa6PjFhyQ==}
 
-  set-function-length@1.1.1:
-    resolution: {integrity: sha512-VoaqjbBJKiWtg4yRcKBQ7g7wnGnLV3M8oLvVWwOk2PdYY6PEFegR1vezXR0tw6fZGF9csVakIRjrJiy2veSBFQ==}
-    engines: {node: '>= 0.4'}
-
   set-function-length@1.2.2:
     resolution: {integrity: sha512-pgRc4hJ4/sNjWCSS9AmnS40x3bNMDTknHgL5UaMBTMyJnU90EgWh1Rz+MC9eFu4BuN/UwZjKQuY/1v3rM7HMfg==}
     engines: {node: '>= 0.4'}
@@ -6100,9 +6116,6 @@ packages:
 
   should@13.2.3:
     resolution: {integrity: sha512-ggLesLtu2xp+ZxI+ysJTmNjh2U0TsC+rQ/pfED9bUZZ4DKefP27D+7YJVVTvKsmjLpIi9jAa7itwDGkDDmt1GQ==}
-
-  side-channel@1.0.4:
-    resolution: {integrity: sha512-q5XPytqFEIKHkGdiMIrY10mvLRvnQh42/+GoBlFW3b2LXLE2xxJpZFdm94we0BaoV3RwJyGqg5wS7epxTv0Zvw==}
 
   side-channel@1.0.6:
     resolution: {integrity: sha512-fDW/EZ6Q9RiO8eFG8Hj+7u/oW+XrPTIChwCOM2+th2A6OblDtYYIpve9m+KvI9Z4C9qSEXlaGR6bTEYHReuglA==}
@@ -7581,7 +7594,7 @@ snapshots:
       '@babel/helper-split-export-declaration': 7.22.6
       '@babel/parser': 7.23.3
       '@babel/types': 7.23.3
-      debug: 4.3.4
+      debug: 4.3.6
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -8464,11 +8477,11 @@ snapshots:
       '@rspack/binding-win32-ia32-msvc': 1.0.14
       '@rspack/binding-win32-x64-msvc': 1.0.14
 
-  '@rspack/cli@1.0.14(@rspack/core@1.0.14)(@types/express@4.17.21)':
+  '@rspack/cli@1.0.14(@rspack/core@1.0.14)(@types/express@5.0.0)':
     dependencies:
       '@discoveryjs/json-ext': 0.5.7
       '@rspack/core': 1.0.14
-      '@rspack/dev-server': 1.0.5(@rspack/core@1.0.14)(@types/express@4.17.21)
+      '@rspack/dev-server': 1.0.5(@rspack/core@1.0.14)(@types/express@5.0.0)
       colorette: 2.0.19
       exit-hook: 3.2.0
       interpret: 3.1.1
@@ -8492,13 +8505,34 @@ snapshots:
       '@rspack/lite-tapable': 1.0.1
       caniuse-lite: 1.0.30001634
 
-  '@rspack/dev-server@1.0.5(@rspack/core@1.0.14)(@types/express@4.17.21)':
+  '@rspack/dev-server@1.0.5(@rspack/core@1.0.14)(@types/express@5.0.0)':
     dependencies:
       '@rspack/core': 1.0.14
       chokidar: 3.6.0
       connect-history-api-fallback: 2.0.0
       express: 4.21.1
-      http-proxy-middleware: 2.0.7(@types/express@4.17.21)
+      http-proxy-middleware: 2.0.7(@types/express@5.0.0)
+      mime-types: 2.1.35
+      p-retry: 4.6.2
+      webpack-dev-middleware: 7.4.2
+      webpack-dev-server: 5.0.4
+      ws: 8.18.0
+    transitivePeerDependencies:
+      - '@types/express'
+      - bufferutil
+      - debug
+      - supports-color
+      - utf-8-validate
+      - webpack
+      - webpack-cli
+
+  '@rspack/dev-server@1.0.9(@rspack/core@1.0.14)(@types/express@5.0.0)':
+    dependencies:
+      '@rspack/core': 1.0.14
+      chokidar: 3.6.0
+      connect-history-api-fallback: 2.0.0
+      express: 4.21.1
+      http-proxy-middleware: 2.0.7(@types/express@5.0.0)
       mime-types: 2.1.35
       p-retry: 4.6.2
       webpack-dev-middleware: 7.4.2
@@ -8837,6 +8871,13 @@ snapshots:
       '@types/qs': 6.9.16
       '@types/serve-static': 1.15.7
 
+  '@types/express@5.0.0':
+    dependencies:
+      '@types/body-parser': 1.19.5
+      '@types/express-serve-static-core': 5.0.1
+      '@types/qs': 6.9.16
+      '@types/serve-static': 1.15.7
+
   '@types/glob@8.1.0':
     dependencies:
       '@types/minimatch': 5.1.2
@@ -8957,7 +8998,7 @@ snapshots:
 
   '@types/serve-index@1.9.4':
     dependencies:
-      '@types/express': 4.17.21
+      '@types/express': 5.0.0
 
   '@types/serve-static@1.15.7':
     dependencies:
@@ -9072,7 +9113,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/typescript-estree': 6.17.0(typescript@5.5.4)
       '@typescript-eslint/utils': 6.17.0(eslint@8.57.0)(typescript@5.5.4)
-      debug: 4.3.4
+      debug: 4.3.6
       eslint: 8.57.0
       ts-api-utils: 1.0.2(typescript@5.5.4)
     optionalDependencies:
@@ -9102,7 +9143,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 5.62.0
       '@typescript-eslint/visitor-keys': 5.62.0
-      debug: 4.3.4
+      debug: 4.3.6
       globby: 11.1.0
       is-glob: 4.0.3
       semver: 7.6.0
@@ -9116,7 +9157,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 6.17.0
       '@typescript-eslint/visitor-keys': 6.17.0
-      debug: 4.3.4
+      debug: 4.3.6
       globby: 11.1.0
       is-glob: 4.0.3
       minimatch: 9.0.3
@@ -9345,7 +9386,7 @@ snapshots:
 
   agent-base@6.0.2:
     dependencies:
-      debug: 4.3.4
+      debug: 4.3.6
     transitivePeerDependencies:
       - supports-color
 
@@ -9482,7 +9523,7 @@ snapshots:
 
   array-buffer-byte-length@1.0.0:
     dependencies:
-      call-bind: 1.0.5
+      call-bind: 1.0.7
       is-array-buffer: 3.0.2
 
   array-buffer-byte-length@1.0.1:
@@ -9547,10 +9588,10 @@ snapshots:
   arraybuffer.prototype.slice@1.0.2:
     dependencies:
       array-buffer-byte-length: 1.0.0
-      call-bind: 1.0.5
+      call-bind: 1.0.7
       define-properties: 1.2.1
       es-abstract: 1.22.3
-      get-intrinsic: 1.2.2
+      get-intrinsic: 1.2.4
       is-array-buffer: 3.0.2
       is-shared-array-buffer: 1.0.2
 
@@ -9853,8 +9894,8 @@ snapshots:
   call-bind@1.0.5:
     dependencies:
       function-bind: 1.1.2
-      get-intrinsic: 1.2.2
-      set-function-length: 1.1.1
+      get-intrinsic: 1.2.4
+      set-function-length: 1.2.2
 
   call-bind@1.0.7:
     dependencies:
@@ -10296,7 +10337,7 @@ snapshots:
 
   define-data-property@1.1.1:
     dependencies:
-      get-intrinsic: 1.2.2
+      get-intrinsic: 1.2.4
       gopd: 1.0.1
       has-property-descriptors: 1.0.1
 
@@ -10455,18 +10496,18 @@ snapshots:
       array-buffer-byte-length: 1.0.0
       arraybuffer.prototype.slice: 1.0.2
       available-typed-arrays: 1.0.5
-      call-bind: 1.0.5
+      call-bind: 1.0.7
       es-set-tostringtag: 2.0.2
       es-to-primitive: 1.2.1
       function.prototype.name: 1.1.6
-      get-intrinsic: 1.2.2
+      get-intrinsic: 1.2.4
       get-symbol-description: 1.0.0
       globalthis: 1.0.3
       gopd: 1.0.1
       has-property-descriptors: 1.0.1
-      has-proto: 1.0.1
+      has-proto: 1.0.3
       has-symbols: 1.0.3
-      hasown: 2.0.0
+      hasown: 2.0.2
       internal-slot: 1.0.6
       is-array-buffer: 3.0.2
       is-callable: 1.2.7
@@ -10570,9 +10611,9 @@ snapshots:
 
   es-set-tostringtag@2.0.2:
     dependencies:
-      get-intrinsic: 1.2.2
+      get-intrinsic: 1.2.4
       has-tostringtag: 1.0.0
-      hasown: 2.0.0
+      hasown: 2.0.2
 
   es-set-tostringtag@2.0.3:
     dependencies:
@@ -11210,7 +11251,7 @@ snapshots:
 
   function.prototype.name@1.1.6:
     dependencies:
-      call-bind: 1.0.5
+      call-bind: 1.0.7
       define-properties: 1.2.1
       es-abstract: 1.22.3
       functions-have-names: 1.2.3
@@ -11226,9 +11267,9 @@ snapshots:
   get-intrinsic@1.2.2:
     dependencies:
       function-bind: 1.1.2
-      has-proto: 1.0.1
+      has-proto: 1.0.3
       has-symbols: 1.0.3
-      hasown: 2.0.0
+      hasown: 2.0.2
 
   get-intrinsic@1.2.4:
     dependencies:
@@ -11257,8 +11298,8 @@ snapshots:
 
   get-symbol-description@1.0.0:
     dependencies:
-      call-bind: 1.0.5
-      get-intrinsic: 1.2.2
+      call-bind: 1.0.7
+      get-intrinsic: 1.2.4
 
   get-symbol-description@1.0.2:
     dependencies:
@@ -11385,7 +11426,7 @@ snapshots:
 
   gopd@1.0.1:
     dependencies:
-      get-intrinsic: 1.2.2
+      get-intrinsic: 1.2.4
 
   graceful-fs@4.2.11: {}
 
@@ -11423,7 +11464,7 @@ snapshots:
 
   has-property-descriptors@1.0.1:
     dependencies:
-      get-intrinsic: 1.2.2
+      get-intrinsic: 1.2.4
 
   has-property-descriptors@1.0.2:
     dependencies:
@@ -11503,7 +11544,7 @@ snapshots:
     dependencies:
       '@tootallnate/once': 2.0.0
       agent-base: 6.0.2
-      debug: 4.3.4
+      debug: 4.3.6
     transitivePeerDependencies:
       - supports-color
 
@@ -11523,6 +11564,18 @@ snapshots:
       micromatch: 4.0.5
     optionalDependencies:
       '@types/express': 4.17.21
+    transitivePeerDependencies:
+      - debug
+
+  http-proxy-middleware@2.0.7(@types/express@5.0.0):
+    dependencies:
+      '@types/http-proxy': 1.17.15
+      http-proxy: 1.18.1
+      is-glob: 4.0.3
+      is-plain-obj: 3.0.0
+      micromatch: 4.0.5
+    optionalDependencies:
+      '@types/express': 5.0.0
     transitivePeerDependencies:
       - debug
 
@@ -11551,7 +11604,7 @@ snapshots:
   https-proxy-agent@5.0.1:
     dependencies:
       agent-base: 6.0.2
-      debug: 4.3.4
+      debug: 4.3.6
     transitivePeerDependencies:
       - supports-color
 
@@ -11645,15 +11698,15 @@ snapshots:
 
   internal-slot@1.0.6:
     dependencies:
-      get-intrinsic: 1.2.2
-      hasown: 2.0.0
-      side-channel: 1.0.4
+      get-intrinsic: 1.2.4
+      hasown: 2.0.2
+      side-channel: 1.0.6
 
   internal-slot@1.0.7:
     dependencies:
       es-errors: 1.3.0
       hasown: 2.0.2
-      side-channel: 1.0.4
+      side-channel: 1.0.6
 
   interpret@3.1.1: {}
 
@@ -11668,8 +11721,8 @@ snapshots:
 
   is-array-buffer@3.0.2:
     dependencies:
-      call-bind: 1.0.5
-      get-intrinsic: 1.2.2
+      call-bind: 1.0.7
+      get-intrinsic: 1.2.4
       is-typed-array: 1.1.12
 
   is-array-buffer@3.0.4:
@@ -11693,7 +11746,7 @@ snapshots:
 
   is-boolean-object@1.1.2:
     dependencies:
-      call-bind: 1.0.5
+      call-bind: 1.0.7
       has-tostringtag: 1.0.0
 
   is-buffer@1.1.6: {}
@@ -11728,7 +11781,7 @@ snapshots:
 
   is-finalizationregistry@1.0.2:
     dependencies:
-      call-bind: 1.0.5
+      call-bind: 1.0.7
 
   is-fullwidth-code-point@3.0.0: {}
 
@@ -11790,14 +11843,14 @@ snapshots:
 
   is-regex@1.1.4:
     dependencies:
-      call-bind: 1.0.5
+      call-bind: 1.0.7
       has-tostringtag: 1.0.0
 
   is-set@2.0.2: {}
 
   is-shared-array-buffer@1.0.2:
     dependencies:
-      call-bind: 1.0.5
+      call-bind: 1.0.7
 
   is-shared-array-buffer@1.0.3:
     dependencies:
@@ -11845,12 +11898,12 @@ snapshots:
 
   is-weakref@1.0.2:
     dependencies:
-      call-bind: 1.0.5
+      call-bind: 1.0.7
 
   is-weakset@2.0.2:
     dependencies:
-      call-bind: 1.0.5
-      get-intrinsic: 1.2.2
+      call-bind: 1.0.7
+      get-intrinsic: 1.2.4
 
   is-wsl@2.2.0:
     dependencies:
@@ -11902,7 +11955,7 @@ snapshots:
 
   istanbul-lib-source-maps@4.0.1:
     dependencies:
-      debug: 4.3.4
+      debug: 4.3.6
       istanbul-lib-coverage: 3.2.2
       source-map: 0.6.1
     transitivePeerDependencies:
@@ -11916,7 +11969,7 @@ snapshots:
   iterator.prototype@1.1.2:
     dependencies:
       define-properties: 1.2.1
-      get-intrinsic: 1.2.2
+      get-intrinsic: 1.2.4
       has-symbols: 1.0.3
       reflect.getprototypeof: 1.0.4
       set-function-name: 2.0.1
@@ -13142,7 +13195,7 @@ snapshots:
 
   object.assign@4.1.4:
     dependencies:
-      call-bind: 1.0.5
+      call-bind: 1.0.7
       define-properties: 1.2.1
       has-symbols: 1.0.3
       object-keys: 1.1.1
@@ -13582,7 +13635,7 @@ snapshots:
 
   qs@6.10.4:
     dependencies:
-      side-channel: 1.0.4
+      side-channel: 1.0.6
 
   qs@6.13.0:
     dependencies:
@@ -13710,10 +13763,10 @@ snapshots:
 
   reflect.getprototypeof@1.0.4:
     dependencies:
-      call-bind: 1.0.5
+      call-bind: 1.0.7
       define-properties: 1.2.1
       es-abstract: 1.22.3
-      get-intrinsic: 1.2.2
+      get-intrinsic: 1.2.4
       globalthis: 1.0.3
       which-builtin-type: 1.1.3
 
@@ -13725,7 +13778,7 @@ snapshots:
 
   regexp.prototype.flags@1.5.1:
     dependencies:
-      call-bind: 1.0.5
+      call-bind: 1.0.7
       define-properties: 1.2.1
       set-function-name: 2.0.1
 
@@ -13853,8 +13906,8 @@ snapshots:
 
   safe-array-concat@1.0.1:
     dependencies:
-      call-bind: 1.0.5
-      get-intrinsic: 1.2.2
+      call-bind: 1.0.7
+      get-intrinsic: 1.2.4
       has-symbols: 1.0.3
       isarray: 2.0.5
 
@@ -13871,8 +13924,8 @@ snapshots:
 
   safe-regex-test@1.0.0:
     dependencies:
-      call-bind: 1.0.5
-      get-intrinsic: 1.2.2
+      call-bind: 1.0.7
+      get-intrinsic: 1.2.4
       is-regex: 1.1.4
 
   safe-regex-test@1.0.3:
@@ -13970,13 +14023,6 @@ snapshots:
 
   set-cookie-parser@2.6.0: {}
 
-  set-function-length@1.1.1:
-    dependencies:
-      define-data-property: 1.1.1
-      get-intrinsic: 1.2.2
-      gopd: 1.0.1
-      has-property-descriptors: 1.0.1
-
   set-function-length@1.2.2:
     dependencies:
       define-data-property: 1.1.4
@@ -14033,12 +14079,6 @@ snapshots:
       should-type: 1.4.0
       should-type-adaptors: 1.1.0
       should-util: 1.0.1
-
-  side-channel@1.0.4:
-    dependencies:
-      call-bind: 1.0.5
-      get-intrinsic: 1.2.2
-      object-inspect: 1.13.1
 
   side-channel@1.0.6:
     dependencies:
@@ -14245,11 +14285,11 @@ snapshots:
       internal-slot: 1.0.6
       regexp.prototype.flags: 1.5.1
       set-function-name: 2.0.1
-      side-channel: 1.0.4
+      side-channel: 1.0.6
 
   string.prototype.trim@1.2.8:
     dependencies:
-      call-bind: 1.0.5
+      call-bind: 1.0.7
       define-properties: 1.2.1
       es-abstract: 1.22.3
 
@@ -14262,7 +14302,7 @@ snapshots:
 
   string.prototype.trimend@1.0.7:
     dependencies:
-      call-bind: 1.0.5
+      call-bind: 1.0.7
       define-properties: 1.2.1
       es-abstract: 1.22.3
 
@@ -14274,7 +14314,7 @@ snapshots:
 
   string.prototype.trimstart@1.0.7:
     dependencies:
-      call-bind: 1.0.5
+      call-bind: 1.0.7
       define-properties: 1.2.1
       es-abstract: 1.22.3
 
@@ -14713,8 +14753,8 @@ snapshots:
 
   typed-array-buffer@1.0.0:
     dependencies:
-      call-bind: 1.0.5
-      get-intrinsic: 1.2.2
+      call-bind: 1.0.7
+      get-intrinsic: 1.2.4
       is-typed-array: 1.1.12
 
   typed-array-buffer@1.0.2:
@@ -14725,9 +14765,9 @@ snapshots:
 
   typed-array-byte-length@1.0.0:
     dependencies:
-      call-bind: 1.0.5
+      call-bind: 1.0.7
       for-each: 0.3.3
-      has-proto: 1.0.1
+      has-proto: 1.0.3
       is-typed-array: 1.1.12
 
   typed-array-byte-length@1.0.1:
@@ -14741,9 +14781,9 @@ snapshots:
   typed-array-byte-offset@1.0.0:
     dependencies:
       available-typed-arrays: 1.0.5
-      call-bind: 1.0.5
+      call-bind: 1.0.7
       for-each: 0.3.3
-      has-proto: 1.0.1
+      has-proto: 1.0.3
       is-typed-array: 1.1.12
 
   typed-array-byte-offset@1.0.2:
@@ -14757,7 +14797,7 @@ snapshots:
 
   typed-array-length@1.0.4:
     dependencies:
-      call-bind: 1.0.5
+      call-bind: 1.0.7
       for-each: 0.3.3
       is-typed-array: 1.1.12
 
@@ -14779,7 +14819,7 @@ snapshots:
 
   unbox-primitive@1.0.2:
     dependencies:
-      call-bind: 1.0.5
+      call-bind: 1.0.7
       has-bigints: 1.0.2
       has-symbols: 1.0.3
       which-boxed-primitive: 1.0.2
@@ -15021,7 +15061,7 @@ snapshots:
   which-typed-array@1.1.13:
     dependencies:
       available-typed-arrays: 1.0.5
-      call-bind: 1.0.5
+      call-bind: 1.0.7
       for-each: 0.3.3
       gopd: 1.0.1
       has-tostringtag: 1.0.0
