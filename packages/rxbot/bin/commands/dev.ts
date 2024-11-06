@@ -13,7 +13,7 @@ export default async function runDev(srcFolder = "./src") {
     Logger.log(`Output will be in ${outputDir}`, "blue");
 
     // Default config
-    const defaultConfig = getRspackConfig(srcFolder, tempFolder);
+    const defaultConfig = getRspackConfig(srcFolder, tempFolder, outputDir);
 
     // Try to load user config
     let userConfig: RspackOptions = {};
@@ -50,7 +50,10 @@ export default async function runDev(srcFolder = "./src") {
           app.use(express.json());
 
           // API endpoint
-          app.post("/api/send-message", (req, res) => {
+          app.post("/api/send-message", async (req, res) => {
+            //@ts-ignore
+            const mod = await import(path.resolve(outputDir, "index.js"));
+
             const body = req.body;
             // biome-ignore lint/suspicious/noConsoleLog: <explanation>
             console.log("Received message:", body);

@@ -13,7 +13,7 @@ export default async function runBuild(srcFolder = "./src") {
       const { outputDir, tempFolder, cwd } = getSrcAndOutputDir(srcFolder);
       Logger.log(`Output will be in ${outputDir}`, "blue");
       // Default config
-      const defaultConfig = getRspackConfig(srcFolder, tempFolder);
+      const defaultConfig = getRspackConfig(srcFolder, tempFolder, outputDir);
       // Try to load user config
       let userConfig: RspackOptions = {};
       const userConfigPath = path.resolve(cwd, "rspack.config.ts");
