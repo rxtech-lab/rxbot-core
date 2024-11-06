@@ -28,9 +28,9 @@ export default function Page() {
 export const METADATA_FILE_TEMPLATE = `{% macro renderSubRoutes(items) %}{% for subRoute in items %}
         {
           "route": "{{ subRoute.route }}",{% if subRoute.page %}
-          "page": () => import("{{ subRoute.page }}").then((module) => module.default()),{% endif %}
-          "404": () => import("{{ subRoute['404'] }}").then((module) => module.default()),
-          "error": () => import("{{ subRoute.error }}").then((module) => module.default()),{% if subRoute.isAsync is defined %}
+          "page": () => import("{{ subRoute.page }}"),{% endif %}
+          "404": () => import("{{ subRoute['404'] }}"),
+          "error": () => import("{{ subRoute.error }}"),{% if subRoute.isAsync is defined %}
           "metadata": {{ subRoute.metadata | dump }},{% endif %}{% if subRoute.subRoutes %}
           "subRoutes": [{{ renderSubRoutes(subRoute.subRoutes) }}]{% endif %}
         }{% if not loop.last %},{% endif %}{% endfor %}{% endmacro %}
@@ -39,11 +39,13 @@ export const ROUTE_FILE = {
   "routes": [{% for route in routes -%}
     {
       "route": "{{ route.route }}",{% if route.page %}
-      "page": () => import("{{ route.page }}").then((module) => module.default()),{% endif %}
-      "404": () => import("{{ route['404'] }}").then((module) => module.default()),
-      "error": () => import("{{ route.error }}").then((module) => module.default()),{% if route.metadata %}
+      "page": () => import("{{ route.page }}"),{% endif %}
+      "404": () => import("{{ route['404'] }}"),
+      "error": () => import("{{ route.error }}"),{% if route.metadata %}
       "metadata": {{ route.metadata | dump }},{% endif %}
       {% if route.subRoutes %}"subRoutes": [{{ renderSubRoutes(route.subRoutes) }}]{% endif %}
     }{% if not loop.last %},{% endif %}{% endfor %}
   ]
 }`;
+
+export const INDEX_FILE_TEMPLATE = `export { ROUTE_FILE } from "./route-metadata";`;
