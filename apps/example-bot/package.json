@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node server.tsx",
-    "webhook": "ts-node webhook.ts"
+    "dev": "rxbot dev"
   },
   "keywords": [],
   "author": "",

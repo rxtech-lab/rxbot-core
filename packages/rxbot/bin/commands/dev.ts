@@ -43,6 +43,8 @@ export default async function runDev(srcFolder = "./src") {
         open: false,
         client: false,
         static: false,
+        allowedHosts: "all",
+        host: "0.0.0.0",
         devMiddleware: {
           writeToDisk: true,
         },
@@ -81,6 +83,30 @@ export default async function runDev(srcFolder = "./src") {
           });
 
           // API endpoint
+          app.post("/api/webhook", async (req, res) => {
+            try {
+              // Clear the module from Node's cache
+              const modulePath = path.resolve(outputDir, "main.js");
+              delete require.cache[require.resolve(modulePath)];
+
+              // Now import the fresh version
+              const mod = await import(
+                modulePath + "?update=" + Date.now()
+              ).then((mod) => mod.default);
+
+              const core = await Core.Start({
+                adapter: mod.adapter,
+                storage: mod.storage,
+                routeFile: mod.ROUTE_FILE,
+              });
+              await core.handleMessageUpdate(req.body);
+              res.json({ success: true });
+              await core.onDestroy();
+            } catch (error: any) {
+              console.error("Error processing message:", error);
+              res.status(500).json({ error: error.message });
+            }
+          });
           app.post("/api/send-message", async (req, res) => {
             try {
               // Clear the module from Node's cache
@@ -100,6 +126,7 @@ export default async function runDev(srcFolder = "./src") {
 
               await core.sendMessage(req.body);
               res.json({ success: true });
+              await core.onDestroy();
             } catch (error: any) {
               console.error("Error processing message:", error);
               res.status(500).json({ error: error.message });

@@ -46,6 +46,8 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
    */
   private readonly timeout: number;
 
+  private container: T | undefined;
+
   constructor({ adapter, storage, timeout }: CoreOptions) {
     super({ adapter, storage });
     this.timeout = timeout ?? DEFAULT_TIMEOUT;
@@ -191,6 +193,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     if (!container._rootContainer) {
       createEmptyFiberRoot(container, this.reconciler);
     }
+    this.container = container;
 
     // wrap the element with the router and storage providers so that
     // the components can access the router and storage
@@ -257,6 +260,8 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
   async onDestroy() {
     await this.adapter.onDestroy();
     this.listeners.clear();
+    // destroy the renderer
+    this.reconciler.updateContainer(null, this.container?._rootContainer, null);
   }
 
   private updateLastCommitUpdateTime() {

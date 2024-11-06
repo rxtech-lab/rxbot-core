@@ -17,6 +17,9 @@ import { convertRouteToTGRoute, convertTGRouteToRoute } from "./utils";
 export type TelegramAppOpts =
   | {
       token: string;
+      /**
+       * Url for telegram api
+       */
       url?: string;
     }
   | {

@@ -4,7 +4,6 @@ import { TelegramAdapter } from "@rx-lab/telegram-adapter";
 
 const adapter = new TelegramAdapter({
   token: process.env.API_KEY,
-  longPolling: true,
 });
 
 const storage = new MemoryStorage();
