@@ -385,6 +385,9 @@ importers:
       '@rx-lab/common':
         specifier: workspace:*
         version: link:../common
+      '@rx-lab/core':
+        specifier: workspace:*
+        version: link:../core
       '@swc/core':
         specifier: ^1.7.10
         version: 1.7.14

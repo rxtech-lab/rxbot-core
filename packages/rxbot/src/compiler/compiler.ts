@@ -5,8 +5,8 @@ import {
   DEFAULT_ROOT_ROUTE,
   Logger,
   ROUTE_METADATA_TS_FILE,
-  RouteInfo,
   RouteInfoFile,
+  RouteInfoWithoutImport,
   RouteMetadata,
   SpecialRouteType,
 } from "@rx-lab/common";
@@ -458,7 +458,7 @@ export class Compiler extends CompilerUtils {
     }
     const artifacts = await this.buildAllFilesInSourceDir();
     // check if the output directory exists
-    let info: RouteInfo[] = [];
+    let info: RouteInfoWithoutImport[] = [];
     // if root path doesn't contain special pages, add default ones
     const buildRouteInfo = await this.buildRouteInfo(artifacts);
     const updatedRoutes =
@@ -474,7 +474,7 @@ export class Compiler extends CompilerUtils {
 
     // add rootRoute to the info if it's not there
     if (!info.find((r) => r.route === DEFAULT_ROOT_ROUTE)) {
-      const rootInfo: RouteInfo = {
+      const rootInfo: RouteInfoWithoutImport = {
         "404": rootRoute!["404"]!,
         error: rootRoute!.error!,
         page: rootRoute!.page!,
@@ -487,7 +487,7 @@ export class Compiler extends CompilerUtils {
     // create route-metadata.json file if it doesn't exist
     const outputPath = path.join(this.destinationDir, ROUTE_METADATA_TS_FILE);
     const file: RouteInfoFile = {
-      routes: info,
+      routes: info as any,
     };
     nunjucks.configure({ autoescape: false });
     const output = nunjucks.renderString(METADATA_FILE_TEMPLATE, file);
@@ -522,9 +522,9 @@ export class Compiler extends CompilerUtils {
     artifacts: BuildSourceCodeOutput[],
     parent?: RoutePath,
   ): Promise<{
-    routes: RouteInfo[];
+    routes: RouteInfoWithoutImport[];
   }> {
-    let info: RouteInfo[] = [];
+    let info: RouteInfoWithoutImport[] = [];
 
     const notFoundPage = route["404"] ?? parent?.["404"];
     const errorPage = route.error ?? parent?.error;
@@ -545,7 +545,7 @@ export class Compiler extends CompilerUtils {
     ).flat();
 
     if (route.page || route["404"] || route.error) {
-      const routeInfo: RouteInfo = {
+      const routeInfo: RouteInfoWithoutImport = {
         route: route.route,
         // use self 404 or parent 404
         "404": notFoundPage!,

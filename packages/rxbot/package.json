@@ -24,7 +24,8 @@
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.12",
     "express": "^4.21.1",
-    "glob": "^11.0.0"
+    "glob": "^11.0.0",
+    "@rx-lab/core": "workspace:*"
   },
   "devDependencies": {
     "@types/nunjucks": "^3.2.6",

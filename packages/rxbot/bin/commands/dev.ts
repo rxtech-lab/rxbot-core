@@ -4,6 +4,7 @@ import { defineConfig } from "@rspack/cli";
 import { RspackOptions, rspack } from "@rspack/core";
 import { RspackDevServer } from "@rspack/dev-server";
 import { Logger } from "@rx-lab/common";
+import { Core } from "@rx-lab/core";
 import express from "express";
 import { getRspackConfig, getSrcAndOutputDir } from "../utils";
 
@@ -28,13 +29,7 @@ export default async function runDev(srcFolder = "./src") {
       ...defaultConfig,
       ...userConfig,
       target: "node", // Target Node.js environment
-      output: {
-        ...defaultConfig.output,
-        ...userConfig.output,
-        path: outputDir,
-        filename: "server.js",
-        clean: true,
-      },
+      output: defaultConfig.output,
       devServer: {
         port: 3000,
         hot: true,
@@ -52,11 +47,17 @@ export default async function runDev(srcFolder = "./src") {
           // API endpoint
           app.post("/api/send-message", async (req, res) => {
             //@ts-ignore
-            const mod = await import(path.resolve(outputDir, "index.js"));
-
-            const body = req.body;
+            const mod = await import(path.resolve(outputDir, "index.js")).then(
+              (mod) => mod.default,
+            );
             // biome-ignore lint/suspicious/noConsoleLog: <explanation>
-            console.log("Received message:", body);
+            console.log(mod);
+            const core = await Core.Start({
+              adapter: mod.adapter,
+              storage: mod.storage,
+              routeFile: mod.ROUTE_FILE,
+            });
+            await core.sendMessage(req.body);
             res.json({ success: true });
           });
 
