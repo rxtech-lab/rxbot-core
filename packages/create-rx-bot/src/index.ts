@@ -22,6 +22,7 @@ import {
 } from "./types";
 
 const isDryRun = process.env.DRY_RUN === "true";
+
 (async () => {
   intro(`create-rx-bot`);
   const grouped = await group({
@@ -91,6 +92,7 @@ const isDryRun = process.env.DRY_RUN === "true";
       return;
     }
   }
+
   const s = spinner();
   s.start(`Generating project files...`);
   await render(isDryRun, grouped).catch((e) => {
@@ -98,5 +100,5 @@ const isDryRun = process.env.DRY_RUN === "true";
     throw e;
   });
   s.stop("Project files generated");
-  outro(`You're all set!`);
+  outro(`Project files generated successfully`);
 })();

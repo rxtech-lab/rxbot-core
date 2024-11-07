@@ -74,8 +74,8 @@ export default defineConfig({
     splitChunks: false,
   },
   node: {
-    __dirname: true,
-    __filename: true,
+    __dirname: false,
+    __filename: false,
   },
   devtool: false,
 });

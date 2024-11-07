@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "cross-env NODE_ENV=production rspack build",
-    "postbuild": "chmod +x dist/main.js",
+    "postbuild": "chmod +x dist/main.js && npm link",
     "test": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --runInBand"
   },
   "devDependencies": {
