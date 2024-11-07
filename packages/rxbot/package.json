@@ -5,6 +5,12 @@
   "bin": {
     "rxbot": "./dist/bin/rxbot.js"
   },
+  "exports": {
+    "./command": {
+      "default": "./dist/bin/index.js",
+      "types": "./dist/bin/index.d.ts"
+    }
+  },
   "scripts": {
     "build": "tsc",
     "test": "jest"
@@ -24,7 +30,8 @@
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.12",
     "express": "^4.21.1",
-    "glob": "^11.0.0"
+    "glob": "^11.0.0",
+    "@rx-lab/core": "workspace:*"
   },
   "devDependencies": {
     "@types/nunjucks": "^3.2.6",
@@ -33,6 +40,8 @@
     "react": "^18.3.1",
     "ts-jest": "^29.1.4",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "@rx-lab/telegram-adapter": "workspace:*",
+    "@rx-lab/storage": "workspace:*"
   }
 }

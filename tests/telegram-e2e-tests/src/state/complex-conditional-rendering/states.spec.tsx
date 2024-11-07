@@ -1,4 +1,5 @@
-import path from "path";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
 import { Api, MessageType } from "@rx-lab/mock-telegram-client";
 import { FastifyInstance } from "fastify";
 import {
@@ -24,8 +25,10 @@ describe("Complex conditional rendering", () => {
   });
 
   it("should be able to interact with num pad", async () => {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
     const rootDir = path.join(__dirname, "src");
-    const destinationDir = path.join(__dirname, ".rx-lab");
+    const destinationDir = path.join(__dirname);
     const { core } = await initialize(chatroomId, api, {
       rootDir,
       destinationDir,
@@ -69,7 +72,7 @@ describe("Complex conditional rendering", () => {
         text: "1",
       },
     );
-    await sleep(DEFAULT_RENDERING_WAIT_TIME);
+    await sleep(DEFAULT_RENDERING_WAIT_TIME * 2);
     const doubleUpdatedMessages =
       await api.chatroom.getMessagesByChatroom(chatroomId);
     expect(doubleUpdatedMessages.data.count).toBe(2);
@@ -80,6 +83,8 @@ describe("Complex conditional rendering", () => {
   });
 
   it("should be able to interact with num pad using webhook", async () => {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
     const rootDir = path.join(__dirname, "src");
     const destinationDir = path.join(__dirname, ".rx-lab");
     const { core, fastify } = await initializeWithWebhook(chatroomId, api, {

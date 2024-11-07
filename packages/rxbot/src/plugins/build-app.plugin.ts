@@ -1,5 +1,6 @@
 import path from "path";
 import { Compiler, RspackPluginInstance } from "@rspack/core";
+import { Logger } from "@rx-lab/common";
 import fs from "fs/promises";
 import nunjucks from "nunjucks";
 import { Compiler as BotCompiler } from "../compiler";
@@ -10,6 +11,10 @@ const PLUGIN_NAME = "BuildAppPlugin";
 interface PluginOptions {
   sourceDir: string;
   outputDir: string;
+  /**
+   * Should we compile the adapter.ts file? If this field is false, the adapter.ts file will be ignored.
+   */
+  hasAdapterFile: boolean;
 }
 export class BuildAppPlugin implements RspackPluginInstance {
   private readonly sourceDir: string;
@@ -58,7 +63,9 @@ export class BuildAppPlugin implements RspackPluginInstance {
     compiler.hooks.beforeCompile.tapAsync(
       PLUGIN_NAME,
       async (compilation, callback) => {
+        Logger.log("Building app...", "red");
         if (this.isFirstRun || (await this.hasSourceChanged())) {
+          // remove the output directory
           const botCompiler = new BotCompiler({
             rootDir: this.sourceDir,
             destinationDir: this.outputDir,
@@ -71,6 +78,9 @@ export class BuildAppPlugin implements RspackPluginInstance {
 
           this.lastCompileTime = Date.now();
           this.isFirstRun = false;
+          callback();
+        } else {
+          Logger.log("No changes detected, skipping build...", "yellow");
           callback();
         }
       },

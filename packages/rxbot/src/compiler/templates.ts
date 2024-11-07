@@ -48,4 +48,9 @@ export const ROUTE_FILE = {
   ]
 }`;
 
-export const INDEX_FILE_TEMPLATE = `export { ROUTE_FILE } from "./route-metadata";`;
+export const INDEX_FILE_TEMPLATE = `
+export { ROUTE_FILE } from "./route-metadata";
+{% if hasAdapterFile %}
+export { adapter, storage } from "./app/adapter";
+{% endif %}
+`;

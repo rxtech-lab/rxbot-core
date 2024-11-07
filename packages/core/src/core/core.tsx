@@ -1,6 +1,4 @@
-import path from "path";
 import {
-  APP_FOLDER,
   type AdapterInterface,
   BaseChatroomInfo,
   BaseMessage,
@@ -9,43 +7,31 @@ import {
   CoreInterface,
   ErrorPageProps,
   PageProps,
-  ROUTE_METADATA_FILE,
   RedirectOptions,
   RenderedComponent,
+  RouteInfoFile,
   SendMessage,
   StorageInterface,
 } from "@rx-lab/common";
 import { RedirectError } from "@rx-lab/errors";
 import React from "react";
-import { Compiler } from "../compiler";
 import { Renderer } from "./renderer";
 import { renderServerComponent } from "./server/renderServerComponent";
 import { createEmptyFiberRoot } from "./utils";
 import { WrappedElement } from "./wrappedElement";
 
-type CompileOptions =
-  | {
-      rootDir: string;
-      destinationDir: string;
-      timeout?: number;
-    }
-  | {
-      adapter: AdapterInterface<any, any, any>;
-      storage: StorageInterface;
-      rootDir: string;
-      destinationDir: string;
-      timeout?: number;
-    };
-
 type StartOptions = {
-  outputDir: string;
   timeout?: number;
+  adapter: AdapterInterface<any, any, any>;
+  storage: StorageInterface;
+  routeFile: RouteInfoFile;
 };
 
 interface CoreOptions {
   adapter: AdapterInterface<any, any, any>;
   storage: StorageInterface;
   timeout?: number;
+  routeFile: RouteInfoFile;
 }
 
 const DEFAULT_TIMEOUT = 2000;
@@ -60,58 +46,22 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
    */
   private readonly timeout: number;
 
+  private container: T | undefined;
+
   constructor({ adapter, storage, timeout }: CoreOptions) {
     super({ adapter, storage });
     this.timeout = timeout ?? DEFAULT_TIMEOUT;
   }
 
-  static async Compile(opts: CompileOptions) {
-    let adapter: AdapterInterface<any, any, any>;
-    let storage: StorageInterface;
-
-    const compiler = new Compiler({
-      rootDir: opts.rootDir,
-      destinationDir: opts.destinationDir,
-    });
-    const routeInfo = await compiler.compile();
-
-    if ("adapter" in opts && "storage" in opts) {
-      adapter = opts.adapter;
-      storage = opts.storage;
-    } else {
-      const adapterFile = await require(
-        path.join(opts.destinationDir, APP_FOLDER, "adapter"),
-      );
-      adapter = adapterFile.adapter;
-      storage = adapterFile.storage;
-    }
-
-    const core = new Core({
-      adapter: adapter,
-      storage: storage,
-      timeout: opts.timeout,
-    });
-
-    await core.router.initFromRoutes(routeInfo);
-    await core.router.updateMenu();
-    await core.init();
-    return core;
-  }
-
   static async Start(opts: StartOptions) {
-    const adapterFile = await require(
-      path.join(opts.outputDir, APP_FOLDER, "adapter"),
-    );
-    const adapter = adapterFile.adapter;
-    const storage = adapterFile.storage;
-
     const core = new Core({
-      adapter: adapter,
-      storage: storage,
+      adapter: opts.adapter,
+      storage: opts.storage,
       timeout: opts.timeout,
+      routeFile: opts.routeFile,
     });
 
-    await core.router.init(path.join(opts.outputDir, ROUTE_METADATA_FILE));
+    await core.router.initFromRoutes(opts.routeFile);
     await core.init();
     return core;
   }
@@ -243,6 +193,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     if (!container._rootContainer) {
       createEmptyFiberRoot(container, this.reconciler);
     }
+    this.container = container;
 
     // wrap the element with the router and storage providers so that
     // the components can access the router and storage
@@ -309,6 +260,13 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
   async onDestroy() {
     await this.adapter.onDestroy();
     this.listeners.clear();
+    // destroy the renderer
+    if (this.container)
+      this.reconciler.updateContainer(
+        null,
+        this.container._rootContainer,
+        null,
+      );
   }
 
   private updateLastCommitUpdateTime() {

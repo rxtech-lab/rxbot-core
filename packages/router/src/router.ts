@@ -1,4 +1,3 @@
-import fs from "fs";
 import {
   AdapterInterface,
   DEFAULT_ROOT_ROUTE,
@@ -21,26 +20,22 @@ import { matchRoute, parseQuery } from "./router.utils";
  * @param info
  */
 export async function importRoute(info: RouteInfo): Promise<ImportedRoute> {
-  const component = info.page ? await import(info.page) : undefined;
   return {
-    page: info.page,
+    page: await info.page?.().then((mod: any) => mod.default),
     route: info.route,
-    subRoutes: await Promise.all(
-      (info.subRoutes ?? []).map((subRoute) => importRoute(subRoute)),
-    ),
+    subRoutes: info.subRoutes,
     metadata: info.metadata,
-    component: component?.default,
-    error: info.error,
-    "404": info["404"],
+    error: await info.error().then((mod: any) => mod.default),
+    "404": await info["404"]().then((mod: any) => mod.default),
   };
 }
 
-async function getSpecialRoute(info: RouteInfo, type: SpecialRouteType) {
+async function getSpecialRoute(info: ImportedRoute, type: SpecialRouteType) {
   let component: any | null = null;
   if (type === "error") {
-    component = await import(info.error);
+    component = info.error();
   } else {
-    component = await import(info["404"]);
+    component = info["404"]();
   }
   return component;
 }
@@ -197,13 +192,6 @@ export class Router {
     this.storage = storage;
   }
 
-  async init(fromFile: string) {
-    // read the file and parse the routes
-    this._routeInfoFile = JSON.parse(
-      fs.readFileSync(fromFile, "utf-8"),
-    ) as RouteInfoFile;
-  }
-
   /**
    * Get the route info file.
    */
@@ -275,15 +263,14 @@ export class Router {
       this.routeInfoFile.routes,
       path ?? DEFAULT_ROOT_ROUTE,
     );
-    const component = await getSpecialRoute(matchedRoute, type);
+    const component = await getSpecialRoute(matchedRoute as any, type);
     return {
       currentRoute: path,
       path: matchedRoute.route,
       matchedRoute: {
-        ...matchedRoute,
         params: {},
         query: {},
-        component: component.default,
+        route: matchedRoute.route,
       },
       component: component.default,
       queryString: {},
@@ -326,8 +313,8 @@ export class Router {
     }
     return {
       matchedRoute,
-      component: matchedRoute.component,
       queryString,
+      component: matchedRoute.page,
       params: matchedRoute.params,
       path: matchedRoute.route,
       currentRoute: currentRoute,

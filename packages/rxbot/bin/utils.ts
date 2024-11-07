@@ -1,19 +1,20 @@
 import path from "path";
 import { RspackOptions } from "@rspack/core";
 import { BuildAppPlugin } from "../src/plugins/build-app.plugin";
-import { RemoveTempPlugin } from "../src/plugins/remove-temp.plugin";
 
 export function getRspackConfig(
   sourceDir: string,
+  tempDir: string,
   outputDir: string,
+  options: { hasAdapterFile: boolean },
 ): RspackOptions {
+  const entry = path.resolve(tempDir, "index.ts");
   return {
-    entry: path.resolve(outputDir, "index.ts"),
+    entry: entry,
     output: {
-      filename: "index.js",
+      filename: "[name].js",
       chunkFilename: "chunks/[name].[contenthash].js",
       path: outputDir,
-      publicPath: "/",
       // Change these output settings
       library: {
         type: "commonjs2", // Changed from UMD to CommonJS2
@@ -56,18 +57,16 @@ export function getRspackConfig(
     plugins: [
       new BuildAppPlugin({
         sourceDir: sourceDir,
-        outputDir: outputDir,
-      }),
-      new RemoveTempPlugin({
-        outputDir: outputDir,
+        outputDir: tempDir,
+        hasAdapterFile: options.hasAdapterFile,
       }),
     ],
   };
 }
 
-export function getSrcAndOutputDir(srcFolder: string) {
+export function getSrcAndOutputDir(srcFolder: string, outputFolder: string) {
   const cwd = process.cwd();
-  const outputDir = path.resolve(".rx-lab");
+  const outputDir = path.resolve(outputFolder, ".rx-lab");
   const tempFolder = path.resolve(outputDir, "temp");
   return { cwd, srcFolder, tempFolder, outputDir };
 }
