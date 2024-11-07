@@ -1,5 +1,7 @@
-import { Logger } from "@rx-lab/common";
+import path from "path";
+import { DEFAULT_OUTPUT_FOLDER, Logger } from "@rx-lab/common";
 import { buildApp } from "./build-app";
+import { buildVercel } from "./build-vercel";
 
 type SupportedEnvironments = "local" | "vercel";
 
@@ -28,7 +30,10 @@ export default async function runBuild(
     case "vercel":
       Logger.info("Building specifically for Vercel", "blue");
       // if vercel, build the app for vercel
-
+      await buildVercel({
+        outputFolder: path.resolve(outputFolder, DEFAULT_OUTPUT_FOLDER),
+      });
+      Logger.info("Build for Vercel completed successfully", "green");
       break;
     default:
       // if local, just build the app

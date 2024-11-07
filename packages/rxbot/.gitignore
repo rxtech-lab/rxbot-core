@@ -2,3 +2,5 @@
 *.tsx
 !src/command/commands/build
 executables
+.vercel
+!example/**/page.tsx

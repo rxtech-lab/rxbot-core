@@ -12,7 +12,7 @@
     }
   },
   "scripts": {
-    "build": "tsc && rspack build",
+    "build": "tsc && rspack build --config rspack.config.executables.ts",
     "test": "jest"
   },
   "publishConfig": {
@@ -31,6 +31,7 @@
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.12",
     "@types/yargs": "^17.0.33",
+    "@vercel/functions": "^1.4.1",
     "express": "^4.21.1",
     "glob": "^11.0.0",
     "totalist": "^3.0.1",

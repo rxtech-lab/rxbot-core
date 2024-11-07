@@ -19,12 +19,14 @@ interface PluginOptions {
 export class BuildAppPlugin implements RspackPluginInstance {
   private readonly sourceDir: string;
   private readonly outputDir: string;
+  private readonly hasAdapterFile: boolean;
   private lastCompileTime = 0;
   private isFirstRun = true;
 
   constructor(options: PluginOptions) {
     this.outputDir = options.outputDir;
     this.sourceDir = options.sourceDir;
+    this.hasAdapterFile = options.hasAdapterFile;
   }
 
   private async hasSourceChanged(): Promise<boolean> {
@@ -73,7 +75,9 @@ export class BuildAppPlugin implements RspackPluginInstance {
           await botCompiler.compile();
 
           // generate the index file
-          const fileContent = nunjucks.renderString(INDEX_FILE_TEMPLATE, {});
+          const fileContent = nunjucks.renderString(INDEX_FILE_TEMPLATE, {
+            hasAdapterFile: this.hasAdapterFile,
+          });
           await fs.writeFile(`${this.outputDir}/index.ts`, fileContent);
 
           this.lastCompileTime = Date.now();
