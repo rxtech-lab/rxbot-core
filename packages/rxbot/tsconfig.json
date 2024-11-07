@@ -15,6 +15,6 @@
     "allowUmdGlobalAccess": true,
     "resolveJsonModule": true
   },
-  "exclude": ["dist", "**/*.spec.ts", "**/*.spec.tsx"],
+  "exclude": ["dist", "**/*.spec.ts", "**/*.spec.tsx", ".rx-lab"],
   "include": ["src/**/*"]
 }

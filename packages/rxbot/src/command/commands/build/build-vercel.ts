@@ -3,7 +3,7 @@ import path from "path";
 import { rspack } from "@rspack/core";
 import fs from "fs/promises";
 import nunjucks from "nunjucks";
-import { VERCEL_WEBHOOK_FUNCTION_TEMPLATE } from "../../../deploy/vercel";
+import { VERCEL_WEBHOOK_FUNCTION_TEMPLATE } from "../../../templates/vercel";
 
 interface Options {
   /**

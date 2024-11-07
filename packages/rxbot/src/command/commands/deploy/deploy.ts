@@ -2,15 +2,10 @@ import { resolve } from "path";
 import { DEFAULT_COMPILER_CONFIG_FILE, Logger } from "@rx-lab/common";
 import { transformFile } from "@swc/core";
 import { z } from "zod";
+import deployToVercel from "./deploy-vercel";
 
 const schema = z.object({
-  webhook: z.object({
-    webhookPath: z
-      .string({
-        description: "Default webhook path. Default set to /api/webhook",
-      })
-      .optional(),
-  }),
+  webhook: z.object({}),
 });
 
 export type Config = z.infer<typeof schema>;
@@ -43,17 +38,24 @@ export async function loadConfig(configPath: string): Promise<Config> {
   }
 }
 
-export default async function runDeploy() {
+interface Options {
+  environment: "vercel";
+}
+
+export default async function runDeploy({ environment }: Options) {
   // read the config file
   const configFile = await loadConfig(DEFAULT_COMPILER_CONFIG_FILE);
   // check if config match
-  const parsedConfig = schema.parse(configFile);
-  let webhookPath = "/api/webhook";
-  if (parsedConfig.webhook.webhookPath) {
-    webhookPath = parsedConfig.webhook.webhookPath;
+  schema.parse(configFile);
+  Logger.info(`Deploying the app to ${environment}`, "blue");
+
+  switch (environment) {
+    case "vercel":
+      Logger.info("Deploying to Vercel", "blue");
+      await deployToVercel();
+      break;
+    default:
+      throw new Error(`Unsupported environment: ${environment}`);
   }
-  Logger.log(
-    `Webhook path is set to ${parsedConfig.webhook.webhookPath}`,
-    "yellow",
-  );
+  Logger.info("Deploy completed successfully", "green");
 }

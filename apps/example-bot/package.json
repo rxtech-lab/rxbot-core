@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "rxbot dev",
-    "build": "rxbot build"
+    "build": "rxbot build",
+    "deploy": "rxbot deploy"
   },
   "keywords": [],
   "author": "",
@@ -26,6 +27,7 @@
   "dependencies": {
     "@ai-sdk/openai": "^0.0.50",
     "@types/react": "^18.3.3",
+    "@vercel/functions": "^1.4.1",
     "ai": "^3.3.12",
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.5",

@@ -2,7 +2,7 @@ import { Logger } from "@rx-lab/common";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import build from "./commands/build/build";
-import deploy from "./commands/deploy";
+import runDeploy from "./commands/deploy/deploy";
 import dev from "./commands/dev";
 
 /**
@@ -49,9 +49,19 @@ export async function runRxbot() {
     .command({
       command: "deploy",
       describe: "Deploy the application",
-      handler: async () => {
+      builder: {
+        environment: {
+          alias: "e",
+          type: "string",
+          description: "Specify the environment",
+          default: "local",
+        },
+      },
+      handler: async (argv) => {
         Logger.log("Running command deploy", "blue");
-        await deploy();
+        await runDeploy({
+          environment: argv.environment,
+        });
       },
     })
     .demandCommand(1, "You need to specify a command")
