@@ -57,4 +57,14 @@ export class Logger {
       }
     }
   }
+
+  /**
+   * Print message to the console with a color. This won't follow the shouldLog flag
+   * @param message
+   * @param color
+   */
+  static info(message: string, color?: ColorName) {
+    // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+    console.log(`${color ? colorize(message, color) : message}`);
+  }
 }

@@ -44,7 +44,9 @@ export const initialize = async (
     longPolling: true,
   });
 
-  await build(opts.rootDir, opts.destinationDir, false);
+  await build(opts.rootDir, opts.destinationDir, {
+    hasAdapterFile: false,
+  });
   const mod = await import(
     path.join(opts.destinationDir, ".rx-lab", "main.js")
   ).then((mod) => mod.default);
@@ -77,7 +79,9 @@ export const initializeWithWebhook = async (
       status: "ok",
     };
   });
-  await build(opts.rootDir, opts.destinationDir, false);
+  await build(opts.rootDir, opts.destinationDir, {
+    hasAdapterFile: false,
+  });
   const mod = await import(
     path.join(opts.destinationDir, ".rx-lab", "main.js")
   ).then((mod) => mod.default);

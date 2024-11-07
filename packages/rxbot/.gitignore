@@ -1,2 +1,4 @@
 .rx-lab
 *.tsx
+!src/command/commands/build
+executables

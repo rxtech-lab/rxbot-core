@@ -16,5 +16,5 @@
     "resolveJsonModule": true
   },
   "exclude": ["dist", "**/*.spec.ts", "**/*.spec.tsx"],
-  "include": ["src/**/*", "bin/**/*"]
+  "include": ["src/**/*"]
 }

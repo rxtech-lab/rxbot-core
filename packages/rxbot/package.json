@@ -3,16 +3,16 @@
   "version": "1.0.0",
   "description": "",
   "bin": {
-    "rxbot": "./dist/bin/rxbot.js"
+    "rxbot": "./executables/rxbot.js"
   },
   "exports": {
     "./command": {
-      "default": "./dist/bin/index.js",
-      "types": "./dist/bin/index.d.ts"
+      "default": "./dist/src/command/index.js",
+      "types": "./dist/src/command/index.d.ts"
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && rspack build",
     "test": "jest"
   },
   "publishConfig": {
@@ -26,22 +26,26 @@
     "@rspack/core": "^1.0.14",
     "@rspack/dev-server": "^1.0.9",
     "@rx-lab/common": "workspace:*",
+    "@rx-lab/core": "workspace:*",
     "@swc/core": "^1.7.10",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.12",
+    "@types/yargs": "^17.0.33",
     "express": "^4.21.1",
     "glob": "^11.0.0",
-    "@rx-lab/core": "workspace:*"
+    "totalist": "^3.0.1",
+    "yargs": "^17.7.2",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@rx-lab/storage": "workspace:*",
+    "@rx-lab/telegram-adapter": "workspace:*",
     "@types/nunjucks": "^3.2.6",
     "jest": "^29.7.0",
     "nunjucks": "^3.2.4",
     "react": "^18.3.1",
     "ts-jest": "^29.1.4",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.4",
-    "@rx-lab/telegram-adapter": "workspace:*",
-    "@rx-lab/storage": "workspace:*"
+    "typescript": "^5.5.4"
   }
 }
