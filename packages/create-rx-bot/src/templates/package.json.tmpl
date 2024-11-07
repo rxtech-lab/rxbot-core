@@ -1,0 +1,32 @@
+{
+  "name": "{{ projectName }}",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "rxbot dev",
+    "build": "rxbot build",
+    "deploy": "rxbot deploy"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "rxbot-cli": "latest",
+    "react": "^18.3.1"
+    {%- for adapter in adapters %}
+      {%- if adapter === 'telegram' %},
+    "@rx-lab/telegram-adapter": "latest"
+      {%- endif %}
+    {%- endfor %}
+    {%- if storage === 'upstash-redis' %},
+    "@rx-lab/upstash-storage": "latest"
+    {%- elif storage === 'memory' %},
+    "@rx-lab/storage": "latest"
+    {%- elif storage === 'file' %},
+    "@rx-lab/file-storage": "latest"
+    {%- endif %}
+  }
+}

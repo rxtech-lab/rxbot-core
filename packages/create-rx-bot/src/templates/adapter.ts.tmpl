@@ -1,0 +1,61 @@
+{%- for adapter in adapters -%}
+{%- if adapter === 'telegram' %}
+import { TelegramAdapter } from "@rx-lab/telegram-adapter";
+{%- endif -%}
+{%- endfor %}
+
+{%- if storage === 'upstash-redis' %}
+import { UpstashStorage } from "@rx-lab/upstash-storage";
+{%- elif storage === 'memory' %}
+import { MemoryStorage } from "@rx-lab/storage/memory";
+{%- elif storage === 'file' %}
+import { FileStorage } from "@rx-lab/file-storage";
+{%- endif %}
+
+import dotenv from "dotenv";
+
+dotenv.config();
+
+{%- for adapter in adapters -%}
+{%- if adapter === 'telegram' %}
+const apiKey = process.env.API_KEY ?? process.env.TG_BOT_API_KEY;
+if (!apiKey) {
+  throw new Error(
+    "Missing API KEY, please set either API_KEY or TG_BOT_API_KEY in .env file",
+  );
+}
+{%- endif -%}
+{%- endfor %}
+
+{%- if storage === 'upstash-redis' %}
+const upstashUrl = process.env.UPSTASH_URL;
+if (!upstashUrl) {
+  throw new Error("Missing UPSTASH_URL in .env file");
+}
+
+const upstashToken = process.env.UPSTASH_TOKEN;
+if (!upstashToken) {
+  throw new Error("Missing UPSTASH_TOKEN in .env file");
+}
+{%- endif %}
+
+{%- for adapter in adapters -%}
+{%- if adapter === 'telegram' %}
+const adapter = new TelegramAdapter({
+  token: apiKey,
+});
+{%- endif -%}
+{%- endfor %}
+
+{%- if storage === 'upstash-redis' %}
+const storage = new UpstashStorage({
+  url: process.env.UPSTASH_URL!,
+  token: process.env.UPSTASH_TOKEN!,
+});
+{%- elif storage === 'memory' %}
+const storage = new MemoryStorage();
+{%- elif storage === 'file' %}
+const storage = new FileStorage();
+{%- endif %}
+
+export { adapter, storage };
