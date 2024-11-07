@@ -12,6 +12,7 @@ import { getRspackConfig, getSrcAndOutputDir } from "../utils";
 
 export default async function runDev(srcFolder = "./src", outputFolder = "./") {
   try {
+    Logger.shouldLog = true;
     const { outputDir, tempFolder, cwd } = getSrcAndOutputDir(
       srcFolder,
       outputFolder,
@@ -92,13 +93,14 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
             try {
               // Clear the module from Node's cache
               const modulePath = path.resolve(outputDir, "main.js");
-              delete require.cache[require.resolve(modulePath)];
+              // node require
+              const nativeRequire = require("module").createRequire(
+                process.cwd(),
+              );
+              delete nativeRequire.cache[nativeRequire.resolve(modulePath)];
 
               // Now import the fresh version
-              const mod = await import(
-                modulePath + "?update=" + Date.now()
-              ).then((mod) => mod.default);
-
+              const mod = nativeRequire(modulePath);
               const core = await Core.Dev({
                 adapter: mod.adapter,
                 storage: mod.storage,
@@ -145,8 +147,8 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
     });
 
     // Run server
-    const compiler = rspack(config);
-    const server = new RspackDevServer(config.devServer!, compiler);
+    const compiler = rspack(config, () => {});
+    const server = new RspackDevServer(config.devServer!, compiler!);
 
     await server.start();
     Logger.log(
