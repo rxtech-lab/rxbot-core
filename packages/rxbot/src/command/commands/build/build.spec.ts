@@ -12,6 +12,7 @@ function sleep(ms: number) {
 describe("build.vercel", () => {
   it("should be able to run on vercel", async () => {
     process.env.API_KEY = "123";
+    process.env.WEBHOOK = `http://0.0.0.0:9000/webhook/chatroom/1`;
     await build("./example", undefined, { environment: "vercel" });
     const filePath = path.resolve(
       "./.vercel/output/functions/api/webhook.func/index.js",
@@ -33,6 +34,8 @@ describe("build.vercel", () => {
     expect(responseBody.status).toBe("ok");
     await sleep(500);
     const consoleErrorCalls = (console.error as jest.Mocked<any>).mock.calls;
-    expect(consoleErrorCalls[0][0].message).not.toContain("is required");
+    if (consoleErrorCalls.length > 0) {
+      expect(consoleErrorCalls[0][0].message).not.toContain("is required");
+    }
   });
 });
