@@ -99,7 +99,7 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
                 modulePath + "?update=" + Date.now()
               ).then((mod) => mod.default);
 
-              const core = await Core.Start({
+              const core = await Core.Dev({
                 adapter: mod.adapter,
                 storage: mod.storage,
                 routeFile: mod.ROUTE_FILE,
