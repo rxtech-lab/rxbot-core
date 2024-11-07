@@ -19,13 +19,12 @@ export async function buildApp(
   return new Promise((resolve, reject) => {
     try {
       // Get the current working directory
-      const { outputDir, tempFolder, cwd } = getSrcAndOutputDir(
+      const { outputPath, tempFolder, cwd } = getSrcAndOutputDir(
         srcFolder,
         outputFolder,
       );
-      Logger.log(`Output will be in ${outputDir}`, "blue");
       // Default config
-      const defaultConfig = getRspackConfig(srcFolder, tempFolder, outputDir, {
+      const defaultConfig = getRspackConfig(srcFolder, tempFolder, outputPath, {
         hasAdapterFile,
       });
       // Try to load user config

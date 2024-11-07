@@ -13,15 +13,14 @@ import { getRspackConfig, getSrcAndOutputDir } from "../utils";
 export default async function runDev(srcFolder = "./src", outputFolder = "./") {
   try {
     Logger.shouldLog = true;
-    const { outputDir, tempFolder, cwd } = getSrcAndOutputDir(
+    const { outputPath, tempFolder, cwd, srcPath } = getSrcAndOutputDir(
       srcFolder,
       outputFolder,
     );
-    await fs.rm(outputDir, { recursive: true, force: true });
-    Logger.log(`Output will be in ${outputDir}`, "blue");
+    await fs.rm(outputPath, { recursive: true, force: true });
 
     // Default config
-    const defaultConfig = getRspackConfig(srcFolder, tempFolder, outputDir, {
+    const defaultConfig = getRspackConfig(srcPath, tempFolder, outputPath, {
       hasAdapterFile: true,
     });
 
@@ -92,7 +91,7 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
           app.post("/api/webhook", async (req, res) => {
             try {
               // Clear the module from Node's cache
-              const modulePath = path.resolve(outputDir, "main.js");
+              const modulePath = path.resolve(outputPath, "main.js");
               // node require
               const nativeRequire = require("module").createRequire(
                 process.cwd(),
@@ -117,7 +116,7 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
           app.post("/api/send-message", async (req, res) => {
             try {
               // Clear the module from Node's cache
-              const modulePath = path.resolve(outputDir, "main.js");
+              const modulePath = path.resolve(outputPath, "main.js");
               delete require.cache[require.resolve(modulePath)];
 
               // Now import the fresh version

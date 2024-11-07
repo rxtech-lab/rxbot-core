@@ -5,8 +5,8 @@
     "rootDir": "src",
     "jsx": "react-jsx",
     "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "nodenext",
+    "module": "commonjs",
+    "moduleResolution": "node",
     "target": "ES2020"
   },
   "exclude": ["*.spec.tsx"]

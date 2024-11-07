@@ -5,7 +5,7 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "biome lint",
-    "test": "turbo test",
+    "test": "turbo test --concurrency=1",
     "format": "biome format --write .",
     "format:version": "syncpack fix-mismatches",
     "publish:dry": "lerna publish from-package --no-push"

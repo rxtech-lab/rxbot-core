@@ -1,10 +1,5 @@
-import path from "path";
-import { Core } from "@rx-lab/core";
 import { Api } from "@rx-lab/mock-telegram-client";
-import { DelaySimulationFunction, MemoryStorage } from "@rx-lab/storage/memory";
-import { TelegramAdapter } from "@rx-lab/telegram-adapter";
-import Fastify from "fastify";
-import { build } from "rxbot-cli/command";
+import { CLIProcessManager } from "./process-manager";
 
 /**
  * Utility function to sleep for a given time
@@ -18,91 +13,30 @@ export const PORT = 9000;
 
 export const DEFAULT_RENDERING_WAIT_TIME = 800;
 
-export const DEFAULT_LONG_RENDERING_WAIT_TIME = 4000;
-
 interface Options {
-  rootDir: string;
-  destinationDir: string;
-  delaySimulation?: DelaySimulationFunction;
+  cwd: string;
+  chatroomId: number;
 }
 
 /**
  * Initialize the core, router, adapter and compiler
- * @param chatroomId
  * @param api
  * @param opts
  */
-export const initialize = async (
-  chatroomId: number,
-  api: Api<any>,
-  opts: Options,
-) => {
-  const client = new MemoryStorage(opts.delaySimulation);
-  const adapter = new TelegramAdapter({
-    token: "Some token",
-    url: `http://0.0.0.0:${PORT}/webhook/chatroom/${chatroomId}`,
-    longPolling: true,
+export const initializeDevServer = async (api: Api<any>, opts: Options) => {
+  const processManager = new CLIProcessManager();
+  processManager.on("stderr", (error: any) => {
+    throw error;
   });
-
-  await build(opts.rootDir, opts.destinationDir, {
-    hasAdapterFile: false,
+  await processManager.start("rxbot", ["dev"], {
+    cwd: opts.cwd,
   });
-  const mod = await import(
-    path.join(opts.destinationDir, ".rx-lab", "main.js")
-  ).then((mod) => mod.default);
-
-  const core = await Core.Start({
-    adapter: adapter,
-    storage: client,
-    routeFile: mod.ROUTE_FILE,
-  });
-
+  await sleep(1000);
   await api.reset.resetState();
-
-  return { adapter, core, client };
-};
-
-export const initializeWithWebhook = async (
-  chatroomId: number,
-  api: Api<any>,
-  opts: Options,
-) => {
-  const client = new MemoryStorage(opts.delaySimulation);
-  const fastify = Fastify();
-  const adapter = new TelegramAdapter({
-    token: "Some token",
-    url: `http://0.0.0.0:${PORT}/webhook/chatroom/${chatroomId}`,
+  await api.chatroom.registerWebhookForChatroom(opts.chatroomId, {
+    url: `http://localhost:3000/api/webhook`,
   });
-  fastify.post(`/webhook/chatroom/${chatroomId}`, async (req, res) => {
-    await adapter.handleMessageUpdate(req.body as any);
-    return {
-      status: "ok",
-    };
-  });
-  await build(opts.rootDir, opts.destinationDir, {
-    hasAdapterFile: false,
-  });
-  const mod = await import(
-    path.join(opts.destinationDir, ".rx-lab", "main.js")
-  ).then((mod) => mod.default);
-
-  const core = await Core.Start({
-    adapter: adapter,
-    storage: client,
-    routeFile: mod.ROUTE_FILE,
-  });
-
-  await api.reset.resetState();
-
-  await fastify.listen({ port: 10000 });
-  await api.chatroom.registerWebhookForChatroom(chatroomId, {
-    url: `http://localhost:10000/webhook/chatroom/${chatroomId}`,
-  });
-
   return {
-    adapter,
-    core,
-    client,
-    fastify,
+    processManager,
   };
 };
