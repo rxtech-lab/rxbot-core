@@ -1,10 +1,14 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
+    "cli:install": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env", ".env.*"],
-      "outputs": ["dist"]
+      "outputs": ["dist", "executables"]
     },
     "lint": {
       "dependsOn": ["^lint"]

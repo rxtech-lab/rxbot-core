@@ -3,13 +3,18 @@ import path from "path";
 import { defineConfig } from "@rspack/cli";
 import { RspackOptions, rspack } from "@rspack/core";
 import { Logger } from "@rx-lab/common";
-import { getRspackConfig, getSrcAndOutputDir } from "../utils";
+import { getRspackConfig, getSrcAndOutputDir } from "../../utils";
 
-// Build command
-export default async function runBuild(
-  srcFolder = "./src",
-  outputFolder = "./",
-  hasAdapterFile = true,
+/**
+ * Build and bundle the app with all the necessary files and dependencies
+ * @param srcFolder The source folder of the app
+ * @param outputFolder The output folder of the app
+ * @param hasAdapterFile If the app has an adapter file. If this field is false, then you need to provide the adapter during the core's initialization
+ */
+export async function buildApp(
+  srcFolder: string,
+  outputFolder: string,
+  hasAdapterFile: boolean,
 ) {
   return new Promise((resolve, reject) => {
     try {

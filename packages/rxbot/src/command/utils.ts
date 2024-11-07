@@ -1,6 +1,7 @@
 import path from "path";
 import { RspackOptions } from "@rspack/core";
-import { BuildAppPlugin } from "../src/plugins/build-app.plugin";
+import { DEFAULT_OUTPUT_FOLDER } from "@rx-lab/common";
+import { BuildAppPlugin } from "../plugins/build-app.plugin";
 
 export function getRspackConfig(
   sourceDir: string,
@@ -66,7 +67,7 @@ export function getRspackConfig(
 
 export function getSrcAndOutputDir(srcFolder: string, outputFolder: string) {
   const cwd = process.cwd();
-  const outputDir = path.resolve(outputFolder, ".rx-lab");
+  const outputDir = path.resolve(outputFolder, DEFAULT_OUTPUT_FOLDER);
   const tempFolder = path.resolve(outputDir, "temp");
   return { cwd, srcFolder, tempFolder, outputDir };
 }

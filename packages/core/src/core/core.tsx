@@ -54,6 +54,18 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
   }
 
   static async Start(opts: StartOptions) {
+    if (!opts.adapter) {
+      throw new Error("Adapter is required");
+    }
+
+    if (!opts.storage) {
+      throw new Error("Storage is required");
+    }
+
+    if (!opts.routeFile) {
+      throw new Error("Route file is required");
+    }
+
     const core = new Core({
       adapter: opts.adapter,
       storage: opts.storage,
