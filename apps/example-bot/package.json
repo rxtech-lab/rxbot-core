@@ -22,7 +22,7 @@
     "@rx-lab/upstash-storage": "workspace:*",
     "rxbot-cli": "workspace:*",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.4"
+    "typescript": "^5.6.3"
   },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.50",
