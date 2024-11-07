@@ -61,7 +61,7 @@ function executeHooks(
 ) {
   if (!hooks) return;
   if (hooks[key]) {
-    Logger.info(`Executing ${hooks[key]}`, "blue");
+    Logger.info(`Executing ${hooks[key].type}`, "blue");
     if (!isDry) {
       switch (hooks[key].type) {
         case "shell":
@@ -106,13 +106,16 @@ export default async function render(
       file.output,
       userOptions,
     );
-    executeHooks("afterEmit", file.hooks, projectPath, isDry);
     await writeToFile(
       path.join(projectPath, file.output),
       renderedContent,
       isDry,
     );
+    executeHooks("afterEmit", file.hooks, projectPath, isDry);
   }
-
+  // execute afterAllEmit hooks
+  for (const file of templateFile.files) {
+    executeHooks("afterAllEmit", file.hooks, projectPath, isDry);
+  }
   return templateFile;
 }

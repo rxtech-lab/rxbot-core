@@ -42,7 +42,8 @@ export const TemplateFileSchema = z.object({
       output: z.string(),
       hooks: z
         .object({
-          afterEmit: HookSchema,
+          afterEmit: HookSchema.optional(),
+          afterAllEmit: HookSchema.optional(),
         })
         .optional(),
     }),

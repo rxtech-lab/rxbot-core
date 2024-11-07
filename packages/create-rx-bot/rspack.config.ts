@@ -7,7 +7,7 @@ export default defineConfig({
     main: "./src/index.ts",
   },
   output: {
-    filename: "[name].js",
+    filename: "main.js",
     path: path.resolve(__dirname, "dist"), // Use absolute path
     library: {
       type: "commonjs2",
@@ -70,13 +70,12 @@ export default defineConfig({
     }),
   ],
   optimization: {
-    minimizer: [new rspack.SwcJsMinimizerRspackPlugin()],
-    splitChunks: {
-      chunks: "all",
-    },
+    minimize: false,
+    splitChunks: false,
   },
   node: {
-    __dirname: true,
-    __filename: true,
+    __dirname: false,
+    __filename: false,
   },
+  devtool: false,
 });
