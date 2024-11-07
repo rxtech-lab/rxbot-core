@@ -1,0 +1,15 @@
+files:
+    - path: package.json.tmpl
+      output: package.json
+      hooks:
+        afterEmit:
+          type: shell
+          command: npm install
+    - path: adapter.ts.tmpl
+      output: src/app/adapter.ts
+    - path: gitignore.tmpl
+      output: .gitignore
+    - path: env.tmpl
+      output: .env
+    - path: welcome-page.tsx.tmpl
+      output: src/app/pages/page.tsx
