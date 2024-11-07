@@ -300,6 +300,7 @@ export class TelegramAdapter
     await this.bot.stopPolling({
       cancel: true,
     });
+    await this.bot.close();
   }
 
   createContainer(message: TelegramBot.Message): TGContainer {

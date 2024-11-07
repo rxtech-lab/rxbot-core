@@ -261,7 +261,12 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     await this.adapter.onDestroy();
     this.listeners.clear();
     // destroy the renderer
-    this.reconciler.updateContainer(null, this.container?._rootContainer, null);
+    if (this.container)
+      this.reconciler.updateContainer(
+        null,
+        this.container._rootContainer,
+        null,
+      );
   }
 
   private updateLastCommitUpdateTime() {

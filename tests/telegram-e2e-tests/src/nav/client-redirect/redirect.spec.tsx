@@ -12,9 +12,6 @@ const chatroomId = 2001;
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
 describe("Simple client-side redirect Tests", () => {
   let api: Api<any>;
   let coreApi: any;
@@ -26,6 +23,8 @@ describe("Simple client-side redirect Tests", () => {
   });
 
   it("should redirect", async () => {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
     const rootDir = path.join(__dirname, "src");
     const destinationDir = path.join(__dirname);
     const { core } = await initialize(chatroomId, api, {

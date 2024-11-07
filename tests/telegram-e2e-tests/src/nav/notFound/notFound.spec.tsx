@@ -1,4 +1,5 @@
-import path from "path";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
 import { Api, MessageType } from "@rx-lab/mock-telegram-client";
 import {
   DEFAULT_RENDERING_WAIT_TIME,
@@ -8,6 +9,8 @@ import {
 } from "../../utils";
 
 const chatroomId = 2100;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 describe("404 page", () => {
   let api: Api<any>;
@@ -21,7 +24,7 @@ describe("404 page", () => {
 
   it("should render the 404 page using the default one", async () => {
     const rootDir = path.join(__dirname, "src");
-    const destinationDir = path.join(__dirname, ".rx-lab");
+    const destinationDir = path.join(__dirname);
     const { core } = await initialize(chatroomId, api, {
       rootDir,
       destinationDir,

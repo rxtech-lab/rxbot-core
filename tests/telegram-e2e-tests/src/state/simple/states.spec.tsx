@@ -1,9 +1,10 @@
-import path from "path";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
 import { Api, MessageType } from "@rx-lab/mock-telegram-client";
 import {
   DEFAULT_RENDERING_WAIT_TIME,
-  initialize,
   PORT,
+  initialize,
   sleep,
 } from "../../utils";
 
@@ -20,8 +21,10 @@ describe("Simple State Tests", () => {
   });
 
   it("should render the initial state", async () => {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
     const rootDir = path.join(__dirname, "src");
-    const destinationDir = path.join(__dirname, ".rx-lab");
+    const destinationDir = path.join(__dirname);
     const { core } = await initialize(chatroomId, api, {
       rootDir,
       destinationDir,

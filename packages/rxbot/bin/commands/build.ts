@@ -44,13 +44,15 @@ export default async function runBuild(
       compiler.run((err, stats) => {
         if (err) {
           Logger.log("Build failed with error:", "red");
-          process.exit(1);
+          reject(err);
         }
 
         if (stats?.hasErrors()) {
           Logger.log("Build failed with errors:", "red");
-          Logger.log(stats.toString(), "red");
-          process.exit(1);
+          const errors = stats.toJson().errors;
+          Logger.log(JSON.stringify(errors), "red");
+          reject(errors);
+          return;
         }
 
         compiler.close((closeErr) => {

@@ -16,7 +16,7 @@ export async function sleep(ms: number) {
 
 export const PORT = 9000;
 
-export const DEFAULT_RENDERING_WAIT_TIME = 500;
+export const DEFAULT_RENDERING_WAIT_TIME = 800;
 
 export const DEFAULT_LONG_RENDERING_WAIT_TIME = 4000;
 
@@ -77,10 +77,10 @@ export const initializeWithWebhook = async (
       status: "ok",
     };
   });
-  await build(opts.rootDir);
-  const mod = await import(`${opts.destinationDir}/main.js`).then(
-    (mod) => mod.default,
-  );
+  await build(opts.rootDir, opts.destinationDir, false);
+  const mod = await import(
+    path.join(opts.destinationDir, ".rx-lab", "main.js")
+  ).then((mod) => mod.default);
 
   const core = await Core.Start({
     adapter: adapter,

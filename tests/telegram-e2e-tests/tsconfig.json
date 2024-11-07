@@ -5,7 +5,7 @@
     "rootDir": "src",
     "jsx": "react-jsx",
     "esModuleInterop": true,
-    "module": "ESNext",
+    "module": "esnext",
     "moduleResolution": "nodenext",
     "target": "ES2020"
   },

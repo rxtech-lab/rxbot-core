@@ -68,6 +68,7 @@ describe.skip("Reconciler(Suspendable)", () => {
     renderer = new Core({
       adapter: mockAdapter,
       storage: new MemoryStorage(),
+      routeFile: {} as any,
     });
   });
 

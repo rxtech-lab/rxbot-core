@@ -15,15 +15,15 @@ describe("ImportRoute", () => {
     it(`should import component ${component}`, async () => {
       const route = await importRoute({
         route: "/",
-        page: component,
-        error: "",
-        "404": "",
+        page: () => import(component),
+        error: () => import(component),
+        "404": () => import(component),
         metadata: {},
       });
       expect(route).toBeTruthy();
       expect(route.route).toBe("/");
-      expect(route.page).toBe(component);
-      expect(route.component).toBeTruthy();
+      expect(route.page).toBeDefined();
+      expect(typeof route.page).toBe("function");
     });
   }
 });
@@ -32,33 +32,33 @@ describe("matchRouteWithPath", () => {
   const routes: RouteInfo[] = [
     {
       route: "/user/[id]",
-      page: clientComponents[0],
+      page: () => import(clientComponents[0]),
       metadata: {},
-      error: "",
-      "404": "",
+      error: () => import(clientComponents[0]),
+      "404": () => import(clientComponents[0]),
     },
     {
       route: "/blog/[slug]",
-      page: clientComponents[0],
+      page: () => import(clientComponents[0]),
       metadata: {},
-      error: "",
-      "404": "",
+      error: () => import(clientComponents[0]),
+      "404": () => import(clientComponents[0]),
       subRoutes: [
         {
           route: "/blog/[slug]/comments",
-          page: clientComponents[0],
+          page: () => import(clientComponents[0]),
           metadata: {},
-          error: "",
-          "404": "",
+          error: () => import(clientComponents[0]),
+          "404": () => import(clientComponents[0]),
         },
       ],
     },
     {
       route: "/about",
-      page: clientComponents[0],
+      page: () => import(clientComponents[0]),
       metadata: {},
-      error: "",
-      "404": "",
+      error: () => import(clientComponents[0]),
+      "404": () => import(clientComponents[0]),
     },
   ];
 
@@ -126,17 +126,17 @@ describe("should be able to render", () => {
       routes: [
         {
           route: "/client",
-          page: clientComponents[0],
-          error: "",
-          "404": "",
+          page: () => import(clientComponents[0]),
+          error: () => import(clientComponents[0]),
+          "404": () => import(clientComponents[0]),
           metadata: {},
         },
         {
           route: "/server",
-          page: serverComponents[0],
+          page: () => import(serverComponents[0]),
           metadata: {},
-          error: "",
-          "404": "",
+          error: () => import(clientComponents[0]),
+          "404": () => import(clientComponents[0]),
         },
       ],
     });
@@ -152,7 +152,7 @@ describe("should be able to render", () => {
 });
 
 describe("matchSpecialRouteWithPath", () => {
-  const mockRoutes: RouteInfo[] = [
+  const mockRoutes: any[] = [
     {
       route: "/",
       404: "/404",
@@ -261,7 +261,7 @@ describe("matchSpecialRouteWithPath", () => {
           error: "/error",
           page: "/index",
         },
-      ],
+      ] as any,
       "/any/path",
     );
     expect(result.route).toBe("/");
