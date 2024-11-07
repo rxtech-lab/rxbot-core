@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "private": true,
-  "exports": {
-    ".": "./src/index.ts"
-  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "generate": "ts-node generate.ts && tsc",
     "build": "tsc",

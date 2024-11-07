@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node server.tsx",
-    "webhook": "ts-node webhook.ts"
+    "dev": "rxbot dev",
+    "build": "rxbot build",
+    "deploy": "rxbot deploy"
   },
   "keywords": [],
   "author": "",
@@ -19,12 +20,14 @@
     "@rx-lab/telegram-adapter": "workspace:*",
     "@rx-lab/typescript-config": "workspace:*",
     "@rx-lab/upstash-storage": "workspace:*",
+    "rxbot-cli": "workspace:*",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.50",
     "@types/react": "^18.3.3",
+    "@vercel/functions": "^1.4.1",
     "ai": "^3.3.12",
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.5",

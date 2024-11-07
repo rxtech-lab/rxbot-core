@@ -2,12 +2,15 @@ import path from "path";
 import { Api, MessageType } from "@rx-lab/mock-telegram-client";
 import {
   DEFAULT_RENDERING_WAIT_TIME,
-  initialize,
   PORT,
+  initialize,
   sleep,
 } from "../../utils";
 
 const chatroomId = 2001;
+
+import { dirname } from "path";
+import { fileURLToPath } from "url";
 
 describe("Simple client-side redirect Tests", () => {
   let api: Api<any>;
@@ -20,8 +23,10 @@ describe("Simple client-side redirect Tests", () => {
   });
 
   it("should redirect", async () => {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
     const rootDir = path.join(__dirname, "src");
-    const destinationDir = path.join(__dirname, ".rx-lab");
+    const destinationDir = path.join(__dirname);
     const { core } = await initialize(chatroomId, api, {
       rootDir,
       destinationDir,

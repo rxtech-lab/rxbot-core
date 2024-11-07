@@ -1,4 +1,5 @@
-import path from "path";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
 import { Api, MessageType } from "@rx-lab/mock-telegram-client";
 import {
   DEFAULT_RENDERING_WAIT_TIME,
@@ -7,7 +8,7 @@ import {
   sleep,
 } from "../../utils";
 
-const chatroomId = 1000;
+const chatroomId = 1002;
 
 describe("Multiple states", () => {
   let api: Api<any>;
@@ -20,8 +21,10 @@ describe("Multiple states", () => {
   });
 
   it("should render component correctly for multiple states", async () => {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
     const rootDir = path.join(__dirname, "src");
-    const destinationDir = path.join(__dirname, ".rx-lab");
+    const destinationDir = path.join(__dirname);
     const { core } = await initialize(chatroomId, api, {
       rootDir,
       destinationDir,

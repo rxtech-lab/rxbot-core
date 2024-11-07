@@ -17,6 +17,9 @@ import { convertRouteToTGRoute, convertTGRouteToRoute } from "./utils";
 export type TelegramAppOpts =
   | {
       token: string;
+      /**
+       * Url for telegram api
+       */
       url?: string;
     }
   | {
@@ -294,9 +297,12 @@ export class TelegramAdapter
   }
 
   async onDestroy(): Promise<void> {
-    await this.bot.stopPolling({
-      cancel: true,
-    });
+    if ("longPolling" in this.opts && this.opts.longPolling) {
+      await this.bot.stopPolling({
+        cancel: true,
+      });
+      await this.bot.close();
+    }
   }
 
   createContainer(message: TelegramBot.Message): TGContainer {

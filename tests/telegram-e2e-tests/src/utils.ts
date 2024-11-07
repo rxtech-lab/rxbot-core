@@ -1,8 +1,10 @@
+import path from "path";
 import { Core } from "@rx-lab/core";
 import { Api } from "@rx-lab/mock-telegram-client";
 import { DelaySimulationFunction, MemoryStorage } from "@rx-lab/storage/memory";
 import { TelegramAdapter } from "@rx-lab/telegram-adapter";
 import Fastify from "fastify";
+import { build } from "rxbot-cli/command";
 
 /**
  * Utility function to sleep for a given time
@@ -14,7 +16,7 @@ export async function sleep(ms: number) {
 
 export const PORT = 9000;
 
-export const DEFAULT_RENDERING_WAIT_TIME = 500;
+export const DEFAULT_RENDERING_WAIT_TIME = 800;
 
 export const DEFAULT_LONG_RENDERING_WAIT_TIME = 4000;
 
@@ -42,11 +44,17 @@ export const initialize = async (
     longPolling: true,
   });
 
-  const core = await Core.Compile({
+  await build(opts.rootDir, opts.destinationDir, {
+    hasAdapterFile: false,
+  });
+  const mod = await import(
+    path.join(opts.destinationDir, ".rx-lab", "main.js")
+  ).then((mod) => mod.default);
+
+  const core = await Core.Start({
     adapter: adapter,
     storage: client,
-    rootDir: opts.rootDir,
-    destinationDir: opts.destinationDir,
+    routeFile: mod.ROUTE_FILE,
   });
 
   await api.reset.resetState();
@@ -71,11 +79,17 @@ export const initializeWithWebhook = async (
       status: "ok",
     };
   });
-  const core = await Core.Compile({
+  await build(opts.rootDir, opts.destinationDir, {
+    hasAdapterFile: false,
+  });
+  const mod = await import(
+    path.join(opts.destinationDir, ".rx-lab", "main.js")
+  ).then((mod) => mod.default);
+
+  const core = await Core.Start({
     adapter: adapter,
     storage: client,
-    rootDir: opts.rootDir,
-    destinationDir: opts.destinationDir,
+    routeFile: mod.ROUTE_FILE,
   });
 
   await api.reset.resetState();
