@@ -297,10 +297,12 @@ export class TelegramAdapter
   }
 
   async onDestroy(): Promise<void> {
-    await this.bot.stopPolling({
-      cancel: true,
-    });
-    await this.bot.close();
+    if ("longPolling" in this.opts && this.opts.longPolling) {
+      await this.bot.stopPolling({
+        cancel: true,
+      });
+      await this.bot.close();
+    }
   }
 
   createContainer(message: TelegramBot.Message): TGContainer {

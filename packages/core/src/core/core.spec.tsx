@@ -1,5 +1,6 @@
 import * as process from "node:process";
 import type { AdapterInterface, Container, Menu } from "@rx-lab/common";
+// @ts-ignore
 import { MemoryStorage } from "@rx-lab/storage/memory";
 import { Core } from "./core";
 

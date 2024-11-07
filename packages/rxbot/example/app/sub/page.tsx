@@ -8,7 +8,7 @@ export const metadata: RouteMetadata = {
 export default function page() {
   return (
     <div>
-      <h1>Hello, welcome</h1>
+      <h1>This is a subpage</h1>
     </div>
   );
 }

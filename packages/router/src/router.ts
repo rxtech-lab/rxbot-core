@@ -199,9 +199,16 @@ export class Router {
     return this._routeInfoFile;
   }
 
-  async initFromRoutes(routeFile: RouteInfoFile) {
+  /**
+   * Initialize the router with the route file.
+   * @param routeFile Route file to initialize the router.
+   * @param shouldUpdateMenu Should update the menu after initialization.
+   */
+  async initFromRoutes(routeFile: RouteInfoFile, shouldUpdateMenu = false) {
     this._routeInfoFile = routeFile;
-    await this.updateMenu();
+    if (shouldUpdateMenu) {
+      await this.updateMenu();
+    }
   }
 
   private generateMenu(routes: RouteInfo[]): Menu[] {

@@ -1,5 +1,5 @@
-import { FileStorage } from "@rx-lab/file-storage";
 import { TelegramAdapter } from "@rx-lab/telegram-adapter";
+import { UpstashStorage } from "@rx-lab/upstash-storage";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -14,6 +14,9 @@ const adapter = new TelegramAdapter({
   token: apiKey,
 });
 
-const storage = new FileStorage();
+const storage = new UpstashStorage({
+  url: process.env.UPSTASH_URL!,
+  token: process.env.UPSTASH_TOKEN!,
+});
 
 export { adapter, storage };

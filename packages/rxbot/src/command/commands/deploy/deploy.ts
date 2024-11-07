@@ -1,5 +1,10 @@
-import { resolve } from "path";
-import { DEFAULT_COMPILER_CONFIG_FILE, Logger } from "@rx-lab/common";
+import path, { resolve } from "path";
+import {
+  DEFAULT_COMPILER_CONFIG_FILE,
+  DEFAULT_OUTPUT_FOLDER,
+  Logger,
+} from "@rx-lab/common";
+import { Core } from "@rx-lab/core";
 import { transformFile } from "@swc/core";
 import { z } from "zod";
 import deployToVercel from "./deploy-vercel";
@@ -42,6 +47,18 @@ interface Options {
   environment: "vercel";
 }
 
+async function updateMenu() {
+  const outputFile = path.resolve(DEFAULT_OUTPUT_FOLDER, "main.js");
+  const nativeRequire = require("module").createRequire(process.cwd());
+  const mod = nativeRequire(outputFile);
+  await Core.UpdateMenu({
+    adapter: mod.adapter,
+    storage: mod.storage,
+    routeFile: mod.ROUTE_FILE,
+  });
+  Logger.info("Menu updated successfully", "green");
+}
+
 export default async function runDeploy({ environment }: Options) {
   // read the config file
   const configFile = await loadConfig(DEFAULT_COMPILER_CONFIG_FILE);
@@ -57,5 +74,7 @@ export default async function runDeploy({ environment }: Options) {
     default:
       throw new Error(`Unsupported environment: ${environment}`);
   }
+
+  await updateMenu();
   Logger.info("Deploy completed successfully", "green");
 }

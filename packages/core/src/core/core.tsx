@@ -36,6 +36,20 @@ interface CoreOptions {
 
 const DEFAULT_TIMEOUT = 2000;
 
+function checkIsOptionsValid(opts: StartOptions) {
+  if (!opts.adapter) {
+    throw new Error("Adapter is required");
+  }
+
+  if (!opts.storage) {
+    throw new Error("Storage is required");
+  }
+
+  if (!opts.routeFile) {
+    throw new Error("Route file is required");
+  }
+}
+
 export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
   extends Renderer<T>
   implements CoreInterface<any>
@@ -53,19 +67,13 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     this.timeout = timeout ?? DEFAULT_TIMEOUT;
   }
 
+  /**
+   * Start the core in production mode.
+   * @param opts
+   * @constructor
+   */
   static async Start(opts: StartOptions) {
-    if (!opts.adapter) {
-      throw new Error("Adapter is required");
-    }
-
-    if (!opts.storage) {
-      throw new Error("Storage is required");
-    }
-
-    if (!opts.routeFile) {
-      throw new Error("Route file is required");
-    }
-
+    checkIsOptionsValid(opts);
     const core = new Core({
       adapter: opts.adapter,
       storage: opts.storage,
@@ -73,7 +81,44 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
       routeFile: opts.routeFile,
     });
 
-    await core.router.initFromRoutes(opts.routeFile);
+    await core.router.initFromRoutes(opts.routeFile, false);
+    await core.init();
+    return core;
+  }
+
+  /**
+   * Update the menu without initializing the core.
+   * @param opts
+   * @constructor
+   */
+  static async UpdateMenu(opts: StartOptions) {
+    checkIsOptionsValid(opts);
+    const core = new Core({
+      adapter: opts.adapter,
+      storage: opts.storage,
+      timeout: opts.timeout,
+      routeFile: opts.routeFile,
+    });
+
+    await core.router.initFromRoutes(opts.routeFile, true);
+  }
+
+  /**
+   * Start the core in development mode.
+   * This enables hot reloading of the routes and updates the menu.
+   * @param opts
+   * @constructor
+   */
+  static async Dev(opts: StartOptions) {
+    checkIsOptionsValid(opts);
+    const core = new Core({
+      adapter: opts.adapter,
+      storage: opts.storage,
+      timeout: opts.timeout,
+      routeFile: opts.routeFile,
+    });
+
+    await core.router.initFromRoutes(opts.routeFile, true);
     await core.init();
     return core;
   }
