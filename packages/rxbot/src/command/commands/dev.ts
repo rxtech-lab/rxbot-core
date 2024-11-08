@@ -12,15 +12,15 @@ import { getRspackConfig, getSrcAndOutputDir } from "../utils";
 
 export default async function runDev(srcFolder = "./src", outputFolder = "./") {
   try {
-    const { outputDir, tempFolder, cwd } = getSrcAndOutputDir(
+    Logger.shouldLog = true;
+    const { outputPath, tempFolder, cwd, srcPath } = getSrcAndOutputDir(
       srcFolder,
       outputFolder,
     );
-    await fs.rm(outputDir, { recursive: true, force: true });
-    Logger.log(`Output will be in ${outputDir}`, "blue");
+    await fs.rm(outputPath, { recursive: true, force: true });
 
     // Default config
-    const defaultConfig = getRspackConfig(srcFolder, tempFolder, outputDir, {
+    const defaultConfig = getRspackConfig(srcPath, tempFolder, outputPath, {
       hasAdapterFile: true,
     });
 
@@ -91,14 +91,15 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
           app.post("/api/webhook", async (req, res) => {
             try {
               // Clear the module from Node's cache
-              const modulePath = path.resolve(outputDir, "main.js");
-              delete require.cache[require.resolve(modulePath)];
+              const modulePath = path.resolve(outputPath, "main.js");
+              // node require
+              const nativeRequire = require("module").createRequire(
+                process.cwd(),
+              );
+              delete nativeRequire.cache[nativeRequire.resolve(modulePath)];
 
               // Now import the fresh version
-              const mod = await import(
-                modulePath + "?update=" + Date.now()
-              ).then((mod) => mod.default);
-
+              const mod = nativeRequire(modulePath);
               const core = await Core.Dev({
                 adapter: mod.adapter,
                 storage: mod.storage,
@@ -115,7 +116,7 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
           app.post("/api/send-message", async (req, res) => {
             try {
               // Clear the module from Node's cache
-              const modulePath = path.resolve(outputDir, "main.js");
+              const modulePath = path.resolve(outputPath, "main.js");
               delete require.cache[require.resolve(modulePath)];
 
               // Now import the fresh version
@@ -145,8 +146,8 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
     });
 
     // Run server
-    const compiler = rspack(config);
-    const server = new RspackDevServer(config.devServer!, compiler);
+    const compiler = rspack(config, () => {});
+    const server = new RspackDevServer(config.devServer!, compiler!);
 
     await server.start();
     Logger.log(

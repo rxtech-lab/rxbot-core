@@ -327,13 +327,14 @@ export class CompilerUtils {
    * console.log(results[0].outputFilePath); // Path to the first compiled file
    */
   async buildAllFilesInSourceDir() {
-    const tsFiles = await this.getAllTsFilesInDir(this.sourceDir);
+    let tsFiles = await this.getAllTsFilesInDir(this.sourceDir);
+    tsFiles = tsFiles.filter((t) => !t.includes(".spec."));
     return await Promise.all(
       tsFiles.map(async (file) => {
-        Logger.log(`Compiling ${file}`, "blue");
         const result = await this.buildSourceCode(
           path.join(this.sourceDir, file),
         );
+        Logger.log(`Compiling ${file} to ${result.outputFilePath}`, "blue");
         if (!fs.existsSync(result.outputDir)) {
           fs.mkdirSync(result.outputDir, { recursive: true });
         }

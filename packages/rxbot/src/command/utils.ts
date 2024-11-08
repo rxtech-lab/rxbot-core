@@ -1,6 +1,6 @@
 import path from "path";
 import { RspackOptions } from "@rspack/core";
-import { DEFAULT_OUTPUT_FOLDER } from "@rx-lab/common";
+import { DEFAULT_OUTPUT_FOLDER, Logger } from "@rx-lab/common";
 import { BuildAppPlugin } from "../plugins/build-app.plugin";
 
 export function getRspackConfig(
@@ -67,7 +67,11 @@ export function getRspackConfig(
 
 export function getSrcAndOutputDir(srcFolder: string, outputFolder: string) {
   const cwd = process.cwd();
-  const outputDir = path.resolve(outputFolder, DEFAULT_OUTPUT_FOLDER);
-  const tempFolder = path.resolve(outputDir, "temp");
-  return { cwd, srcFolder, tempFolder, outputDir };
+  Logger.info(`Current working directory is ${cwd}`, "red");
+  const outputPath = path.resolve(cwd, outputFolder, DEFAULT_OUTPUT_FOLDER);
+  const tempFolder = path.resolve(cwd, outputPath, "temp");
+  const srcPath = path.resolve(cwd, srcFolder);
+  Logger.info(`Source is ${srcPath}`, "red");
+  Logger.info(`Output will be in ${outputPath}`, "red");
+  return { cwd, srcPath, tempFolder, outputPath };
 }
