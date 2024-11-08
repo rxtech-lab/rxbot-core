@@ -23,80 +23,44 @@ dynamic bot interfaces with ease.
 
 ## Getting Started
 
-1. Install the package using npm or yarn:
-    ```bash
-    npm install @rx-lab/core @rx-lab/storage @rx-lab/common @rx-lab/telegram-adapter
-    ```
-2. Create a folder called `app` in the src directory of your project.
-3. Create a `page.tsx` file inside the `app` folder with the following content:
-    ```tsx
-    export default function Page() {
-        return <div>Hello, World!</div>;
-    }
-    ```
-4. Create an `adapter.ts` file in the `src` directory with the following content:
-    ```ts
-    import { MemoryStorage } from "@rx-lab/storage/memory";
-    import { TelegramAdapter } from "@rx-lab/telegram-adapter";
+### Installation
 
-    const adapter = new TelegramAdapter({
-    token: apiKey,
-    } as any);
-    
-    const storage = new MemoryStorage();
-    
-    export { adapter, storage };
+To create a new RX-Bot project, you can use the `create-rx-bot` package. This package will help you to create a `RxBot` instance.
+
+```bash
+pnpm create rx-bot
+```
+
+### Using the Latest rxbot CLI
+
+The latest rxbot CLI can be used to build, develop, and deploy your RX-Bot projects. Here are some common commands:
+
+- Build the application:
+    ```bash
+    rxbot build
     ```
-5. Create a web Server(if using callback) and start the bot:
-    ```ts
-    import path from "path";
-    import { Core } from "@rx-lab/core";
-    import { FileStorage } from "@rx-lab/file-storage";
-    import { TelegramAdapter } from "@rx-lab/telegram-adapter";
-    import Fastify from "fastify";
-    
-    const adapter = new TelegramAdapter({
-        token: apiKey,
-    });
-    
-    const storage = new FileStorage();
-    
-    const app = Fastify();
-    let core: Core<any>;
-    
-    app.post("/webhook", async (req, res) => {
-        const { body } = req;
-        try {
-            await core.handleMessageUpdate(body as any);
-            return {
-                status: "ok",
-            };
-        } catch (error) {
-            console.error(error);
-            return {
-                status: "error",
-            };
-        }
-    });
-    
-    (async () => {
-        try {
-            core = await Core.Compile({
-                adapter,
-                storage,
-                rootDir: path.join(__dirname, "src"),
-                destinationDir: path.join(__dirname, ".rx-lab"),
-            });
-            console.log("Bot is running");
-            await app.listen({
-                port: 3000,
-            });
-        } catch (error) {
-            console.error(error);
-            process.exit(1);
-        }
-    })();
+
+- Run in development mode:
+    ```bash
+    rxbot dev
     ```
+
+- Deploy the application:
+    ```bash
+    rxbot deploy
+    ```
+
+### Starting the Dev Server
+
+To start the development server using the latest rxbot CLI, run the following command:
+
+```bash
+rxbot dev
+```
+
+### Example Project
+
+For a complete example, you can refer to the `apps/example-bot` directory in this repository. It contains a sample bot project that demonstrates how to use the RX-Bot framework.
 
 ## Examples
 
