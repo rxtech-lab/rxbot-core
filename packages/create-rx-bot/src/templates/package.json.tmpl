@@ -11,12 +11,18 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vercel": "^37.14.0"
   },
   "dependencies": {
     "rxbot-cli": "latest",
     "react": "^18.3.1",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "react-reconciler": "^0.29.2",
+    "@vercel/functions": "^1.5.0",
+    "@types/react": "^18.3.12",
+    "@rx-lab/common": "latest",
+    "@rx-lab/core": "latest"
     {%- for adapter in adapters %}
       {%- if adapter === 'telegram' %},
     "@rx-lab/telegram-adapter": "latest"
