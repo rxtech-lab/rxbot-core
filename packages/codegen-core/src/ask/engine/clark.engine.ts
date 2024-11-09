@@ -1,86 +1,80 @@
 import * as g from "@clack/prompts";
+import { JSONSchema7 } from "json-schema";
 import { QuestionEngine } from "./engine";
-import {
-  ConfirmQuestion,
-  InputQuestion,
-  MultiChoiceQuestion,
-  Question,
-  SingleChoiceQuestion,
-} from "./types";
 
-export class ClarkEngine implements QuestionEngine {
+export class ClarkEngine extends QuestionEngine {
   private spinner: any;
-  async adapt<T extends Question<any>[]>(
-    questions: [...T],
-  ): Promise<Record<string, any>> {
-    const adaptedQuestions: Record<string, any> = {};
-    for (const question of questions) {
-      switch (question.type) {
-        case "input":
-          adaptedQuestions[question.name] = await this.adaptText(question);
-          break;
-        case "singleChoice":
-          adaptedQuestions[question.name] =
-            await this.adaptSingleSelect(question);
-          break;
-        case "multiChoice":
-          adaptedQuestions[question.name] =
-            await this.adaptMultiSelect(question);
-          break;
-        case "confirm":
-          adaptedQuestions[question.name] = await this.adaptConfirm(question);
-          break;
-      }
+
+  async renderQuestion(schema: JSONSchema7, key: string): Promise<any> {
+    const message = schema.title || key;
+
+    // Handle array type as multiChoice
+    if (
+      schema.type === "array" &&
+      schema.items &&
+      typeof schema.items === "object" &&
+      "enum" in schema.items
+    ) {
+      const options = this.getOptionsFromOneOfField(schema.items);
+      return g.multiselect({
+        message,
+        //@ts-ignore
+        options,
+        required: this.isFieldRequired(schema, key),
+      });
     }
-    const grouped = await g.group(adaptedQuestions);
-    for (const key in grouped) {
-      if (g.isCancel(grouped[key])) {
-        g.cancel("User cancelled the operation");
-        throw new Error("User cancelled the operation");
-      }
+
+    // Handle enum type as singleChoice
+    if (schema.enum) {
+      const options = this.getOptionsFromOneOfField(schema);
+      return g.select({
+        message,
+        //@ts-ignore
+        options,
+      });
     }
-    return grouped;
-  }
 
-  async adaptText(question: InputQuestion<any>) {
-    return g.text({
-      message: question.message,
-      placeholder: question.placeholder,
-      validate: (value) => {
-        const result = question.validate?.(value);
-        if (result) return result;
-      },
-    });
-  }
+    // Handle boolean as confirm
+    if (schema.type === "boolean") {
+      return g.confirm({
+        message,
+        initialValue: schema.default as boolean,
+      });
+    }
 
-  async adaptSingleSelect(question: SingleChoiceQuestion<any>) {
-    return g.select({
-      message: question.message,
-      options: question.choices.map((choice) => ({
-        value: choice.value,
-        label: choice.label,
-        hint: choice.hint,
-      })),
-    });
-  }
+    // Handle string/number as input
+    if (schema.type === "string" || schema.type === "number") {
+      return g.text({
+        message,
+        placeholder: schema.default?.toString(),
+        validate: (value) => {
+          if (schema.minLength && value.length < schema.minLength) {
+            return `Minimum length is ${schema.minLength}`;
+          }
+          if (schema.pattern) {
+            const regex = new RegExp(schema.pattern);
+            if (!regex.test(value)) {
+              return `Value must match pattern: ${schema.pattern}`;
+            }
+          }
+          if (schema.type === "number") {
+            const num = Number(value);
+            if (Number.isNaN(num)) {
+              return "Please enter a valid number";
+            }
+            if (typeof schema.minimum === "number" && num < schema.minimum) {
+              return `Minimum value is ${schema.minimum}`;
+            }
+            if (typeof schema.maximum === "number" && num > schema.maximum) {
+              return `Maximum value is ${schema.maximum}`;
+            }
+          }
+          return undefined;
+        },
+      });
+    }
 
-  async adaptMultiSelect(question: MultiChoiceQuestion<any>) {
-    return g.multiselect({
-      message: question.message,
-      options: question.choices.map((choice) => ({
-        value: choice.value,
-        label: choice.label,
-        hint: choice.hint,
-      })),
-      required: (question.minChoices ?? 0) > 0,
-    });
-  }
-
-  async adaptConfirm(question: ConfirmQuestion<any>) {
-    return g.confirm({
-      message: question.message,
-      initialValue: question.default,
-    });
+    return undefined;
   }
 
   async start(content: string): Promise<void> {
