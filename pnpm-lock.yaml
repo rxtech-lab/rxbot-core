@@ -109,6 +109,9 @@ importers:
       '@types/json-schema':
         specifier: ^7.0.15
         version: 7.0.15
+      '@types/nunjucks':
+        specifier: ^3.2.6
+        version: 3.2.6
       ajv:
         specifier: ^8.17.1
         version: 8.17.1

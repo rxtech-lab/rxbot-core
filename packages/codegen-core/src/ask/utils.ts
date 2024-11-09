@@ -40,7 +40,7 @@ export function isValidJsonSchema(schema: unknown): ValidationResult {
 
     // Try to compile the schema to catch any runtime errors
     try {
-      ajv.compile(schema as JSONSchemaType<unknown>);
+      ajv.compile(schema as unknown as JSONSchemaType<unknown>);
       return {
         isValid: true,
       };
