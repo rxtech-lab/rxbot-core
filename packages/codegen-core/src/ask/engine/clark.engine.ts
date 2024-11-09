@@ -18,8 +18,7 @@ export class ClarkEngine extends QuestionEngine {
       const options = this.getOptionsFromOneOfField(schema.items);
       return g.multiselect({
         message,
-        //@ts-ignore
-        options,
+        options: options as any,
         required: this.isFieldRequired(schema, key),
       });
     }
@@ -29,8 +28,8 @@ export class ClarkEngine extends QuestionEngine {
       const options = this.getOptionsFromOneOfField(schema);
       return g.select({
         message,
-        //@ts-ignore
-        options,
+        options: options as any,
+        maxItems: schema.maxItems,
       });
     }
 
@@ -62,10 +61,10 @@ export class ClarkEngine extends QuestionEngine {
             if (Number.isNaN(num)) {
               return "Please enter a valid number";
             }
-            if (typeof schema.minimum === "number" && num < schema.minimum) {
+            if (num < (schema.minimum ?? 0)) {
               return `Minimum value is ${schema.minimum}`;
             }
-            if (typeof schema.maximum === "number" && num > schema.maximum) {
+            if (num > (schema.maximum ?? 0)) {
               return `Maximum value is ${schema.maximum}`;
             }
           }

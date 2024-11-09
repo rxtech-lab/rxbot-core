@@ -1,13 +1,12 @@
-import { z } from "zod";
+import * as fs from "node:fs/promises";
+import { JSONSchema7 } from "json-schema";
+import * as YAML from "yaml";
 import { QuestionEngine } from "./engine";
-import { InferQuestion } from "./engine/types";
+import { isValidJsonSchema } from "./utils";
 
-export interface Config<T extends z.ZodType> {
-  schema: T;
-  questions: Array<InferQuestion<z.infer<T>>>;
+export interface Config {
+  questions: JSONSchema7;
   engine: new () => QuestionEngine;
-  startMessage?: string;
-  endMessage?: string;
 }
 
 /**
@@ -15,20 +14,36 @@ export interface Config<T extends z.ZodType> {
  * @param config Configuration object containing Zod schema and questions
  * @returns Parsed and validated answers object
  */
-export async function ask<T extends z.ZodType>(
-  config: Config<T>,
-): Promise<z.infer<T>> {
+export async function ask(config: Config): Promise<Record<string, any>> {
   const engine = new config.engine();
-  if (config.startMessage) await engine.start(config.startMessage);
+  if (config.questions.title)
+    await engine.start(`Starting ${config.questions.title}`);
   const answers = await engine.adapt(config.questions);
-  // Validate answers against the schema
-  const result = config.schema.safeParse(answers);
+  if (engine.end && config.questions.title)
+    await engine.end(config.questions.title);
 
-  if (!result.success) {
-    await engine.error(result.error.errors.join("\n"));
-    throw new Error("Validation failed");
+  return answers;
+}
+
+interface Options {
+  fs?: typeof fs;
+}
+
+/**
+ * Ask from file is a helper function to ask questions from a file
+ * @param filename
+ * @param opts
+ */
+export async function askFromFile(
+  filename: string,
+  opts?: Options,
+): Promise<Record<string, any>> {
+  const fsModule = opts?.fs ?? fs;
+  const file = await fsModule.readFile(filename, "utf-8");
+  const config = YAML.parse(file) as Config;
+  const isValid = isValidJsonSchema(config.questions);
+  if (!isValid.isValid) {
+    throw new Error(`Invalid JSON schema: ${isValid.error}`);
   }
-  if (engine.end && config.endMessage) await engine.end(config.endMessage);
-
-  return result.data;
+  return ask(config);
 }
