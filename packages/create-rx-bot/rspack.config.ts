@@ -16,6 +16,12 @@ export default defineConfig({
   target: "node",
   resolve: {
     extensions: [".ts", ".js", ".json", ".tsx"],
+    alias: {
+      "sourcecraft-core/node": path.resolve(
+        __dirname,
+        "node_modules/sourcecraft-core/dist/node.js",
+      ),
+    },
   },
   externals: [
     /^@swc/,
@@ -23,6 +29,15 @@ export default defineConfig({
     // Add pattern for native modules
     /\.node$/,
     "express",
+    ({ request }, callback) => {
+      if (
+        request === "sourcecraft-core" ||
+        request?.startsWith("sourcecraft-core/")
+      ) {
+        return callback(null, `commonjs ${request}`);
+      }
+      callback();
+    },
   ],
   module: {
     rules: [

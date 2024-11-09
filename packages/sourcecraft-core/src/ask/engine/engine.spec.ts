@@ -1,36 +1,29 @@
 import { JSONSchema7 } from "json-schema";
+import { undefined } from "zod";
 import { QuestionEngine } from "./engine";
 
 describe("engine", () => {
   const renderQuestion = jest.fn();
   class SimpleEngine extends QuestionEngine {
-    end(content: string): Promise<void> {
-      return Promise.resolve(undefined);
-    }
+    async end(content: string): Promise<void> {}
 
-    error(content: string): Promise<void> {
-      return Promise.resolve(undefined);
-    }
+    async error(content: string): Promise<void> {}
 
-    hideLoading(content?: string, code?: number): Promise<void> {
-      return Promise.resolve(undefined);
-    }
+    async hideLoading(content?: string, code?: number): Promise<void> {}
 
-    renderQuestion(schema: JSONSchema7, key: string): Promise<any> {
+    async renderQuestion(schema: JSONSchema7, key: string): Promise<any> {
       return renderQuestion(schema, key);
     }
 
-    showLoading(content?: string): Promise<void> {
-      return Promise.resolve(undefined);
-    }
+    async showLoading(content?: string): Promise<void> {}
 
-    start(content: string): Promise<void> {
-      return Promise.resolve(undefined);
-    }
+    async start(content: string): Promise<void> {}
 
     isFieldRequired(schema: JSONSchema7, field: string): boolean {
       return super.isFieldRequired(schema, field);
     }
+
+    async warn(content: string): Promise<void> {}
   }
   let engine: SimpleEngine;
 

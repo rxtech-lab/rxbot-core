@@ -51,6 +51,8 @@ export abstract class QuestionEngine {
    */
   abstract hideLoading(content?: string, code?: number): Promise<void>;
 
+  abstract warn(content: string): Promise<void>;
+
   /**
    * Adapts the provided questions schema to gather user input
    * @param questions - The JSON schema defining the questions
@@ -181,8 +183,11 @@ export abstract class QuestionEngine {
             propSchema as JSONSchema7,
             fullPath,
           );
-          if (value !== undefined && !['__proto__', 'constructor', 'prototype'].includes(propKey)) {
-            if (!['__proto__', 'constructor', 'prototype'].includes(propKey)) {
+          if (
+            value !== undefined &&
+            !["__proto__", "constructor", "prototype"].includes(propKey)
+          ) {
+            if (!["__proto__", "constructor", "prototype"].includes(propKey)) {
               answers[key][propKey] = value;
             }
             // Update nested answers after each value is set
@@ -217,8 +222,13 @@ export abstract class QuestionEngine {
               propSchema as JSONSchema7,
               fullPath,
             );
-            if (value !== undefined && !['__proto__', 'constructor', 'prototype'].includes(propKey)) {
-              if (!['__proto__', 'constructor', 'prototype'].includes(propKey)) {
+            if (
+              value !== undefined &&
+              !["__proto__", "constructor", "prototype"].includes(propKey)
+            ) {
+              if (
+                !["__proto__", "constructor", "prototype"].includes(propKey)
+              ) {
                 answers[key][propKey] = value;
               }
               this.setNestedValue(answers, fullPath, value);
@@ -396,20 +406,16 @@ export abstract class QuestionEngine {
   }
 
   protected getOptionsFromOneOfField(schema: JSONSchema7) {
-    if (schema.enum) {
-      return schema.enum.map((value) => ({
-        value,
-        label: value?.toString(),
-      }));
-    }
-
+    const defaultValue = schema.default;
     if (schema.oneOf) {
       return schema.oneOf.map((option) => {
         const enumOption = option as ExtendedJSONSchema7Object;
+        const isSelected = enumOption.const === defaultValue;
         return {
           value: enumOption.const,
           label: enumOption.title || enumOption.const?.toString(),
           hint: enumOption.description,
+          default: schema.default ? isSelected : undefined,
         };
       });
     }

@@ -2,10 +2,10 @@ import { Config, ask } from "./ask";
 
 describe("ask", () => {
   it("should throw an error if validation fails", () => {
-    const mockEngine = jest.fn().mockImplementation(() => ({
+    const mockEngine = {
       adapt: jest.fn().mockRejectedValue(new Error("Validation failed")),
       error: jest.fn(),
-    }));
+    } as any;
     const questions: Config = {
       engine: mockEngine,
       questions: {
@@ -26,13 +26,13 @@ describe("ask", () => {
   });
 
   it("should return the answers if validation passes", async () => {
-    const mockEngine = jest.fn().mockImplementation(() => ({
+    const mockEngine = {
       adapt: jest.fn().mockResolvedValue({
         name: "John Doe",
         age: 25,
       }),
       error: jest.fn(),
-    }));
+    } as any;
     const questions: Config = {
       engine: mockEngine,
       questions: {

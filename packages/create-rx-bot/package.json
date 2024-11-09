@@ -10,7 +10,7 @@
   "scripts": {
     "build": "cross-env NODE_ENV=production rspack build",
     "postbuild": "chmod +x dist/main.js && npm link",
-    "test": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --runInBand"
+    "test": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --runInBand --passWithNoTests"
   },
   "devDependencies": {
     "@rspack/cli": "1.1.0",
@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@clack/prompts": "^0.7.0",
-    "@rx-lab/common": "workspace:*",
+    "sourcecraft-core": "workspace:*",
     "@types/nunjucks": "^3.2.6",
     "copy-webpack-plugin": "^12.0.2",
     "nunjucks": "^3.2.4",

@@ -1,0 +1,56 @@
+"$schema": http://json-schema.org/draft-07/schema#
+type: object
+title: RX Bot Configuration
+description: Configuration schema for creating an RX bot project
+required:
+  - packageManager
+  - projectName
+  - storage
+  - adapters
+properties:
+  packageManager:
+    type: string
+    title: Package Manager
+    description: The package manager to use for the project
+    enum:
+      - npm
+      - yarn
+      - pnpm
+    default: npm
+  projectName:
+    type: string
+    title: Project Name
+    description: Name of the RX bot project
+    pattern: "^[a-zA-Z0-9-_]+$"
+    minLength: 1
+    default: my-rx-bot
+  storage:
+    type: string
+    title: Storage Option
+    description: Storage backend for the bot
+    oneOf:
+      - title: Memory
+        const: memory
+        description: Stores data in memory. Data will be lost when the bot is restarted
+      - title: Redis
+        const: upstash-redis
+        description: Redis storage using Upstash
+      - title: File storage
+        const: file
+        description: Stores data in the file system
+    default: memory
+    examples:
+      - memory
+  adapters:
+    type: array
+    title: Bot Adapters
+    description: Communication platforms the bot will support
+    minItems: 1
+    uniqueItems: true
+    items:
+      type: string
+      oneOf:
+        - title: Telegram
+          const: telegram
+          description: Build a bot for Telegram platform
+additionalProperties: false
