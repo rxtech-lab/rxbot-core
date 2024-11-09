@@ -1,0 +1,45 @@
+{
+  "name": "codegen-core",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./browser": {
+      "import": "./dist/browser.js",
+      "require": "./dist/browser.js"
+    },
+    "./node": {
+      "import": "./dist/node.js",
+      "require": "./dist/node.js"
+    }
+  },
+  "scripts": {
+    "test": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@clack/prompts": "^0.7.0",
+    "@types/jest": "^29.5.12",
+    "@types/json-schema": "^7.0.15",
+    "@types/nunjucks": "^3.2.6",
+    "ajv": "^8.17.1",
+    "inquirer": "^12.0.1",
+    "nunjucks": "^3.2.4",
+    "prettier": "3.3.3",
+    "yaml": "^2.4.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.6.3"
+  }
+}
