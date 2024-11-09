@@ -181,7 +181,7 @@ export abstract class QuestionEngine {
             propSchema as JSONSchema7,
             fullPath,
           );
-          if (value !== undefined) {
+          if (value !== undefined && !['__proto__', 'constructor', 'prototype'].includes(propKey)) {
             answers[key][propKey] = value;
             // Update nested answers after each value is set
             this.setNestedValue(answers, fullPath, value);
@@ -215,7 +215,7 @@ export abstract class QuestionEngine {
               propSchema as JSONSchema7,
               fullPath,
             );
-            if (value !== undefined) {
+            if (value !== undefined && !['__proto__', 'constructor', 'prototype'].includes(propKey)) {
               answers[key][propKey] = value;
               this.setNestedValue(answers, fullPath, value);
             }
