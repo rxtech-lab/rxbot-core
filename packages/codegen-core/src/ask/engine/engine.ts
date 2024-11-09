@@ -56,7 +56,7 @@ export abstract class QuestionEngine {
    * @param questions - The JSON schema defining the questions
    */
   async adapt(questions: JSONSchema7): Promise<Record<string, any>> {
-    const answers: Record<string, any> = {};
+    const answers: Record<string, any> = Object.create(null);
 
     // Process the main schema properties first
     await this.processSchemaNode(questions, answers, "");
@@ -166,7 +166,7 @@ export abstract class QuestionEngine {
     if (propertySchema.type === "object") {
       // Initialize the object if it doesn't exist
       if (!answers[key]) {
-        answers[key] = {};
+        answers[key] = Object.create(null);
       }
 
       // First process the base properties
@@ -182,7 +182,9 @@ export abstract class QuestionEngine {
             fullPath,
           );
           if (value !== undefined && !['__proto__', 'constructor', 'prototype'].includes(propKey)) {
-            answers[key][propKey] = value;
+            if (!['__proto__', 'constructor', 'prototype'].includes(propKey)) {
+              answers[key][propKey] = value;
+            }
             // Update nested answers after each value is set
             this.setNestedValue(answers, fullPath, value);
           }
@@ -216,7 +218,9 @@ export abstract class QuestionEngine {
               fullPath,
             );
             if (value !== undefined && !['__proto__', 'constructor', 'prototype'].includes(propKey)) {
-              answers[key][propKey] = value;
+              if (!['__proto__', 'constructor', 'prototype'].includes(propKey)) {
+                answers[key][propKey] = value;
+              }
               this.setNestedValue(answers, fullPath, value);
             }
           }

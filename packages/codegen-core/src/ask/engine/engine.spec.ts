@@ -76,14 +76,14 @@ describe("engine", () => {
             },
           },
         };
-        expect(await engine.adapt(schema)).toStrictEqual({
+        expect(await engine.adapt(schema)).toEqual({
           foo: "foo",
         });
       });
 
       it("should render empty object if schema is empty", async () => {
         const schema: JSONSchema7 = {};
-        expect(await engine.adapt(schema)).toStrictEqual({});
+        expect(await engine.adapt(schema)).toEqual({});
       });
 
       it("should render nested object correctly", async () => {
@@ -106,7 +106,7 @@ describe("engine", () => {
             },
           },
         };
-        expect(await engine.adapt(schema)).toStrictEqual({
+        expect(await engine.adapt(schema)).toEqual({
           foo: {
             bar: "foo",
           },
@@ -129,7 +129,7 @@ describe("engine", () => {
             },
           },
         };
-        expect(await engine.adapt(schema)).toStrictEqual({
+        expect(await engine.adapt(schema)).toEqual({
           foo: ["foo"],
         });
       });
@@ -153,7 +153,7 @@ describe("engine", () => {
             },
           },
         };
-        expect(await engine.adapt(schema)).toStrictEqual({
+        expect(await engine.adapt(schema)).toEqual({
           foo: [
             {
               bar: "foo",
@@ -190,7 +190,7 @@ describe("engine", () => {
             },
           },
         };
-        expect(await engine.adapt(schema)).toStrictEqual({
+        expect(await engine.adapt(schema)).toEqual({
           foo: "bar",
           bar: "foo",
         });
@@ -227,7 +227,7 @@ describe("engine", () => {
           },
         };
 
-        expect(await engine.adapt(schema)).toStrictEqual({
+        expect(await engine.adapt(schema)).toEqual({
           foo: {
             type: "special",
             extra: "test",
@@ -264,7 +264,7 @@ describe("engine", () => {
           },
         };
 
-        expect(await engine.adapt(schema)).toStrictEqual({
+        expect(await engine.adapt(schema)).toEqual({
           foo: {
             type: "normal",
           },
@@ -315,7 +315,7 @@ describe("engine", () => {
           },
         };
 
-        expect(await engine.adapt(schema)).toStrictEqual({
+        expect(await engine.adapt(schema)).toEqual({
           type: "config",
           config: {
             type: "db",
@@ -362,7 +362,7 @@ describe("engine", () => {
           },
         };
 
-        expect(await engine.adapt(schema)).toStrictEqual({
+        expect(await engine.adapt(schema)).toEqual({
           foo: {
             type: "other",
             fallback: "fallback",
@@ -400,7 +400,7 @@ describe("engine", () => {
           },
         };
 
-        expect(await engine.adapt(schema)).toStrictEqual({
+        expect(await engine.adapt(schema)).toEqual({
           mode: "advanced",
           items: ["item1"],
         });
