@@ -216,7 +216,7 @@ importers:
     devDependencies:
       '@rspack/cli':
         specifier: 1.1.0
-        version: 1.1.0(@rspack/core@1.1.0)(@types/express@5.0.0)(webpack@5.96.1(@swc/core@1.7.14))
+        version: 1.1.0(@rspack/core@1.1.0)(webpack@5.96.1(@swc/core@1.7.14))
       '@rspack/core':
         specifier: 1.1.0
         version: 1.1.0
@@ -8803,6 +8803,27 @@ snapshots:
       - webpack
       - webpack-cli
 
+  '@rspack/cli@1.1.0(@rspack/core@1.1.0)(webpack@5.96.1(@swc/core@1.7.14))':
+    dependencies:
+      '@discoveryjs/json-ext': 0.5.7
+      '@rspack/core': 1.1.0
+      '@rspack/dev-server': 1.0.9(@rspack/core@1.1.0)(webpack@5.96.1(@swc/core@1.7.14))
+      colorette: 2.0.19
+      exit-hook: 4.0.0
+      interpret: 3.1.1
+      rechoir: 0.8.0
+      semver: 7.6.3
+      webpack-bundle-analyzer: 4.6.1
+      yargs: 17.6.2
+    transitivePeerDependencies:
+      - '@types/express'
+      - bufferutil
+      - debug
+      - supports-color
+      - utf-8-validate
+      - webpack
+      - webpack-cli
+
   '@rspack/core@1.1.0':
     dependencies:
       '@module-federation/runtime-tools': 0.5.1
@@ -8817,6 +8838,27 @@ snapshots:
       connect-history-api-fallback: 2.0.0
       express: 4.21.1
       http-proxy-middleware: 2.0.7(@types/express@5.0.0)
+      mime-types: 2.1.35
+      p-retry: 4.6.2
+      webpack-dev-middleware: 7.4.2(webpack@5.96.1(@swc/core@1.7.14))
+      webpack-dev-server: 5.0.4(webpack@5.96.1(@swc/core@1.7.14))
+      ws: 8.18.0
+    transitivePeerDependencies:
+      - '@types/express'
+      - bufferutil
+      - debug
+      - supports-color
+      - utf-8-validate
+      - webpack
+      - webpack-cli
+
+  '@rspack/dev-server@1.0.9(@rspack/core@1.1.0)(webpack@5.96.1(@swc/core@1.7.14))':
+    dependencies:
+      '@rspack/core': 1.1.0
+      chokidar: 3.6.0
+      connect-history-api-fallback: 2.0.0
+      express: 4.21.1
+      http-proxy-middleware: 2.0.7
       mime-types: 2.1.35
       p-retry: 4.6.2
       webpack-dev-middleware: 7.4.2(webpack@5.96.1(@swc/core@1.7.14))
@@ -10940,7 +10982,7 @@ snapshots:
       debug: 4.3.4
       enhanced-resolve: 5.15.0
       eslint: 8.57.0
-      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.17.0(eslint@8.57.0)(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0)
+      eslint-module-utils: 2.8.0(@typescript-eslint/parser@6.17.0(eslint@8.57.0)(typescript@5.6.3))(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0)
       eslint-plugin-import: 2.29.0(@typescript-eslint/parser@7.1.0(eslint@8.57.0)(typescript@5.6.3))(eslint@8.57.0)
       fast-glob: 3.3.1
       get-tsconfig: 4.7.2
@@ -10952,13 +10994,12 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-module-utils@2.8.0(@typescript-eslint/parser@6.17.0(eslint@8.57.0)(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0):
+  eslint-module-utils@2.8.0(@typescript-eslint/parser@6.17.0(eslint@8.57.0)(typescript@5.6.3))(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 6.17.0(eslint@8.57.0)(typescript@5.6.3)
       eslint: 8.57.0
-      eslint-import-resolver-node: 0.3.9
       eslint-import-resolver-typescript: 3.6.1(@typescript-eslint/parser@6.17.0(eslint@8.57.0)(typescript@5.6.3))(eslint-plugin-import@2.29.0)(eslint@8.57.0)
     transitivePeerDependencies:
       - supports-color
@@ -11835,6 +11876,16 @@ snapshots:
       debug: 4.3.6
     transitivePeerDependencies:
       - supports-color
+
+  http-proxy-middleware@2.0.7:
+    dependencies:
+      '@types/http-proxy': 1.17.15
+      http-proxy: 1.18.1
+      is-glob: 4.0.3
+      is-plain-obj: 3.0.0
+      micromatch: 4.0.5
+    transitivePeerDependencies:
+      - debug
 
   http-proxy-middleware@2.0.7(@types/express@4.17.21):
     dependencies:

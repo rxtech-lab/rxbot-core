@@ -10,7 +10,7 @@
   "scripts": {
     "build": "cross-env NODE_ENV=production rspack build",
     "postbuild": "chmod +x dist/main.js && npm link",
-    "test": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --runInBand --passWithNoTests"
+    "test": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --runInBand --passWithNoTests --forceExit"
   },
   "devDependencies": {
     "@rspack/cli": "1.1.0",

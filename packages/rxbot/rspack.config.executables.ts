@@ -1,5 +1,5 @@
 import * as path from "path";
-import { Configuration } from "@rspack/core";
+import { Configuration, rspack } from "@rspack/core";
 
 const outputDir = path.resolve("executables");
 const config: Configuration = {
@@ -43,6 +43,13 @@ const config: Configuration = {
       },
     ],
   },
+  plugins: [
+    new rspack.BannerPlugin({
+      banner: "#!/usr/bin/env node",
+      raw: true,
+      entryOnly: true,
+    }),
+  ],
   optimization: {
     minimize: false,
     splitChunks: false,
