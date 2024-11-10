@@ -149,7 +149,7 @@ export class TemplateGenerator {
 
   public async render(): Promise<TemplateFile> {
     await this.questionEngine.showLoading(
-      `Creating project directory: ${this.projectPath}`,
+      `Creating project at: ${this.projectPath}`,
     );
     // make directories if they don't exist
     if (!this.fs.existsSync(this.projectPath)) {

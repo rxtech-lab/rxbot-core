@@ -1,5 +1,5 @@
-// cli-interaction.ts
 import { ChildProcess, spawn } from "child_process";
+import * as path from "node:path";
 
 export interface CliOptions {
   /** Base command to run (e.g., 'node', 'python') */
@@ -10,6 +10,7 @@ export interface CliOptions {
   defaultTimeout?: number;
   /** Delay between keystrokes (ms) */
   typeDelay?: number;
+  currentDir?: string;
 }
 
 export interface TypeOptions {
@@ -40,6 +41,7 @@ export class CliInteraction {
   private stderr = "";
   private readonly defaultTimeout: number;
   private readonly typeDelay: number;
+  private currentDir: string;
 
   constructor(options: CliOptions = {}) {
     const {
@@ -51,6 +53,7 @@ export class CliInteraction {
 
     this.defaultTimeout = defaultTimeout;
     this.typeDelay = typeDelay;
+    this.currentDir = path.resolve(options.currentDir || process.cwd());
     this.process = this.createProcess(command, args);
     this.setupProcessListeners();
   }
@@ -61,6 +64,11 @@ export class CliInteraction {
   private createProcess(command: string, args: string[]): ChildProcess {
     return spawn(command, args, {
       stdio: ["pipe", "pipe", "pipe"],
+      cwd: this.currentDir,
+      env: {
+        ...process.env,
+        PWD: this.currentDir,
+      },
     });
   }
 
@@ -69,6 +77,7 @@ export class CliInteraction {
    */
   private setupProcessListeners(): void {
     this.process.stdout?.on("data", (data: Buffer) => {
+      console.debug(data.toString());
       this.stdout += data.toString();
     });
 
@@ -89,6 +98,13 @@ export class CliInteraction {
       throw new Error("Process stdin is not writable");
     }
     this.process.stdin.write(input);
+  }
+
+  /**
+   * Gets the current working directory
+   */
+  public getCurrentDirectory(): string {
+    return this.currentDir;
   }
 
   /**
