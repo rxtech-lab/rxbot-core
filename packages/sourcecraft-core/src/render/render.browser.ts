@@ -45,7 +45,8 @@ export function createBrowserGenerator(opts: RenderBrowserOptions) {
     ...opts,
     fs: browserFs,
     path: browserPath,
-    cwd: () => "/",
+    getOutputFolder: () => "/output",
+    getTemplateFolder: () => "/templates",
     hookExecutor: {
       executeShell(command: string, cwd: string) {},
     },

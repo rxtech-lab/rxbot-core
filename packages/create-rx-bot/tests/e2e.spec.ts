@@ -8,12 +8,13 @@ import { CliInteraction } from "sourcecraft-core/test";
 describe("create-rx-bot", () => {
   const PROJECT_NAME = "test-bot";
   const currentDir = __dirname;
-  const projectDir = path.resolve(currentDir, "..", "dist", PROJECT_NAME);
+  const projectDir = path.resolve(currentDir, PROJECT_NAME);
   let cli: CliInteraction;
 
   afterEach(async () => {
     if (existsSync(projectDir)) {
-      // await fs.rm(projectDir, { recursive: true });
+      console.log("removing project dir", projectDir);
+      await fs.rm(projectDir, { recursive: true });
     }
     cli?.cleanup();
   });
@@ -42,7 +43,7 @@ describe("create-rx-bot", () => {
     cli.sendKey("ENTER");
 
     await cli.waitForOutput(
-      /Successfully created test-bot/,
+      /Successfully created/,
       process.env.CI ? 60_000 : 20_000,
     );
 

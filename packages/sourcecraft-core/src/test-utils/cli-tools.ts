@@ -82,6 +82,7 @@ export class CliInteraction {
     });
 
     this.process.stderr?.on("data", (data: Buffer) => {
+      console.error(data.toString());
       this.stderr += data.toString();
     });
 

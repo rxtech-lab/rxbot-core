@@ -48,3 +48,4 @@ mock-telegram
 .rx-lab
 !jest.config.js
 packages/rxbot/test.ts
+packages/create-rx-bot/tests/test-bot

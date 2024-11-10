@@ -25,31 +25,26 @@ export interface PathOperations {
 
 export interface Options {
   userValues: Record<string, any>;
-  templateDir?: string;
   templateFileName?: string;
   fs: FileSystem;
   path: PathOperations;
   questionEngine: QuestionEngine;
   hookExecutor: HookExecutor;
-  cwd?: () => string; // Make current working directory configurable
+  getTemplateFolder: () => string;
+  getOutputFolder: () => string;
 }
 
-/**
- * Template directory
- */
-const DEFAULT_TEMPLATE_DIR = "templates";
 const DEFAULT_TEMPLATE_FILE_NAME = "templates.yaml.tmpl";
 
 export class TemplateGenerator {
-  private readonly projectPath: string;
   private readonly userValues: Record<string, any>;
   private readonly questionEngine: QuestionEngine;
   private readonly fs: FileSystem;
   private readonly path: PathOperations;
   private readonly hookExecutor: HookExecutor;
-  private readonly templateDir: string;
   private readonly templateFileName: string;
-  private readonly cwd: string;
+  private readonly templateFolder: string;
+  private readonly outputFolder: string;
   constructor(opts: Options) {
     if (!opts.userValues.projectName) {
       throw new Error("projectName is required");
@@ -57,12 +52,11 @@ export class TemplateGenerator {
 
     this.fs = opts.fs;
     this.path = opts.path;
-    this.projectPath = this.path.join(opts.cwd(), opts.userValues.projectName);
+    this.templateFolder = opts.getTemplateFolder();
     this.userValues = opts.userValues;
     this.questionEngine = opts.questionEngine;
     this.hookExecutor = opts.hookExecutor;
-    this.templateDir = opts.templateDir ?? DEFAULT_TEMPLATE_DIR;
-    this.cwd = opts.cwd();
+    this.outputFolder = opts.getOutputFolder();
     this.templateFileName = opts.templateFileName ?? DEFAULT_TEMPLATE_FILE_NAME;
   }
 
@@ -92,7 +86,7 @@ export class TemplateGenerator {
   }
 
   private getTemplatePath(templateName: string): string {
-    return this.path.join(this.cwd, this.templateDir, templateName);
+    return this.path.join(this.templateFolder, templateName);
   }
 
   private async getGeneratedTemplates(): Promise<TemplateFile> {
@@ -149,14 +143,14 @@ export class TemplateGenerator {
 
   public async render(): Promise<TemplateFile> {
     await this.questionEngine.showLoading(
-      `Creating project at: ${this.projectPath}`,
+      `Creating project at: ${this.outputFolder}`,
     );
     // make directories if they don't exist
-    if (!this.fs.existsSync(this.projectPath)) {
+    if (!this.fs.existsSync(this.outputFolder)) {
       await this.questionEngine.showLoading(
-        `Making project directory: ${this.projectPath}`,
+        `Making project directory: ${this.outputFolder}`,
       );
-      this.fs.mkdirSync(this.projectPath);
+      this.fs.mkdirSync(this.outputFolder, { recursive: true });
     }
 
     const templateFile = await this.getGeneratedTemplates();
@@ -174,19 +168,23 @@ export class TemplateGenerator {
       );
 
       await this.writeToFile(
-        this.path.join(this.projectPath, file.output),
+        this.path.join(this.outputFolder, file.output),
         renderedContent,
       );
 
-      await this.executeHooks("afterEmit", file.hooks, this.projectPath);
+      await this.executeHooks("afterEmit", file.hooks, this.outputFolder);
     }
 
     // Execute afterAllEmit hooks
     for (const file of templateFile.files) {
-      await this.executeHooks("afterAllEmit", file.hooks, this.projectPath);
+      await this.executeHooks("afterAllEmit", file.hooks, this.outputFolder);
     }
 
     await this.questionEngine.hideLoading();
     return templateFile;
+  }
+
+  getOutputFolder(): string {
+    return this.outputFolder;
   }
 }

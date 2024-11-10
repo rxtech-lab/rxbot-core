@@ -52,7 +52,8 @@ describe("TemplateGenerator", () => {
       path: mockPath,
       questionEngine: mockQuestionEngine,
       hookExecutor: mockHookExecutor,
-      cwd: () => "/test/cwd",
+      getTemplateFolder: () => "/test/template",
+      getOutputFolder: () => "/test/output",
     };
   });
 
@@ -117,7 +118,9 @@ files:
 
     it("should create project directory if it does not exist", async () => {
       await generator.render();
-      expect(mockFs.mkdirSync).toHaveBeenCalledWith("/test/cwd/test-project");
+      expect(mockFs.mkdirSync).toHaveBeenCalledWith("/test/output", {
+        recursive: true,
+      });
       expect(mockQuestionEngine.showLoading).toBeCalled();
       expect(mockQuestionEngine.hideLoading).toHaveBeenCalledTimes(1);
     });
@@ -132,7 +135,7 @@ files:
       await generator.render();
       expect(mockHookExecutor.executeShell).toHaveBeenCalledWith(
         "npm install",
-        "/test/cwd/test-project",
+        "/test/output",
       );
     });
 
