@@ -9,7 +9,8 @@ export function createNodeGenerator(
     ...opts,
     fs: require("fs"),
     path: require("path"),
-    cwd: opts.cwd,
+    getOutputFolder: opts.getOutputFolder,
+    getTemplateFolder: opts.getTemplateFolder,
     hookExecutor: {
       executeShell(command: string, cwd: string) {
         execSync(command, { stdio: "inherit", cwd });
