@@ -47,11 +47,11 @@ describe("create-rx-bot", () => {
     );
 
     //TODO: Uncomment this when new rxbot cli release
-    // cli = new CliInteraction({
-    //   command: "npm",
-    //   args: ["run", "build"],
-    //   currentDir: projectDir,
-    // });
-    // await cli.waitForOutput(/Build app completed successfully/, 12_000);
+    cli = new CliInteraction({
+      command: "npm",
+      args: ["run", "build"],
+      currentDir: projectDir,
+    });
+    await cli.waitForOutput(/Build app completed successfully/, 12_000);
   }, 120_000);
 });
