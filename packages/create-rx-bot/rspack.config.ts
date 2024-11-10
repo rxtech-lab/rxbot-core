@@ -75,6 +75,11 @@ export default defineConfig({
   },
   plugins: [
     new rspack.node.NodeTargetPlugin(),
+    new rspack.BannerPlugin({
+      banner: "#!/usr/bin/env node",
+      raw: true,
+      entryOnly: true,
+    }),
     new rspack.CopyRspackPlugin({
       patterns: [
         {
