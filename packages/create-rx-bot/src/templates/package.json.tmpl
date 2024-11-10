@@ -15,25 +15,25 @@
     "vercel": "^37.14.0"
   },
   "dependencies": {
-    "rxbot-cli": "latest",
+    "rxbot-cli": "{{packageVersion}}",
     "react": "^18.3.1",
     "dotenv": "^16.4.5",
     "react-reconciler": "^0.29.2",
     "@vercel/functions": "^1.5.0",
     "@types/react": "^18.3.12",
-    "@rx-lab/common": "latest",
-    "@rx-lab/core": "latest"
+    "@rx-lab/common": "{{packageVersion}}",
+    "@rx-lab/core": "{{packageVersion}}"
     {%- for adapter in adapters %}
       {%- if adapter === 'telegram' %},
-    "@rx-lab/telegram-adapter": "latest"
+    "@rx-lab/telegram-adapter": "{{packageVersion}}"
       {%- endif %}
     {%- endfor %}
     {%- if storage === 'upstash-redis' %},
-    "@rx-lab/upstash-storage": "latest"
+    "@rx-lab/upstash-storage": "{{packageVersion}}"
     {%- elif storage === 'memory' %},
-    "@rx-lab/storage": "latest"
+    "@rx-lab/storage": "{{packageVersion}}"
     {%- elif storage === 'file' %},
-    "@rx-lab/file-storage": "latest"
+    "@rx-lab/file-storage": "{{packageVersion}}"
     {%- endif %}
   }
 }

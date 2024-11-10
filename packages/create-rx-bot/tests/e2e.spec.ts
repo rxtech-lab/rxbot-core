@@ -21,7 +21,7 @@ describe("create-rx-bot", () => {
 
   it("should be able to build", async () => {
     console.log("currentDir", projectDir);
-    execSync("pnpm build", {
+    execSync("pnpm build:local", {
       cwd: currentDir,
     });
     cli = new CliInteraction({
@@ -40,6 +40,9 @@ describe("create-rx-bot", () => {
 
     await cli.waitForOutput(/Bot Adapters/);
     cli.sendKey("SPACE");
+    cli.sendKey("ENTER");
+
+    await cli.waitForOutput(/Install dependencies/);
     cli.sendKey("ENTER");
 
     await cli.waitForOutput(

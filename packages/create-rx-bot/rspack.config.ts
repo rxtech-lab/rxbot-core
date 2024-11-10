@@ -2,7 +2,10 @@ import * as path from "path";
 import { defineConfig } from "@rspack/cli";
 import { rspack } from "@rspack/core";
 
+const isProd = process.env.NODE_ENV === "production";
+
 export default defineConfig({
+  mode: isProd ? "production" : "development",
   entry: {
     main: "./src/index.ts",
   },
@@ -74,6 +77,11 @@ export default defineConfig({
     ],
   },
   plugins: [
+    new rspack.DefinePlugin({
+      "process.env.NODE_ENV": JSON.stringify(
+        isProd ? "production" : "development",
+      ),
+    }),
     new rspack.node.NodeTargetPlugin(),
     new rspack.BannerPlugin({
       banner: "#!/usr/bin/env node",

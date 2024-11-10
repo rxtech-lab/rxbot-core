@@ -53,4 +53,9 @@ properties:
         - title: Telegram
           const: telegram
           description: Build a bot for Telegram platform
+  shouldInstall:
+    type: boolean
+    title: Install dependencies
+    description: Whether to install dependencies after creating the project
+    default: true
 additionalProperties: false

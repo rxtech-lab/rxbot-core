@@ -1,10 +1,12 @@
 files:
     - path: package.json.tmpl
       output: package.json
+      {% if shouldInstall %}
       hooks:
         afterAllEmit:
           type: shell
           command: {{packageManager}} install
+      {% endif %}
     - path: adapter.ts.tmpl
       output: src/app/adapter.ts
     - path: gitignore.tmpl

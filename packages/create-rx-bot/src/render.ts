@@ -5,7 +5,7 @@ import * as yaml from "yaml";
 
 const DEFAULT_TEMPLATE_DIR = "templates";
 
-export async function render() {
+export async function render(version: string) {
   const engine = new ClarkEngine();
   const templateFolder = __dirname;
   const outputFolder = process.cwd();
@@ -17,14 +17,17 @@ export async function render() {
     );
     const schema = await fs.readFile(schemaPath, "utf-8");
     const parsedSchema = yaml.parse(schema);
-    await engine.start(parsedSchema.title || "Create Rx Bot");
+    await engine.start(`${parsedSchema.title || "Create Rx Bot"} (${version})`);
     const results = await ask({
       engine: engine,
       questions: parsedSchema,
     });
     const renderer = createNodeGenerator({
       questionEngine: engine,
-      userValues: results,
+      userValues: {
+        ...results,
+        packageVersion: version,
+      },
       getTemplateFolder: () => path.join(templateFolder, DEFAULT_TEMPLATE_DIR),
       getOutputFolder: () => path.join(outputFolder, results.projectName),
     });
