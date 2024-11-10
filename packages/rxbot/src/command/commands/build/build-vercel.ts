@@ -3,7 +3,10 @@ import path from "path";
 import { rspack } from "@rspack/core";
 import fs from "fs/promises";
 import nunjucks from "nunjucks";
-import { VERCEL_WEBHOOK_FUNCTION_TEMPLATE } from "../../../templates/vercel";
+import {
+  VERCEL_SEND_MESSAGE_TEMPLATE,
+  VERCEL_WEBHOOK_FUNCTION_TEMPLATE,
+} from "../../../templates/vercel";
 
 interface Options {
   /**
@@ -67,6 +70,10 @@ async function generateVercelFunction(
   switch (type) {
     case "webhook":
       return nunjucks.renderString(VERCEL_WEBHOOK_FUNCTION_TEMPLATE, {
+        outputDir,
+      });
+    case "send-message":
+      return nunjucks.renderString(VERCEL_SEND_MESSAGE_TEMPLATE, {
         outputDir,
       });
     default:
@@ -173,7 +180,12 @@ export async function buildVercel({ outputFolder }: Options) {
   await fs.mkdir(VERCEL_OUTPUT_FOLDER, { recursive: true });
   // build webhook function
   const webhookFunction = await generateVercelFunction(outputFolder, "webhook");
+  const sendMessageFunction = await generateVercelFunction(
+    outputFolder,
+    "send-message",
+  );
   // write webhook function to disk
   await writeVercelFunctionToDisk("api/webhook", webhookFunction);
+  await writeVercelFunctionToDisk("api/message", sendMessageFunction);
   await writeVercelConfigFile();
 }

@@ -29,3 +29,31 @@ export async function POST(request: Request) {
       );
 }
 `;
+
+export const VERCEL_SEND_MESSAGE_TEMPLATE = `
+import { Core } from "@rx-lab/core";
+import { adapter, storage, ROUTE_FILE } from "{{outputDir}}/main.js";
+import { waitUntil } from "@vercel/functions";
+
+global.core = null;
+export async function POST(request: Request) {
+    if (global.core === null) {
+        global.core = await Core.Start({
+            adapter,
+            storage,
+            routeFile: ROUTE_FILE,
+        });
+    }
+    await global.core.sendMessage(await request.json());
+    return new Response(
+        JSON.stringify({
+          status: "ok",
+        }),
+        {
+          headers: {
+            "content-type": "application/json",
+          },
+        },
+      );
+}
+`;
