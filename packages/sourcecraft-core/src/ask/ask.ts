@@ -6,7 +6,7 @@ import { isValidJsonSchema } from "./utils";
 
 export interface Config {
   questions: JSONSchema7;
-  engine: new () => QuestionEngine;
+  engine: QuestionEngine;
 }
 
 /**
@@ -15,14 +15,14 @@ export interface Config {
  * @returns Parsed and validated answers object
  */
 export async function ask(config: Config): Promise<Record<string, any>> {
-  const engine = new config.engine();
-  if (config.questions.title)
-    await engine.start(`Starting ${config.questions.title}`);
-  const answers = await engine.adapt(config.questions);
-  if (engine.end && config.questions.title)
-    await engine.end(config.questions.title);
-
-  return answers;
+  // check if questions are valid
+  const engine = config.engine;
+  const isValid = isValidJsonSchema(config.questions);
+  if (!isValid.isValid) {
+    await engine.error(`Invalid JSON schema: ${isValid.error}`);
+    throw new Error(`Invalid JSON schema: ${isValid.error}`);
+  }
+  return await engine.adapt(config.questions);
 }
 
 interface Options {

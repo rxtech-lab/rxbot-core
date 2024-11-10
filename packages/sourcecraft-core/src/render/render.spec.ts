@@ -39,6 +39,7 @@ describe("TemplateGenerator", () => {
 
     mockQuestionEngine = {
       showLoading: jest.fn(),
+      hideLoading: jest.fn(),
     } as any;
 
     mockHookExecutor = {
@@ -117,6 +118,8 @@ files:
     it("should create project directory if it does not exist", async () => {
       await generator.render();
       expect(mockFs.mkdirSync).toHaveBeenCalledWith("/test/cwd/test-project");
+      expect(mockQuestionEngine.showLoading).toBeCalled();
+      expect(mockQuestionEngine.hideLoading).toHaveBeenCalledTimes(1);
     });
 
     it("should process all template files", async () => {

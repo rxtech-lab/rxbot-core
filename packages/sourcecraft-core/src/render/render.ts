@@ -25,6 +25,8 @@ export interface PathOperations {
 
 export interface Options {
   userValues: Record<string, any>;
+  templateDir?: string;
+  templateFileName?: string;
   fs: FileSystem;
   path: PathOperations;
   questionEngine: QuestionEngine;
@@ -32,15 +34,22 @@ export interface Options {
   cwd?: () => string; // Make current working directory configurable
 }
 
+/**
+ * Template directory
+ */
+const DEFAULT_TEMPLATE_DIR = "templates";
+const DEFAULT_TEMPLATE_FILE_NAME = "templates.yaml.tmpl";
+
 export class TemplateGenerator {
-  private static readonly TEMPLATE_DIR = "templates";
-  private static readonly TEMPLATE_FILE_NAME = "templates.yaml.tmpl";
   private readonly projectPath: string;
   private readonly userValues: Record<string, any>;
   private readonly questionEngine: QuestionEngine;
   private readonly fs: FileSystem;
   private readonly path: PathOperations;
   private readonly hookExecutor: HookExecutor;
+  private readonly templateDir: string;
+  private readonly templateFileName: string;
+  private readonly cwd: string;
   constructor(opts: Options) {
     if (!opts.userValues.projectName) {
       throw new Error("projectName is required");
@@ -52,6 +61,9 @@ export class TemplateGenerator {
     this.userValues = opts.userValues;
     this.questionEngine = opts.questionEngine;
     this.hookExecutor = opts.hookExecutor;
+    this.templateDir = opts.templateDir ?? DEFAULT_TEMPLATE_DIR;
+    this.cwd = opts.cwd();
+    this.templateFileName = opts.templateFileName ?? DEFAULT_TEMPLATE_FILE_NAME;
   }
 
   private async generateTemplateContent(
@@ -68,38 +80,46 @@ export class TemplateGenerator {
       ".yml": "yaml",
     };
 
-    const renderedContent = nunjucks.renderString(content, this.userValues);
-    if (!extMap[ext]) {
-      return renderedContent;
+    try {
+      const renderedContent = nunjucks.renderString(content, this.userValues);
+      if (!extMap[ext]) {
+        return renderedContent;
+      }
+      return await prettier.format(renderedContent, { parser: extMap[ext] });
+    } catch (error) {
+      throw new Error(`Error generating template content: ${error}`);
     }
-    return await prettier.format(renderedContent, { parser: extMap[ext] });
   }
 
   private getTemplatePath(templateName: string): string {
-    return this.path.join(
-      __dirname,
-      TemplateGenerator.TEMPLATE_DIR,
-      templateName,
-    );
+    return this.path.join(this.cwd, this.templateDir, templateName);
   }
 
   private async getGeneratedTemplates(): Promise<TemplateFile> {
-    const templateFilePath = this.getTemplatePath(
-      TemplateGenerator.TEMPLATE_FILE_NAME,
-    );
-    const templateTmpl = this.fs.readFileSync(templateFilePath, "utf-8");
-    const renderedTemplate = nunjucks.renderString(
-      templateTmpl,
-      this.userValues,
-    );
-    return TemplateFileSchema.parse(parse(renderedTemplate));
+    try {
+      const templateFilePath = this.getTemplatePath(this.templateFileName);
+      const templateTmpl = this.fs.readFileSync(templateFilePath, "utf-8");
+      const renderedTemplate = nunjucks.renderString(
+        templateTmpl,
+        this.userValues,
+      );
+      return TemplateFileSchema.parse(parse(renderedTemplate));
+    } catch (error) {
+      throw new Error(`Error getting generated templates: ${error}`);
+    }
   }
 
   private async executeShell(command: string, cwd: string) {
-    await this.questionEngine.showLoading(
-      `Executing shell command: ${command}`,
-    );
-    this.hookExecutor.executeShell(command, cwd);
+    try {
+      await this.questionEngine.showLoading(
+        `Executing shell command: ${command}`,
+      );
+      this.hookExecutor.executeShell(command, cwd);
+    } catch (error) {
+      await this.questionEngine.error(
+        `Error executing shell command: ${error}`,
+      );
+    }
   }
 
   private async executeHooks(key: HooksKey, hooks: Hooks, cwd: string) {
@@ -116,16 +136,26 @@ export class TemplateGenerator {
   }
 
   private async writeToFile(outPath: string, content: string): Promise<void> {
-    const dir = this.path.dirname(outPath);
-    if (!this.fs.existsSync(dir)) {
-      this.fs.mkdirSync(dir, { recursive: true });
+    try {
+      const dir = this.path.dirname(outPath);
+      if (!this.fs.existsSync(dir)) {
+        this.fs.mkdirSync(dir, { recursive: true });
+      }
+      this.fs.writeFileSync(outPath, content);
+    } catch (error) {
+      throw new Error(`Error writing to file: ${error}`);
     }
-    this.fs.writeFileSync(outPath, content);
   }
 
   public async render(): Promise<TemplateFile> {
+    await this.questionEngine.showLoading(
+      `Creating project directory: ${this.projectPath}`,
+    );
     // make directories if they don't exist
     if (!this.fs.existsSync(this.projectPath)) {
+      await this.questionEngine.showLoading(
+        `Making project directory: ${this.projectPath}`,
+      );
       this.fs.mkdirSync(this.projectPath);
     }
 
@@ -156,6 +186,7 @@ export class TemplateGenerator {
       await this.executeHooks("afterAllEmit", file.hooks, this.projectPath);
     }
 
+    await this.questionEngine.hideLoading();
     return templateFile;
   }
 }

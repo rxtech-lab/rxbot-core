@@ -3,13 +3,13 @@ import { Options, TemplateGenerator } from "./render";
 import { TemplateFile } from "./types";
 
 export function createNodeGenerator(
-  opts: Omit<Options, "fs" | "path" | "cwd">,
+  opts: Omit<Options, "fs" | "path" | "hookExecutor">,
 ) {
   return new TemplateGenerator({
     ...opts,
     fs: require("fs"),
     path: require("path"),
-    cwd: process.cwd,
+    cwd: opts.cwd,
     hookExecutor: {
       executeShell(command: string, cwd: string) {
         execSync(command, { stdio: "inherit", cwd });

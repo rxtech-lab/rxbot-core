@@ -2,6 +2,6 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "es2022",
-    "moduleResolution": "node"
+    "moduleResolution": "nodenext"
   }
 }
