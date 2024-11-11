@@ -2,7 +2,7 @@
   "name": "@rx-lab/mock-telegram-client",
   "version": "1.0.0",
   "description": "",
-  "private": true,
+  "private": false,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -13,6 +13,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "swagger-typescript-api": "^13.0.3",
     "ts-node": "^10.9.2",
