@@ -1,5 +1,13 @@
 import { Route } from "./router.interface";
 
+export interface SetStateOptions {
+  /**
+   * Whether the state should be persisted.
+   * By default, some provider may not persist the state, by setting this option to true, the state will be persisted.
+   */
+  isPersisted?: boolean;
+}
+
 /**
  * Defines the interface for storage operations in the application.
  * This interface provides methods for saving, restoring, and managing state and routes.
@@ -12,13 +20,19 @@ export interface StorageInterface {
    * @param key - A unique identifier for the state.
    * @param route - The route associated with the state.
    * @param state - The state data to be saved.
+   * @param opt - Options for setting the state.
    * @returns A promise that resolves when the state is successfully saved.
    *
    * @example
    * const storage = new FileStorage();
    * await storage.saveState("counter", "/route1", 0);
    */
-  saveState<T>(key: string, route: Route, state: T): Promise<void>;
+  saveState<T>(
+    key: string,
+    route: Route,
+    state: T,
+    opt?: SetStateOptions,
+  ): Promise<void>;
 
   /**
    * Retrieves the state from the storage.

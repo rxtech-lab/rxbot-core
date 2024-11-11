@@ -1,4 +1,4 @@
-import { Route } from "@rx-lab/common";
+import { Route, SetStateOptions } from "@rx-lab/common";
 import { HISTORY_KEY, ROUTE_KEY, STATE_KEY, Storage } from "@rx-lab/storage";
 import { Redis } from "@upstash/redis";
 
@@ -83,10 +83,16 @@ export class UpstashStorage extends Storage {
     listener?.();
   }
 
-  async saveState<T>(key: string, route: Route, state: T): Promise<void> {
+  async saveState<T>(
+    key: string,
+    route: Route,
+    state: T,
+    options?: SetStateOptions,
+  ): Promise<void> {
     const storedKey = `${STATE_KEY}-${key}`;
     await this.redis.set(storedKey, state);
-    await this.redis.expire(storedKey, EXPIRATION_TIME);
+    if (options?.isPersisted !== true)
+      await this.redis.expire(storedKey, EXPIRATION_TIME);
     const listener = this.stateChangeListeners.get(storedKey);
     listener?.();
   }

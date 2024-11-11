@@ -173,7 +173,22 @@ describe("UpstashStorage", () => {
       await upstashStorage.saveState(key, route, state);
 
       expect(mockRedis.set).toHaveBeenCalledWith(`${STATE_KEY}-${key}`, state);
+      expect(mockRedis.expire).toHaveBeenCalledTimes(1);
       expect(mockListener).toHaveBeenCalled();
+    });
+
+    it("should save state for a given key in persisted mode", async () => {
+      const key = "testKey";
+      const route: Route = "/test/path";
+      const state = { foo: "bar" };
+      const mockListener = jest.fn();
+      upstashStorage.subscribeStateChange(key, route, mockListener);
+
+      await upstashStorage.saveState(key, route, state, { isPersisted: true });
+
+      expect(mockRedis.set).toHaveBeenCalledWith(`${STATE_KEY}-${key}`, state);
+      expect(mockListener).toHaveBeenCalled();
+      expect(mockRedis.expire).not.toHaveBeenCalled();
     });
   });
 });
