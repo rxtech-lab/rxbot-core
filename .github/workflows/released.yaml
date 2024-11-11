@@ -18,17 +18,17 @@ jobs:
           version: latest
       - name: Install dependencies
         run: pnpm install
-      - name: Build packages
-        run: |
-          pnpm build --filter=rxbot-cli
-          pnpm install --no-frozen-lockfile  # Reinstall to update binaries
-          pnpm build --filter=!rxbot-cli
       - name: Lerna Bump Version on release
         run: pnpm lerna version ${{ github.event.release.tag_name }} --no-git-tag-version --no-push --yes
         if: github.event_name == 'release'
       - name: Lerna Bump Version on push
         run: pnpm lerna version 1.0.0-next --no-git-tag-version --no-push --yes
         if: github.event_name == 'push'
+      - name: Build packages
+        run: |
+          pnpm build --filter=rxbot-cli
+          pnpm install --no-frozen-lockfile  # Reinstall to update binaries
+          pnpm build --filter=!rxbot-cli
       - name: Add and commit version changed
         uses: EndBug/add-and-commit@v9
         with:
