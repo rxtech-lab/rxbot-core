@@ -40,7 +40,10 @@ export const renderElementHelper = (
 
     case InstanceType.Link:
       return [`<a href="${element.props.href}">${children.join("")}</a>`];
-
+    case InstanceType.Pre:
+      return [`<pre>${children.join("")}</pre>`];
+    case InstanceType.Code:
+      return [`<code>${children.join("")}</code>`];
     case InstanceType.Command:
       if (element.props.variant === "button") {
         if (element.props.command.startsWith("http")) {

@@ -28,6 +28,8 @@ export enum InstanceType {
   Image = "Image",
   LineBreak = "LineBreak",
   Suspendable = "Suspendable",
+  Code = "Code",
+  Pre = "Pre",
 }
 
 /**

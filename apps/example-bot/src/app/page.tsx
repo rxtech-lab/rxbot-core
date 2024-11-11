@@ -7,6 +7,7 @@ export default async function Page() {
         <br />
         Click the menu button to see the available options.
       </p>
+      <code>Hello</code>
     </div>
   );
 }
