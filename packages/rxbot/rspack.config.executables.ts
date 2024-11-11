@@ -22,6 +22,7 @@ const config: Configuration = {
     // Add pattern for native modules
     /\.node$/,
     "express",
+    /^@rx-lab\//,
   ],
   module: {
     rules: [

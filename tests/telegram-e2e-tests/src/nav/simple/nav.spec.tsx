@@ -4,7 +4,7 @@ import { Api, MessageType } from "@rx-lab/mock-telegram-client";
 import {
   DEFAULT_RENDERING_WAIT_TIME,
   PORT,
-  initialize,
+  initializeLongPolling,
   sleep,
 } from "../../utils";
 
@@ -25,7 +25,7 @@ describe("Simple navigation Tests", () => {
     const __dirname = dirname(__filename);
     const rootDir = path.join(__dirname, "src");
     const destinationDir = path.join(__dirname);
-    const { core } = await initialize(chatroomId, api, {
+    const { core } = await initializeLongPolling(chatroomId, api, {
       rootDir,
       destinationDir,
     });

@@ -136,7 +136,7 @@ export default function page() {
       </p>
       <menu>
         <div>
-          <CommandButton command={"/state/counter"}>Counter Demo</CommandButton>
+          <CommandButton command={"/state/simple"}>Counter Demo</CommandButton>
         </div>
       </menu>
     </div>

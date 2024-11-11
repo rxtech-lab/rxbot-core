@@ -56,6 +56,7 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
         // Configure API middleware
         setupMiddlewares: (middlewares, devServer) => {
           const app = devServer.app!;
+          let core: Core<any> | undefined;
 
           // Parse JSON bodies
           app.use(express.json());
@@ -65,16 +66,33 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
             persistent: true,
           });
 
-          // Watch for file changes
-          watcher.on("change", (path) => {
+          const initializeCore = async () => {
+            const modulePath = path.resolve(outputPath, "main.js");
+            // node require
+            const nativeRequire = require("module").createRequire(
+              process.cwd(),
+            );
+            delete nativeRequire.cache[nativeRequire.resolve(modulePath)];
+
+            // Now import the fresh version
+            const mod = nativeRequire(modulePath);
+            core = await Core.Dev({
+              adapter: mod.adapter,
+              storage: mod.storage,
+              routeFile: mod.ROUTE_FILE,
+            });
+          };
+
+          const reload = () => {
             try {
-              devServer.invalidate((stats) => {
+              devServer.invalidate(async (stats) => {
                 if (stats?.hasErrors()) {
                   Logger.log(
                     "Build encountered errors but server keeps running",
                     "yellow",
                   );
                 } else {
+                  await initializeCore();
                   Logger.log("Build complete", "green");
                 }
               });
@@ -82,67 +100,34 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
               Logger.log(`Error during rebuild: ${error.message}`, "red");
               // Continue running despite errors
             }
+          };
+
+          // Watch for file changes
+          watcher.on("change", (path) => {
+            Logger.log(`File changed: ${path}`, "yellow");
+            reload();
           });
 
           watcher.on("add", (path) => {
             Logger.log(`File added: ${path}`, "yellow");
-            try {
-              devServer.invalidate((stats) => {
-                if (stats?.hasErrors()) {
-                  Logger.log(
-                    "Build encountered errors but server keeps running",
-                    "yellow",
-                  );
-                } else {
-                  Logger.log("Build complete", "green");
-                }
-              });
-            } catch (error: any) {
-              Logger.log(`Error during rebuild: ${error.message}`, "red");
-              // Continue running despite errors
-            }
+            reload();
           });
 
           watcher.on("unlink", (path) => {
             Logger.log(`File removed: ${path}`, "yellow");
-            try {
-              devServer.invalidate((stats) => {
-                if (stats?.hasErrors()) {
-                  Logger.log(
-                    "Build encountered errors but server keeps running",
-                    "yellow",
-                  );
-                } else {
-                  Logger.log("Build complete", "green");
-                }
-              });
-            } catch (error: any) {
-              Logger.log(`Error during rebuild: ${error.message}`, "red");
-              // Continue running despite errors
-            }
+            reload();
           });
 
           // API endpoint
           app.post("/api/webhook", async (req, res) => {
             try {
               // Clear the module from Node's cache
-              const modulePath = path.resolve(outputPath, "main.js");
-              // node require
-              const nativeRequire = require("module").createRequire(
-                process.cwd(),
-              );
-              delete nativeRequire.cache[nativeRequire.resolve(modulePath)];
-
-              // Now import the fresh version
-              const mod = nativeRequire(modulePath);
-              const core = await Core.Dev({
-                adapter: mod.adapter,
-                storage: mod.storage,
-                routeFile: mod.ROUTE_FILE,
-              });
-              await core.handleMessageUpdate(req.body);
+              if (!core) {
+                await initializeCore();
+              }
+              await core?.handleMessageUpdate(req.body);
               res.json({ success: true });
-              await core.onDestroy();
+              await core?.onDestroy();
             } catch (error: any) {
               console.error("Error processing message:", error);
               res.status(500).json({ error: error.message });

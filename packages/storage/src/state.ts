@@ -47,7 +47,7 @@ const initializedMap = new Map<string, boolean>();
 export function useState<T>(
   key: string,
   initialState: T,
-  options: SetStateOptions,
+  options?: SetStateOptions,
 ) {
   const { client } = useContext(StorageContext);
   const [localState, setLocalState] = useReactState<T>(initialState);

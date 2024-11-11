@@ -4,7 +4,7 @@ import { Api, MessageType } from "@rx-lab/mock-telegram-client";
 import {
   DEFAULT_RENDERING_WAIT_TIME,
   PORT,
-  initialize,
+  initializeLongPolling,
   sleep,
 } from "../../utils";
 
@@ -25,7 +25,7 @@ describe("404 page", () => {
   it("should render the 404 page using the default one", async () => {
     const rootDir = path.join(__dirname, "src");
     const destinationDir = path.join(__dirname);
-    const { core } = await initialize(chatroomId, api, {
+    const { core } = await initializeLongPolling(chatroomId, api, {
       rootDir,
       destinationDir,
     });
@@ -71,7 +71,7 @@ describe("404 page", () => {
   it("should render the 404 page using custom one", async () => {
     const rootDir = path.join(__dirname, "src");
     const destinationDir = path.join(__dirname, ".rx-lab");
-    const { core } = await initialize(chatroomId, api, {
+    const { core } = await initializeLongPolling(chatroomId, api, {
       rootDir,
       destinationDir,
     });
