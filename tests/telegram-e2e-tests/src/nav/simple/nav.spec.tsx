@@ -8,7 +8,7 @@ import {
   sleep,
 } from "../../utils";
 
-const chatroomId = 2000;
+const chatroomId = 4000;
 
 describe("Simple navigation Tests", () => {
   let api: Api<any>;

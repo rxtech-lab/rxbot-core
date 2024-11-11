@@ -4,9 +4,11 @@ import {
   type Container,
   ContainerType,
   type CoreApi,
+  CreateContainerOptions,
   Logger,
   type Menu,
   SendMessage,
+  StoredRoute,
 } from "@rx-lab/common";
 import TelegramBot from "node-telegram-bot-api";
 import { CallbackParser, CallbackType, DecodeType } from "./callbackParser";
@@ -144,7 +146,7 @@ export class TelegramAdapter
           }
 
           try {
-            await api.redirectTo(container, route, {
+            await api.redirectTo(container, route.route, {
               shouldRender: true,
               shouldAddToHistory: true,
             });
@@ -280,16 +282,28 @@ export class TelegramAdapter
         return command;
       }
     }
+
+    return undefined;
   }
 
-  async decodeRoute(route: any): Promise<string | undefined> {
-    if (typeof route === "string") {
-      return convertTGRouteToRoute(route);
+  async decodeRoute(route: any): Promise<StoredRoute | undefined> {
+    if (typeof route === "object") {
+      if ("route" in route) {
+        return {
+          route: convertTGRouteToRoute(route),
+          props: route.props,
+        };
+      }
+
+      const currentRoute = await this.getCurrentRoute(route);
+      if (currentRoute) {
+        return {
+          route: await this.getCurrentRoute(route),
+        };
+      }
     }
 
-    if (typeof route === "object") {
-      return await this.getCurrentRoute(route);
-    }
+    return undefined;
   }
 
   getRouteKey(message: TGContainer): string {
@@ -305,11 +319,15 @@ export class TelegramAdapter
     }
   }
 
-  createContainer(message: TelegramBot.Message): TGContainer {
+  createContainer(
+    message: TelegramBot.Message,
+    options: CreateContainerOptions,
+  ): TGContainer {
     // only process message from user
     // this prevents the bot from processing message from itself
     const messageText = message.from?.is_bot ? undefined : message.text;
-    return {
+    const container: InternalTGContainer = {
+      decodedData: undefined,
       type: "ROOT",
       children: [],
       chatroomInfo: {
@@ -323,6 +341,12 @@ export class TelegramAdapter
         text: messageText,
       } as any,
     };
+
+    if (!options.renderNewMessage) {
+      container.updateMessageId = message.message_id;
+    }
+
+    return container;
   }
 
   subscribeToMessageChanged(
@@ -335,7 +359,9 @@ export class TelegramAdapter
       if (message.web_app_data !== undefined) {
         return;
       }
-      const container = this.createContainer(message);
+      const container = this.createContainer(message, {
+        renderNewMessage: true,
+      });
       return callback(container, message);
     });
   }

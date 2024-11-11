@@ -5,13 +5,16 @@ import {
   type Container,
   CoreApi,
   CoreInterface,
+  DEFAULT_ROOT_ROUTE,
   ErrorPageProps,
   PageProps,
   RedirectOptions,
+  ReloadOptions,
   RenderedComponent,
   RouteInfoFile,
   SendMessage,
   StorageInterface,
+  StoredRoute,
 } from "@rx-lab/common";
 import { RedirectError } from "@rx-lab/errors";
 import React from "react";
@@ -133,16 +136,34 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
         return this.render(container);
       },
       restoreRoute: async (key) => {
-        return await this.router.getRouteFromKey(key);
+        return (await this.router.getRouteFromKey(key))?.route;
       },
       redirectTo: async (container, path, options) => {
         await this.redirect(container, path, options);
         return container;
       },
       redirectToWithMessage: async (message, path, options) => {
-        const container = this.adapter.createContainer(message);
+        const container = this.adapter.createContainer(message, {
+          renderNewMessage: true,
+        });
         await this.redirect(container, path, options);
         return container;
+      },
+      reload: async (message: BaseMessage, options: ReloadOptions) => {
+        const container = this.adapter.createContainer(message, {
+          renderNewMessage: options.shouldRenderNewMessage ?? false,
+        });
+        // get the current route
+        const key = this.adapter.getRouteKey(container);
+        const storedRoute = await this.storage.restoreRoute(key);
+        if (storedRoute) {
+          await this.redirect(container, storedRoute, {
+            shouldRender: true,
+            shouldAddToHistory: true,
+          });
+        } else {
+          throw new Error("No route found to reload");
+        }
       },
     };
   }
@@ -204,7 +225,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
           code: 500,
         };
         const errorComponent = await this.router.renderSpecialRoute(
-          route,
+          route?.route,
           "error",
           {},
           props,
@@ -223,8 +244,13 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     }
   }
 
-  async loadAndRenderStoredRoute(key: string, defaultRoute?: string) {
-    const component = await this.router.render(key, defaultRoute);
+  async loadAndRenderStoredRoute(key: string, defaultRoute?: StoredRoute) {
+    const component = await this.router.render(
+      key,
+      defaultRoute ?? {
+        route: DEFAULT_ROOT_ROUTE,
+      },
+    );
     await this.setComponent(component);
     return component;
   }
@@ -240,9 +266,10 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
   /**
    * Helper function to render the app asynchronously.
    * @param container The container to render the app in
+   * @param oldProps The old props of the container saved in the storage
    * @private
    */
-  async render(container: T) {
+  async render(container: T, oldProps?: PageProps) {
     if (!this.element) {
       throw new Error("No component to render");
     }
@@ -267,6 +294,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
       routeInfoFile: this.router.routeInfoFile,
       data: container.message?.data,
       ...this.element.props,
+      ...oldProps,
     };
 
     try {
@@ -302,7 +330,9 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
       if (e instanceof RedirectError) {
         await this.redirect(
           container,
-          e.newLocation,
+          {
+            route: e.newLocation,
+          },
           e.redirectOptions ?? {
             shouldRender: true,
             shouldAddToHistory: true,

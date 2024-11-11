@@ -1,7 +1,7 @@
 import { HISTORY_KEY, ROUTE_KEY, STATE_KEY, Storage } from "@rx-lab/storage";
 
 import * as fs from "node:fs";
-import { Route } from "@rx-lab/common";
+import { Route, StoredRoute } from "@rx-lab/common";
 
 interface State {
   data: any;
@@ -83,13 +83,13 @@ export class FileStorage extends Storage {
     listener?.();
   }
 
-  async restoreRoute(key: string): Promise<string | undefined> {
+  async restoreRoute(key: string): Promise<StoredRoute | undefined> {
     const state = await this.readState();
     const stateKey = `${ROUTE_KEY}-${key}`;
     return state[stateKey]?.data;
   }
 
-  async saveRoute(key: string, path: string): Promise<void> {
+  async saveRoute(key: string, path: StoredRoute): Promise<void> {
     const storedState = await this.readState();
     storedState[`${ROUTE_KEY}-${key}`] = {
       data: path,
@@ -99,7 +99,7 @@ export class FileStorage extends Storage {
     listener?.();
   }
 
-  async deleteState(key: string, route: Route): Promise<void> {
+  async deleteState(key: string, route: StoredRoute): Promise<void> {
     const state = await this.readState();
     delete state[`${STATE_KEY}-${key}`];
     await this.writeState(state);
@@ -107,7 +107,7 @@ export class FileStorage extends Storage {
     listener?.();
   }
 
-  async addHistory(key: string, route: Route): Promise<void> {
+  async addHistory(key: string, route: StoredRoute): Promise<void> {
     const storedKey = `${HISTORY_KEY}-${key}`;
     const storedState = await this.readState();
     storedState[storedKey] = {
@@ -123,7 +123,7 @@ export class FileStorage extends Storage {
     await this.writeState(storedState);
   }
 
-  async restoreHistory(key: string): Promise<Route | undefined> {
+  async restoreHistory(key: string): Promise<StoredRoute | undefined> {
     const storedKey = `${HISTORY_KEY}-${key}`;
     const storedState = await this.readState();
     return storedState[storedKey]?.data;

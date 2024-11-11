@@ -1,4 +1,4 @@
-import { RedirectOptions } from "@rx-lab/common";
+import { RedirectOptions, ReloadOptions } from "@rx-lab/common";
 import { useCallback, useContext } from "react";
 import { RouterContext } from "../router.context";
 
@@ -14,9 +14,14 @@ import { RouterContext } from "../router.context";
  * @example
  * const { redirectTo } = useRouter();
  * await redirectTo("/new-location", { shouldRender: true });
+ *
+ * @example
+ * await { reload } = useRouter();
+ * await reload();
+ *
  */
 export function useRouter() {
-  const { coreApi, message } = useContext(RouterContext);
+  const { coreApi, message, path } = useContext(RouterContext);
 
   /**
    * Redirects to a new location with the given options.
@@ -38,7 +43,23 @@ export function useRouter() {
     [coreApi, message],
   );
 
+  /**
+   * Reloads the current page with the given options.
+   *
+   * @param options{ReloadOptions} - Optional reload options.
+   */
+  const reload = useCallback(
+    async (options?: ReloadOptions) => {
+      await coreApi.redirectToWithMessage(message, path, {
+        shouldRender: options?.shouldRenderNewMessage ?? false,
+        shouldAddToHistory: false,
+      });
+    },
+    [coreApi, message, path],
+  );
+
   return {
     redirectTo,
+    reload,
   };
 }

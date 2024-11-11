@@ -36,6 +36,14 @@ export type SpecialRouteType = "error" | "404" | "page";
  */
 export type Route = string;
 
+/**
+ * Represents the route stored in the storage
+ */
+export type StoredRoute = {
+  route: Route;
+  props?: PageProps;
+};
+
 /** Represents a client-side React component */
 export type ClientComponent = React.JSX.Element;
 
@@ -78,7 +86,7 @@ export type RenderedComponent = {
   props: RenderedComponentProps;
   /** The full path that was matched */
   path: string;
-  currentRoute: Route;
+  currentRoute: StoredRoute;
   /**
    * Indicates whether the component is an error page (404 or error).
    */
@@ -169,4 +177,11 @@ export interface MatchedRoute extends ImportedRoute {
    * Query parameters from the URL.
    */
   query: Record<string, string>;
+}
+
+export interface ReloadOptions {
+  /**
+   * Indicates whether the new message should be rendered when reloading the page.
+   */
+  shouldRenderNewMessage?: boolean;
 }

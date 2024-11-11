@@ -30,11 +30,12 @@ describe("UpstashStorage", () => {
     it("should add history for a given key", async () => {
       const key = "testKey";
       const route: Route = "/test/path";
-      await upstashStorage.addHistory(key, route);
-      expect(mockRedis.set).toHaveBeenCalledWith(
-        `${HISTORY_KEY}-${key}`,
+      await upstashStorage.addHistory(key, {
         route,
-      );
+      });
+      expect(mockRedis.set).toHaveBeenCalledWith(`${HISTORY_KEY}-${key}`, {
+        route,
+      });
     });
   });
 
@@ -53,7 +54,7 @@ describe("UpstashStorage", () => {
       const mockListener = jest.fn();
       upstashStorage.subscribeStateChange(key, route, mockListener);
 
-      await upstashStorage.deleteState(key, route);
+      await upstashStorage.deleteState(key, { route });
 
       expect(mockRedis.del).toHaveBeenCalledWith(`${STATE_KEY}-${key}`);
       expect(mockListener).toHaveBeenCalled();
@@ -111,7 +112,9 @@ describe("UpstashStorage", () => {
       const mockState = { foo: "bar" };
       mockRedis.get.mockResolvedValue(mockState);
 
-      const result = await upstashStorage.restoreState(key, "/test/path");
+      const result = await upstashStorage.restoreState(key, {
+        route: "/test/path",
+      });
       expect(mockRedis.get).toHaveBeenCalledWith(`${STATE_KEY}-${key}`);
       expect(result).toEqual(mockState);
     });
@@ -121,7 +124,9 @@ describe("UpstashStorage", () => {
       const mockState = 0;
       mockRedis.get.mockResolvedValue(mockState);
 
-      const result = await upstashStorage.restoreState(key, "/test/path");
+      const result = await upstashStorage.restoreState(key, {
+        route: "/test/path",
+      });
       expect(mockRedis.get).toHaveBeenCalledWith(`${STATE_KEY}-${key}`);
       expect(result).toEqual(mockState);
     });
@@ -132,7 +137,9 @@ describe("UpstashStorage", () => {
       mockRedis.get.mockResolvedValue(mockState);
       mockRedis.exists.mockResolvedValue(1);
 
-      const result = await upstashStorage.restoreState(key, "/test/path");
+      const result = await upstashStorage.restoreState(key, {
+        route: "/test/path",
+      });
       expect(mockRedis.get).toHaveBeenCalledWith(`${STATE_KEY}-${key}`);
       expect(result).toEqual(mockState);
     });
@@ -142,7 +149,9 @@ describe("UpstashStorage", () => {
       mockRedis.get.mockResolvedValue(null);
       mockRedis.exists.mockResolvedValue(0);
 
-      const result = await upstashStorage.restoreState(key, "/test/path");
+      const result = await upstashStorage.restoreState(key, {
+        route: "/test/path",
+      });
 
       expect(result).toBeUndefined();
     });
@@ -155,9 +164,13 @@ describe("UpstashStorage", () => {
       const mockListener = jest.fn();
       upstashStorage.subscribeRouteChange(key, mockListener);
 
-      await upstashStorage.saveRoute(key, path);
+      await upstashStorage.saveRoute(key, {
+        route: path,
+      });
 
-      expect(mockRedis.set).toHaveBeenCalledWith(`${ROUTE_KEY}-${key}`, path);
+      expect(mockRedis.set).toHaveBeenCalledWith(`${ROUTE_KEY}-${key}`, {
+        route: path,
+      });
       expect(mockListener).toHaveBeenCalled();
     });
   });

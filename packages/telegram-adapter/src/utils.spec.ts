@@ -17,9 +17,12 @@ describe("Convert route to tg route", () => {
 
 describe("Convert tg route to route", () => {
   const testCases = [
-    { route: "/home", expected: "/home" },
-    { route: "/settings_profile_edit", expected: "/settings/profile/edit" },
-    { route: "/settings_profile", expected: "/settings/profile" },
+    { route: { route: "/home" }, expected: "/home" },
+    {
+      route: { route: "/settings_profile_edit" },
+      expected: "/settings/profile/edit",
+    },
+    { route: { route: "/settings_profile" }, expected: "/settings/profile" },
   ];
 
   for (const { route, expected } of testCases) {

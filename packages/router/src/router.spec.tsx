@@ -106,7 +106,9 @@ describe("matchRouteWithPath", () => {
 describe("should be able to render", () => {
   const mockAdapter = {
     setMenus: jest.fn(),
-    decodeRoute: jest.fn().mockReturnValue("/client"),
+    decodeRoute: jest.fn().mockReturnValue({
+      route: "/client",
+    }),
   };
 
   const mockStorage = {

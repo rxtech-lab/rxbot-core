@@ -1,4 +1,4 @@
-import { Route, SetStateOptions } from "@rx-lab/common";
+import { Route, SetStateOptions, StoredRoute } from "@rx-lab/common";
 import { HISTORY_KEY, ROUTE_KEY, STATE_KEY, Storage } from "@rx-lab/storage";
 import { Redis } from "@upstash/redis";
 
@@ -30,7 +30,7 @@ export class UpstashStorage extends Storage {
     });
   }
 
-  async addHistory(key: string, route: Route): Promise<void> {
+  async addHistory(key: string, route: StoredRoute): Promise<void> {
     const storedKey = `${HISTORY_KEY}-${key}`;
     await this.redis.set(storedKey, route);
     await this.redis.expire(storedKey, EXPIRATION_TIME);
@@ -41,14 +41,14 @@ export class UpstashStorage extends Storage {
     await this.redis.del(storedKey);
   }
 
-  async deleteState(key: string, route: Route): Promise<void> {
+  async deleteState(key: string, route: StoredRoute): Promise<void> {
     const storedKey = `${STATE_KEY}-${key}`;
     await this.redis.del(storedKey);
     const listener = this.stateChangeListeners.get(storedKey);
     listener?.();
   }
 
-  async restoreHistory(key: string): Promise<Route | undefined> {
+  async restoreHistory(key: string): Promise<StoredRoute | undefined> {
     const storedKey = `${HISTORY_KEY}-${key}`;
     const data = await this.redis.get<string>(storedKey);
     if (data !== null) {
@@ -57,7 +57,7 @@ export class UpstashStorage extends Storage {
     return undefined;
   }
 
-  async restoreRoute(key: string): Promise<Route | undefined> {
+  async restoreRoute(key: string): Promise<StoredRoute | undefined> {
     const storedKey = `${ROUTE_KEY}-${key}`;
     const data = await this.redis.get<string>(storedKey);
     if (data !== null) {
@@ -66,7 +66,10 @@ export class UpstashStorage extends Storage {
     return undefined;
   }
 
-  async restoreState<T>(key: string, route: Route): Promise<T | undefined> {
+  async restoreState<T>(
+    key: string,
+    route: StoredRoute,
+  ): Promise<T | undefined> {
     const storedKey = `${STATE_KEY}-${key}`;
     const exists = await this.redis.exists(storedKey);
     if (exists === 0) {
@@ -75,7 +78,7 @@ export class UpstashStorage extends Storage {
     return (await this.redis.get(storedKey)) as any;
   }
 
-  async saveRoute(key: string, path: string): Promise<void> {
+  async saveRoute(key: string, path: StoredRoute): Promise<void> {
     const storedKey = `${ROUTE_KEY}-${key}`;
     await this.redis.set(storedKey, path);
     await this.redis.expire(storedKey, EXPIRATION_TIME);

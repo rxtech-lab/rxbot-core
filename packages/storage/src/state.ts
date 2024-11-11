@@ -80,10 +80,9 @@ export function useState<T>(
     }
 
     const loadInitialState = async () => {
-      const storedState = await client.restoreState(
-        storedKey,
-        DEFAULT_ROOT_ROUTE,
-      );
+      const storedState = await client.restoreState(storedKey, {
+        route: DEFAULT_ROOT_ROUTE,
+      });
       Logger.log(
         `Restored state for key ${storedKey}: ${JSON.stringify(storedState)}`,
       );
@@ -104,10 +103,9 @@ export function useState<T>(
         return client.subscribeStateChange(key, DEFAULT_ROOT_ROUTE, () => {
           const loadNewState = async () => {
             Logger.log(`Loading new state for key ${storedKey}`);
-            const newState = await client.restoreState(
-              storedKey,
-              DEFAULT_ROOT_ROUTE,
-            );
+            const newState = await client.restoreState(storedKey, {
+              route: DEFAULT_ROOT_ROUTE,
+            });
             setLocalState(newState as T);
             onStoreChange();
           };

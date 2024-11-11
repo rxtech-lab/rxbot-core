@@ -92,11 +92,11 @@ async function renderServerComponentHelper(
   // if the root element is a client component, return it as is
   if (isReactClientElement(jsx)) {
     const Component = jsx;
-    let props = jsx.props;
+    let clientProps = jsx.props;
     if (isRoot) {
-      props = { ...props, ...props };
+      clientProps = { ...clientProps, ...props };
     }
-    return React.createElement(Component, props);
+    return React.createElement(Component, clientProps);
   }
 
   if (typeof jsx === "object") {
