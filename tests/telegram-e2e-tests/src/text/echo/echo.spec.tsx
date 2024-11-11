@@ -1,18 +1,20 @@
-import path, { dirname } from "path";
-import { fileURLToPath } from "url";
+import { beforeEach } from "node:test";
 import { Api, MessageType } from "@rx-lab/mock-telegram-client";
+import { CLIProcessManager } from "../../process-manager";
 import {
   DEFAULT_RENDERING_WAIT_TIME,
   PORT,
-  initializeLongPolling,
+  TestingEnvironment,
+  initialize,
   sleep,
 } from "../../utils";
 
 const chatroomId = 1200;
 
-describe("Simple echo bot test", () => {
+describe("Simple Echo Bot Tests", () => {
   let api: Api<any>;
-  let coreApi: any;
+  let coreApi: any | undefined;
+  let cliProcessManager: CLIProcessManager | undefined;
 
   beforeAll(async () => {
     api = new Api({
@@ -20,41 +22,54 @@ describe("Simple echo bot test", () => {
     });
   });
 
-  it("should echo user input", async () => {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
-    const rootDir = path.join(__dirname, "src");
-    const destinationDir = path.join(__dirname);
-    const { core } = await initializeLongPolling(chatroomId, api, {
-      rootDir,
-      destinationDir,
-    });
-    coreApi = core;
-
-    await api.chatroom.sendMessageToChatroom(chatroomId, {
-      content: "Hello",
-      type: MessageType.Text,
-    });
-    await sleep(DEFAULT_RENDERING_WAIT_TIME);
-    let messages = await api.chatroom.getMessagesByChatroom(chatroomId);
-    expect(messages.data.count).toBe(2);
-    let currentMessage = messages.data.messages[1];
-    expect(currentMessage?.update_count).toBe(0);
-    expect(currentMessage?.text).toContain("You just said: Hello");
-
-    await api.chatroom.sendMessageToChatroom(chatroomId, {
-      content: "How are you?",
-      type: MessageType.Text,
-    });
-    await sleep(DEFAULT_RENDERING_WAIT_TIME);
-    messages = await api.chatroom.getMessagesByChatroom(chatroomId);
-    expect(messages.data.count).toBe(4);
-    currentMessage = messages.data.messages[3];
-    expect(currentMessage?.update_count).toBe(0);
-    expect(currentMessage?.text).toContain("You just said: How are you?");
+  beforeEach(() => {
+    coreApi = undefined;
+    cliProcessManager = undefined;
   });
 
+  for (const environment of [
+    TestingEnvironment.LongPolling,
+    TestingEnvironment.DEV,
+  ]) {
+    it(`should echo user input in ${environment}`, async () => {
+      const { core, processManager } = await initialize({
+        filename: import.meta.url,
+        environment,
+        api,
+        chatroomId,
+      });
+      cliProcessManager = processManager;
+      coreApi = core;
+
+      // First message test
+      await api.chatroom.sendMessageToChatroom(chatroomId, {
+        content: "Hello",
+        type: MessageType.Text,
+      });
+      await sleep(DEFAULT_RENDERING_WAIT_TIME);
+      let messages = await api.chatroom.getMessagesByChatroom(chatroomId);
+      expect(messages.data.count).toBe(2);
+      let currentMessage = messages.data.messages[1];
+      expect(currentMessage?.update_count).toBe(0);
+      expect(currentMessage?.text).toContain("You just said: Hello");
+
+      // Second message test
+      await api.chatroom.sendMessageToChatroom(chatroomId, {
+        content: "How are you?",
+        type: MessageType.Text,
+      });
+      await sleep(DEFAULT_RENDERING_WAIT_TIME);
+      messages = await api.chatroom.getMessagesByChatroom(chatroomId);
+      expect(messages.data.count).toBe(4);
+      currentMessage = messages.data.messages[3];
+      expect(currentMessage?.update_count).toBe(0);
+      expect(currentMessage?.text).toContain("You just said: How are you?");
+    });
+  }
+
   afterEach(async () => {
-    await coreApi.onDestroy();
+    await api.reset.resetChatroomState(chatroomId);
+    await coreApi?.onDestroy();
+    await cliProcessManager?.stop();
   });
 });

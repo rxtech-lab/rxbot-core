@@ -66,7 +66,6 @@ export class CLIProcessManager extends EventEmitter {
         this.process.stderr?.on("data", (data: Buffer) => {
           const error = data.toString();
           this.emit("stderr", error);
-          console.error(`[Process Error]: ${error}`);
         });
 
         // Handle process errors

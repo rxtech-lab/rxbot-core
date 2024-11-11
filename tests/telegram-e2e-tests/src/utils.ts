@@ -124,12 +124,6 @@ export const initializeDevServer = async (
   opts: InitializeDevServerOptions,
 ) => {
   const processManager = new CLIProcessManager();
-  processManager.on("stderr", (error: any) => {
-    if (error.includes("`punycode")) {
-      return;
-    }
-    throw error;
-  });
   await processManager.start("rxbot", ["dev"], {
     cwd: opts.cwd,
   });
@@ -144,8 +138,14 @@ export const initializeDevServer = async (
 };
 
 export enum TestingEnvironment {
+  /**
+   * Use dev server
+   */
   DEV = "dev",
-  PROD = "prod",
+  /**
+   * Use long polling
+   */
+  LongPolling = "long-polling",
 }
 
 interface InitializeOptions {
@@ -169,7 +169,7 @@ export async function initialize({
   const __filename = fileURLToPath(filename);
   const __dirname = dirname(__filename);
   const destinationDir = path.join(__dirname);
-  if (environment === TestingEnvironment.PROD) {
+  if (environment === TestingEnvironment.LongPolling) {
     const rootDir = path.join(__dirname, "src");
     return await initializeLongPolling(chatroomId, api, {
       rootDir,

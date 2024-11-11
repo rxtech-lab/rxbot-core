@@ -27,7 +27,10 @@ describe("Simple State Tests", () => {
     cliProcessManager = undefined;
   });
 
-  for (const environment of [TestingEnvironment.PROD, TestingEnvironment.DEV]) {
+  for (const environment of [
+    TestingEnvironment.LongPolling,
+    TestingEnvironment.DEV,
+  ]) {
     it(`should render the initial state in ${environment}`, async () => {
       const { core, processManager } = await initialize({
         filename: import.meta.url,
