@@ -1,4 +1,4 @@
-import type { Route, StorageInterface } from "@rx-lab/common";
+import type { Route, SetStateOptions, StorageInterface } from "@rx-lab/common";
 
 export const STATE_KEY = "state";
 export const ROUTE_KEY = "route";
@@ -10,7 +10,12 @@ export abstract class Storage implements StorageInterface {
 
   abstract restoreState<T>(key: string, route: Route): Promise<T | undefined>;
 
-  abstract saveState<T>(key: string, route: Route, state: T): Promise<void>;
+  abstract saveState<T>(
+    key: string,
+    route: Route,
+    state: T,
+    options?: SetStateOptions,
+  ): Promise<void>;
 
   subscribeStateChange(
     key: string,
