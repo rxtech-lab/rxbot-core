@@ -67,24 +67,59 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
 
           // Watch for file changes
           watcher.on("change", (path) => {
-            Logger.log(`File changed: ${path}`, "yellow");
-            devServer.invalidate((stats) => {
-              Logger.log("Build complete", "green");
-              if (stats?.hasErrors()) {
-                Logger.log("Build failed", "red");
-                return;
-              }
-            });
+            try {
+              devServer.invalidate((stats) => {
+                if (stats?.hasErrors()) {
+                  Logger.log(
+                    "Build encountered errors but server keeps running",
+                    "yellow",
+                  );
+                } else {
+                  Logger.log("Build complete", "green");
+                }
+              });
+            } catch (error: any) {
+              Logger.log(`Error during rebuild: ${error.message}`, "red");
+              // Continue running despite errors
+            }
           });
 
           watcher.on("add", (path) => {
             Logger.log(`File added: ${path}`, "yellow");
-            devServer.invalidate();
+            try {
+              devServer.invalidate((stats) => {
+                if (stats?.hasErrors()) {
+                  Logger.log(
+                    "Build encountered errors but server keeps running",
+                    "yellow",
+                  );
+                } else {
+                  Logger.log("Build complete", "green");
+                }
+              });
+            } catch (error: any) {
+              Logger.log(`Error during rebuild: ${error.message}`, "red");
+              // Continue running despite errors
+            }
           });
 
           watcher.on("unlink", (path) => {
             Logger.log(`File removed: ${path}`, "yellow");
-            devServer.invalidate();
+            try {
+              devServer.invalidate((stats) => {
+                if (stats?.hasErrors()) {
+                  Logger.log(
+                    "Build encountered errors but server keeps running",
+                    "yellow",
+                  );
+                } else {
+                  Logger.log("Build complete", "green");
+                }
+              });
+            } catch (error: any) {
+              Logger.log(`Error during rebuild: ${error.message}`, "red");
+              // Continue running despite errors
+            }
           });
 
           // API endpoint

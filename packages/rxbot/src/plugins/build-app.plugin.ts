@@ -67,22 +67,27 @@ export class BuildAppPlugin implements RspackPluginInstance {
       async (compilation, callback) => {
         Logger.log("Building app...", "red");
         if (this.isFirstRun || (await this.hasSourceChanged())) {
-          // remove the output directory
-          const botCompiler = new BotCompiler({
-            rootDir: this.sourceDir,
-            destinationDir: this.outputDir,
-          });
-          await botCompiler.compile();
+          try {
+            // remove the output directory
+            const botCompiler = new BotCompiler({
+              rootDir: this.sourceDir,
+              destinationDir: this.outputDir,
+            });
+            await botCompiler.compile();
 
-          // generate the index file
-          const fileContent = nunjucks.renderString(INDEX_FILE_TEMPLATE, {
-            hasAdapterFile: this.hasAdapterFile,
-          });
-          await fs.writeFile(`${this.outputDir}/index.ts`, fileContent);
+            // generate the index file
+            const fileContent = nunjucks.renderString(INDEX_FILE_TEMPLATE, {
+              hasAdapterFile: this.hasAdapterFile,
+            });
+            await fs.writeFile(`${this.outputDir}/index.ts`, fileContent);
 
-          this.lastCompileTime = Date.now();
-          this.isFirstRun = false;
-          callback();
+            this.lastCompileTime = Date.now();
+            this.isFirstRun = false;
+            callback();
+          } catch (error: any) {
+            Logger.log(`Error during build: ${error.message}`, "red");
+            callback();
+          }
         } else {
           Logger.log("No changes detected, skipping build...", "yellow");
           callback();
