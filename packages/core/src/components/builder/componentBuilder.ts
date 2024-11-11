@@ -13,6 +13,7 @@ import {
   UnsupportedComponentError,
   UnsupportedReactComponentError,
 } from "@rx-lab/errors";
+import { Code, Pre } from "../Code";
 import {
   type BaseComponent,
   Button,
@@ -60,6 +61,8 @@ export class ComponentBuilder implements Builder {
     [InstanceType.Command]: CommandComponent as unknown as Constructor<
       BaseComponent<any>
     >,
+    [InstanceType.Code]: Code,
+    [InstanceType.Pre]: Pre,
   };
 
   /**
@@ -87,6 +90,8 @@ export class ComponentBuilder implements Builder {
     [ReactInstanceType.Suspendable]: InstanceType.Suspendable,
     [ReactInstanceType.Link]: InstanceType.Link,
     [ReactInstanceType.Command]: InstanceType.Command,
+    [ReactInstanceType.Pre]: InstanceType.Pre,
+    [ReactInstanceType.Code]: InstanceType.Code,
   };
 
   build(

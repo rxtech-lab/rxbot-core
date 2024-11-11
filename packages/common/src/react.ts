@@ -48,6 +48,8 @@ export enum ReactInstanceType {
   ThematicBreak = "hr",
   Suspendable = "suspendable",
   Command = "command",
+  Pre = "pre",
+  Code = "code",
 }
 
 export const REACT_COMPONENT_TYPE = "react.element";

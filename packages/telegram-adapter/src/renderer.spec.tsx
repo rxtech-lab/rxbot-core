@@ -33,6 +33,34 @@ describe("renderElement", () => {
     expect(renderElement(textElement, parser).text).toBe("Hello");
   });
 
+  it("should render inline code", () => {
+    const codeElement = new MockComponent("1", InstanceType.Code, {
+      children: [
+        new MockComponent("1", InstanceType.Text, {
+          nodeValue: "const a = 1;",
+        }),
+      ],
+    });
+    const rendered = renderElement(codeElement, parser);
+    expect(rendered.text).toBe("<code>const a = 1;</code>");
+  });
+
+  it("should render code block", () => {
+    const codeElement = new MockComponent("1", InstanceType.Pre, {
+      children: [
+        new MockComponent("1", InstanceType.Code, {
+          children: [
+            new MockComponent("1", InstanceType.Text, {
+              nodeValue: "const a = 1;",
+            }),
+          ],
+        }),
+      ],
+    });
+    const rendered = renderElement(codeElement, parser);
+    expect(rendered.text).toBe("<pre><code>const a = 1;</code></pre>");
+  });
+
   it("should render button element", () => {
     const buttonElement = new MockComponent("2", InstanceType.Button, {
       children: [
