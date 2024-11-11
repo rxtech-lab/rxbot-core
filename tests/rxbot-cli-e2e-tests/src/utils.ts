@@ -13,7 +13,7 @@ export const PORT = 9000;
 
 export const DEFAULT_RENDERING_WAIT_TIME = 800;
 
-interface Options {
+interface InitializeDevServerOptions {
   cwd: string;
   chatroomId: number;
 }
@@ -23,9 +23,15 @@ interface Options {
  * @param api
  * @param opts
  */
-export const initializeDevServer = async (api: Api<any>, opts: Options) => {
+export const initializeDevServer = async (
+  api: Api<any>,
+  opts: InitializeDevServerOptions,
+) => {
   const processManager = new CLIProcessManager();
   processManager.on("stderr", (error: any) => {
+    if (error.includes("`punycode")) {
+      return;
+    }
     throw error;
   });
   await processManager.start("rxbot", ["dev"], {

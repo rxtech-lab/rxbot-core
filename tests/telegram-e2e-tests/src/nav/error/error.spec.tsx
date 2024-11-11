@@ -4,7 +4,7 @@ import { Api, MessageType } from "@rx-lab/mock-telegram-client";
 import {
   DEFAULT_RENDERING_WAIT_TIME,
   PORT,
-  initialize,
+  initializeLongPolling,
   sleep,
 } from "../../utils";
 
@@ -25,7 +25,7 @@ describe("error page", () => {
   it("should render the error page using the default one", async () => {
     const rootDir = path.join(__dirname, "src");
     const destinationDir = path.join(__dirname);
-    const { core } = await initialize(chatroomId, api, {
+    const { core } = await initializeLongPolling(chatroomId, api, {
       rootDir,
       destinationDir,
     });
@@ -71,7 +71,7 @@ describe("error page", () => {
   it("should render the error page using the default one in nested page", async () => {
     const rootDir = path.join(__dirname, "src");
     const destinationDir = path.join(__dirname, ".rx-lab");
-    const { core } = await initialize(chatroomId, api, {
+    const { core } = await initializeLongPolling(chatroomId, api, {
       rootDir,
       destinationDir,
     });
@@ -92,7 +92,7 @@ describe("error page", () => {
   it("should render the error page using the nearest error page", async () => {
     const rootDir = path.join(__dirname, "src");
     const destinationDir = path.join(__dirname, ".rx-lab");
-    const { core } = await initialize(chatroomId, api, {
+    const { core } = await initializeLongPolling(chatroomId, api, {
       rootDir,
       destinationDir,
     });
@@ -113,7 +113,7 @@ describe("error page", () => {
   it("should render the custom error page", async () => {
     const rootDir = path.join(__dirname, "src");
     const destinationDir = path.join(__dirname, ".rx-lab");
-    const { core } = await initialize(chatroomId, api, {
+    const { core } = await initializeLongPolling(chatroomId, api, {
       rootDir,
       destinationDir,
     });

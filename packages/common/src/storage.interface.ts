@@ -25,7 +25,7 @@ export interface StorageInterface {
    *
    * @example
    * const storage = new FileStorage();
-   * await storage.saveState("counter", "/route1", 0);
+   * await storage.saveState("simple", "/route1", 0);
    */
   saveState<T>(
     key: string,
@@ -43,7 +43,7 @@ export interface StorageInterface {
    *
    * @example
    * const storage = new FileStorage();
-   * const state = await storage.restoreState("counter", "/route1"); // 0
+   * const state = await storage.restoreState("simple", "/route1"); // 0
    */
   restoreState<T>(key: string, route: Route): Promise<T | undefined>;
 
@@ -56,7 +56,7 @@ export interface StorageInterface {
    *
    * @example
    * const storage = new FileStorage();
-   * await storage.deleteState("counter", "/route1");
+   * await storage.deleteState("simple", "/route1");
    */
   deleteState(key: string, route: Route): Promise<void>;
 
