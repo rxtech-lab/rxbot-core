@@ -1,3 +1,5 @@
+import { StoredRoute } from "@rx-lab/common";
+
 /**
  * Convert a route to a Telegram route.
  * Replace any slash after the first slash with a underscore.
@@ -45,23 +47,23 @@ export function convertRouteToTGRoute(route: string): string {
  * convertTGRouteToRoute('/settings_profile_edit') // returns '/settings/profile/edit'
  * convertTGRouteToRoute('/settings_profile') // returns '/settings/profile'
  */
-export function convertTGRouteToRoute(route: string): string {
+export function convertTGRouteToRoute(route: StoredRoute): string {
   // Check if the route starts with a slash
-  if (!route.startsWith("/")) {
-    return route; // Return unchanged if it doesn't start with a slash
+  if (!route.route.startsWith("/")) {
+    return route.route; // Return unchanged if it doesn't start with a slash
   }
 
   // Find the position of the first underscore
-  const firstUnderscoreIndex = route.indexOf("_");
+  const firstUnderscoreIndex = route.route.indexOf("_");
 
   // If there's no underscore, return the route as is
   if (firstUnderscoreIndex === -1) {
-    return route;
+    return route.route;
   }
 
   // Replace all underscores after the first slash with slashes
   return (
-    route.substring(0, firstUnderscoreIndex) +
-    route.substring(firstUnderscoreIndex).replace(/_/g, "/")
+    route.route.substring(0, firstUnderscoreIndex) +
+    route.route.substring(firstUnderscoreIndex).replace(/_/g, "/")
   );
 }

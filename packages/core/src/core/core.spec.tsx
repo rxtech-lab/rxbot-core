@@ -1,5 +1,10 @@
 import * as process from "node:process";
-import type { AdapterInterface, Container, Menu } from "@rx-lab/common";
+import type {
+  AdapterInterface,
+  Container,
+  Menu,
+  StoredRoute,
+} from "@rx-lab/common";
 // @ts-ignore
 import { MemoryStorage } from "@rx-lab/storage/memory";
 import { Core } from "./core";
@@ -27,8 +32,10 @@ class MockAdapter implements AdapterInterface<Container<any, any>, any, any> {
     return Promise.resolve(undefined);
   }
 
-  async decodeRoute(route: string): Promise<string> {
-    return "";
+  async decodeRoute(route: string): Promise<StoredRoute> {
+    return {
+      route: "",
+    };
   }
 
   getRouteKey(message: Container<any, any>): string {

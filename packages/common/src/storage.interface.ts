@@ -1,4 +1,4 @@
-import { Route } from "./router.interface";
+import { Route, StoredRoute } from "./router.interface";
 
 export interface SetStateOptions {
   /**
@@ -45,7 +45,7 @@ export interface StorageInterface {
    * const storage = new FileStorage();
    * const state = await storage.restoreState("simple", "/route1"); // 0
    */
-  restoreState<T>(key: string, route: Route): Promise<T | undefined>;
+  restoreState<T>(key: string, route: StoredRoute): Promise<T | undefined>;
 
   /**
    * Deletes the state from the storage.
@@ -58,7 +58,7 @@ export interface StorageInterface {
    * const storage = new FileStorage();
    * await storage.deleteState("simple", "/route1");
    */
-  deleteState(key: string, route: Route): Promise<void>;
+  deleteState(key: string, route: StoredRoute): Promise<void>;
 
   /**
    * Subscribes to state changes for a specific key.
@@ -90,7 +90,7 @@ export interface StorageInterface {
    * @param path - The path of the route to be saved.
    * @returns A promise that resolves when the route is successfully saved.
    */
-  saveRoute(key: string, path: Route): Promise<void>;
+  saveRoute(key: string, path: StoredRoute): Promise<void>;
 
   /**
    * Retrieves current route from the storage.
@@ -98,7 +98,7 @@ export interface StorageInterface {
    * @param key - The unique identifier for the route. This is typically determined by the adapter.
    * @returns A promise that resolves with the retrieved route, or undefined if not found.
    */
-  restoreRoute(key: string): Promise<Route | undefined>;
+  restoreRoute(key: string): Promise<StoredRoute | undefined>;
 
   /**
    * Adds a route to the history storage.
@@ -107,7 +107,7 @@ export interface StorageInterface {
    * @param route - Route to be saved. Should also include query parameters and path parameters if applicable.
    * @returns A promise that resolves when the operation is complete
    */
-  addHistory(key: string | number, route: Route): Promise<void>;
+  addHistory(key: string | number, route: StoredRoute): Promise<void>;
 
   /**
    * Removes a specific route from the history storage.
@@ -121,5 +121,5 @@ export interface StorageInterface {
    * @param key - Unique identifier for the history entry
    * @returns A promise that resolves with the associated route, or undefined if not found
    */
-  restoreHistory(key: string | number): Promise<Route | undefined>;
+  restoreHistory(key: string | number): Promise<StoredRoute | undefined>;
 }

@@ -1,6 +1,6 @@
 import { BaseMessage, Container } from "./container.interface";
 import { SendMessage } from "./core.interface";
-import { Route } from "./router.interface";
+import { ReloadOptions, StoredRoute } from "./router.interface";
 
 export interface RedirectOptions {
   /**
@@ -21,6 +21,19 @@ export interface RedirectOptions {
    * Should keep the text message in the container.
    */
   keepTextMessage?: boolean;
+
+  /**
+   * Should render with old props. Usually, we set this to true when we are doing the redirect.
+   * @default false
+   */
+  shouldRenderWithOldProps?: boolean;
+}
+
+export interface CreateContainerOptions {
+  /**
+   * Indicates whether the application should update the current message or render a new one.
+   */
+  renderNewMessage: boolean;
 }
 
 export interface CoreApi<C extends Container<any, any>> {
@@ -63,7 +76,7 @@ export interface CoreApi<C extends Container<any, any>> {
    */
   redirectTo: (
     container: C,
-    path: string,
+    path: StoredRoute,
     options: RedirectOptions,
   ) => Promise<C | undefined>;
 
@@ -91,7 +104,17 @@ export interface CoreApi<C extends Container<any, any>> {
    *
    * @returns A promise that resolves to the Route object.
    */
-  restoreRoute: (key: string) => Promise<Route | undefined>;
+  restoreRoute: (key: string) => Promise<StoredRoute | undefined>;
+
+  /**
+   * Reloads the current route.
+   * @param opt Options for the reload operation.
+   *
+   * @example
+   * await reload({ shouldRenderNewMessage: true }); // will render a new message below
+   * await reload({ shouldRenderNewMessage: false }); // will update the current message
+   */
+  reload: (message: BaseMessage, opt: ReloadOptions) => Promise<void>;
 }
 
 export interface Menu {
@@ -195,7 +218,7 @@ export interface AdapterInterface<
    * //parse route from message
    * const standardRoute = await adapter.decodeRoute({ someObject }); // Outputs: "/settings/profile"
    */
-  decodeRoute: (route: any) => Promise<Route | undefined>;
+  decodeRoute: (route: any) => Promise<StoredRoute | undefined>;
 
   /**
    * Retrieves a unique route key from the container.
@@ -241,6 +264,7 @@ export interface AdapterInterface<
   /**
    * Creates a container from a message.
    * @param message
+   * @param options Options for creating the container.
    */
-  createContainer: (message: Message) => C;
+  createContainer: (message: Message, options: CreateContainerOptions) => C;
 }

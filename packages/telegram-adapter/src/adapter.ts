@@ -4,9 +4,11 @@ import {
   type Container,
   ContainerType,
   type CoreApi,
+  CreateContainerOptions,
   Logger,
   type Menu,
   SendMessage,
+  StoredRoute,
 } from "@rx-lab/common";
 import TelegramBot from "node-telegram-bot-api";
 import { CallbackParser, CallbackType, DecodeType } from "./callbackParser";
@@ -109,6 +111,7 @@ export class TelegramAdapter
           await api.redirectTo(container, routeFromCallback, {
             shouldRender: true,
             shouldAddToHistory: false,
+            shouldRenderWithOldProps: true,
           });
       }
 
@@ -130,7 +133,9 @@ export class TelegramAdapter
         // if the component is a string, it means that it is a route,
         // so we need to redirect to the route
         if (callbackType === CallbackType.onCommand) {
-          const route = await this.decodeRoute(component.route);
+          const route = await this.decodeRoute({
+            route: component.route,
+          });
           if (!route) {
             Logger.log(`Invalid route: ${component.route}`, "red");
             return;
@@ -280,16 +285,30 @@ export class TelegramAdapter
         return command;
       }
     }
+
+    return undefined;
   }
 
-  async decodeRoute(route: any): Promise<string | undefined> {
-    if (typeof route === "string") {
-      return convertTGRouteToRoute(route);
+  async decodeRoute(
+    route: StoredRoute | TelegramBot.Message,
+  ): Promise<StoredRoute | undefined> {
+    if (typeof route === "object") {
+      if ("route" in route) {
+        return {
+          route: convertTGRouteToRoute(route),
+          props: route.props,
+        };
+      }
+
+      const currentRoute = await this.getCurrentRoute(route);
+      if (currentRoute) {
+        return {
+          route: await this.getCurrentRoute(route),
+        };
+      }
     }
 
-    if (typeof route === "object") {
-      return await this.getCurrentRoute(route);
-    }
+    return undefined;
   }
 
   getRouteKey(message: TGContainer): string {
@@ -305,11 +324,15 @@ export class TelegramAdapter
     }
   }
 
-  createContainer(message: TelegramBot.Message): TGContainer {
+  createContainer(
+    message: TelegramBot.Message,
+    options: CreateContainerOptions,
+  ): TGContainer {
     // only process message from user
     // this prevents the bot from processing message from itself
     const messageText = message.from?.is_bot ? undefined : message.text;
-    return {
+    const container: InternalTGContainer = {
+      decodedData: undefined,
       type: "ROOT",
       children: [],
       chatroomInfo: {
@@ -323,6 +346,12 @@ export class TelegramAdapter
         text: messageText,
       } as any,
     };
+
+    if (!options.renderNewMessage) {
+      container.updateMessageId = message.message_id;
+    }
+
+    return container;
   }
 
   subscribeToMessageChanged(
@@ -335,7 +364,9 @@ export class TelegramAdapter
       if (message.web_app_data !== undefined) {
         return;
       }
-      const container = this.createContainer(message);
+      const container = this.createContainer(message, {
+        renderNewMessage: true,
+      });
       return callback(container, message);
     });
   }
@@ -364,10 +395,14 @@ export class TelegramAdapter
       updateMessageId: 0,
     };
 
-    await this.coreApi.redirectTo(container, message.path, {
-      shouldRender: true,
-      shouldAddToHistory: false,
-      keepTextMessage: true,
-    });
+    await this.coreApi.redirectTo(
+      container,
+      { route: message.path },
+      {
+        shouldRender: true,
+        shouldAddToHistory: false,
+        keepTextMessage: true,
+      },
+    );
   }
 }

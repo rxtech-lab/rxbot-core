@@ -11,6 +11,7 @@ import {
   RouteInfoFile,
   SpecialRouteType,
   StorageInterface,
+  StoredRoute,
 } from "@rx-lab/common";
 import { matchRoute, parseQuery } from "./router.utils";
 
@@ -233,7 +234,7 @@ export class Router {
     await this.adapter.setMenus(menu);
   }
 
-  async navigateTo(key: string, path: string) {
+  async navigateTo(key: string, path: StoredRoute) {
     await this.storage.saveRoute(key, path);
   }
 
@@ -272,7 +273,9 @@ export class Router {
     );
     const component = await getSpecialRoute(matchedRoute as any, type);
     return {
-      currentRoute: path,
+      currentRoute: {
+        route: path,
+      },
       path: matchedRoute.route,
       matchedRoute: {
         params: {},
@@ -287,10 +290,15 @@ export class Router {
     };
   }
 
-  async render(key: string, defaultRoute?: string): Promise<RenderedComponent> {
-    const currentRoute = defaultRoute
+  async render(
+    key: string,
+    defaultRoute?: StoredRoute,
+  ): Promise<RenderedComponent> {
+    const currentRoute: StoredRoute = defaultRoute
       ? defaultRoute
-      : (await this.storage.restoreRoute(key)) ?? DEFAULT_ROOT_ROUTE;
+      : ((await this.storage.restoreRoute(key)) ?? {
+          route: DEFAULT_ROOT_ROUTE,
+        });
     const parsedRoute = await this.adapter.decodeRoute(currentRoute);
     // if the route is invalid, render the error page
     if (!parsedRoute) {
@@ -300,7 +308,7 @@ export class Router {
         code: 500,
       };
       return await this.renderSpecialRoute(
-        currentRoute,
+        currentRoute.route,
         "error",
         {},
         errorQuery,
@@ -308,15 +316,20 @@ export class Router {
     }
     const matchedRoute = await matchRouteWithPath(
       this.routeInfoFile.routes,
-      parsedRoute,
+      parsedRoute.route,
     );
-    const queryString = parseQuery(parsedRoute);
+    const queryString = parseQuery(parsedRoute.route);
     if (!matchedRoute) {
       const errorQuery: ErrorPageProps = {
         error: new Error(`Route not found: ${parsedRoute}`),
         code: 404,
       };
-      return await this.renderSpecialRoute(parsedRoute, "404", {}, errorQuery);
+      return await this.renderSpecialRoute(
+        parsedRoute.route,
+        "404",
+        {},
+        errorQuery,
+      );
     }
     return {
       matchedRoute,

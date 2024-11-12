@@ -183,7 +183,6 @@ export async function initialize({
       cwd: rootDir,
       chatroomId,
     });
-
     return {
       processManager,
     };

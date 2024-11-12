@@ -1,5 +1,6 @@
 import { RedirectOptions } from "./adapter.interface";
 import type { Container } from "./container.interface";
+import { PageProps } from "./page.interface";
 import { RenderedComponent } from "./router.interface";
 
 export interface SendMessage {
@@ -97,7 +98,7 @@ export interface CoreInterface<T extends Container<any, any>> {
    * // The result might be the updated container, a virtual DOM tree,
    * // or any other representation of the rendered application
    */
-  render: (container: T) => any;
+  render: (container: T, oldProps?: PageProps) => any;
 
   /**
    * Cleans up and destroys the renderer, releasing any resources or

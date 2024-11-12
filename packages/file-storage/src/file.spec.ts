@@ -195,9 +195,15 @@ describe("FileStorage", () => {
         .spyOn(fileStorage as any, "writeState")
         .mockResolvedValue(undefined);
       jest.spyOn(fileStorage as any, "readState").mockResolvedValue({});
-      await fileStorage.saveRoute("testKey", "/test/route");
+      await fileStorage.saveRoute("testKey", {
+        route: "/test/route",
+      });
       expect(mockWriteState).toHaveBeenCalledWith({
-        [`${ROUTE_KEY}-testKey`]: { data: "/test/route" },
+        [`${ROUTE_KEY}-testKey`]: {
+          data: {
+            route: "/test/route",
+          },
+        },
       });
     });
 
@@ -206,7 +212,9 @@ describe("FileStorage", () => {
       jest.spyOn(fileStorage as any, "readState").mockResolvedValue({});
       const mockListener = jest.fn();
       fileStorage.subscribeRouteChange("testKey", mockListener);
-      await fileStorage.saveRoute("testKey", "/test/route");
+      await fileStorage.saveRoute("testKey", {
+        route: "/test/route",
+      });
       expect(mockListener).toHaveBeenCalled();
     });
   });
@@ -219,7 +227,9 @@ describe("FileStorage", () => {
       jest.spyOn(fileStorage as any, "readState").mockResolvedValue({
         [`${STATE_KEY}-testKey`]: { route: "testRoute", state: { foo: "bar" } },
       });
-      await fileStorage.deleteState("testKey", "testRoute" as Route);
+      await fileStorage.deleteState("testKey", {
+        route: "testRoute",
+      });
       expect(mockWriteState).toHaveBeenCalledWith({});
     });
 
@@ -228,7 +238,9 @@ describe("FileStorage", () => {
       jest.spyOn(fileStorage as any, "readState").mockResolvedValue({});
       const mockListener = jest.fn();
       fileStorage.subscribeStateChange("testKey", "testRoute", mockListener);
-      await fileStorage.deleteState("testKey", "testRoute" as Route);
+      await fileStorage.deleteState("testKey", {
+        route: "testRoute",
+      });
       expect(mockListener).toHaveBeenCalled();
     });
   });
