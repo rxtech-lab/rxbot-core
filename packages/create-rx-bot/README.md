@@ -22,6 +22,8 @@ DRY_RUN=true pnpm create rx-bot
 pnpm create rx-bot
 ```
 
+For more examples and detailed documentation, please visit our [GitHub wiki](https://github.com/rxtech-lab/rxbot-core/wiki).
+
 ## Development
 
 ### Add new template

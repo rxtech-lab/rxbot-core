@@ -193,3 +193,7 @@ export default async function Page(props: PageProps) {
     );
 }
 ```
+
+### More Examples
+
+For more examples and detailed documentation, please visit our [GitHub wiki](https://github.com/rxtech-lab/rxbot-core/wiki).
