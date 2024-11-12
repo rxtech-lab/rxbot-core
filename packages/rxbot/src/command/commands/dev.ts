@@ -57,12 +57,14 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
         setupMiddlewares: (middlewares, devServer) => {
           const app = devServer.app!;
           let core: Core<any> | undefined;
+          let isReady = false;
+          let isReloading = false;
 
           // Parse JSON bodies
           app.use(express.json());
 
           const watcher = chokidar.watch(srcFolder, {
-            ignored: /node_modules/,
+            ignored: [/node_modules/, /.rx_lab/],
             persistent: true,
           });
 
@@ -84,7 +86,10 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
           };
 
           const reload = () => {
+            if (!isReady) return;
+            if (isReloading) return;
             try {
+              isReloading = true;
               devServer.invalidate(async (stats) => {
                 if (stats?.hasErrors()) {
                   Logger.log(
@@ -93,8 +98,9 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
                   );
                 } else {
                   await initializeCore();
-                  Logger.log("Build complete", "green");
+                  Logger.info("Reload complete", "green");
                 }
+                isReloading = false;
               });
             } catch (error: any) {
               Logger.log(`Error during rebuild: ${error.message}`, "red");
@@ -102,14 +108,20 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
             }
           };
 
+          watcher.on("ready", () => {
+            isReady = true;
+            Logger.info("Initial scan complete. Ready for changes");
+          });
+
           // Watch for file changes
           watcher.on("change", (path) => {
-            Logger.log(`File changed: ${path}`, "yellow");
+            Logger.info(`File changed: ${path}`, "yellow");
             reload();
           });
 
           watcher.on("add", (path) => {
-            Logger.log(`File added: ${path}`, "yellow");
+            if (!isReady) return;
+            Logger.info(`File added: ${path}`, "yellow");
             reload();
           });
 
