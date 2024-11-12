@@ -25,7 +25,7 @@ export default function page() {
         management.
       </p>
       <div>
-        <CommandButton command={"/state/simple"}>Counter Demo</CommandButton>
+        <CommandButton command={"/state/counter"}>Counter Demo</CommandButton>
       </div>
       <div>
         <CommandButton command={"/state/conditional"}>

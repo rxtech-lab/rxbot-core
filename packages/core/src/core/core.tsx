@@ -151,7 +151,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
         const container = this.adapter.createContainer(message, {
           renderNewMessage: true,
         });
-        await this.redirect(container, path, options);
+        await this.redirect(container, { route: path }, options);
         return container;
       },
       reload: async (message: BaseMessage, options: ReloadOptions) => {

@@ -133,7 +133,9 @@ export class TelegramAdapter
         // if the component is a string, it means that it is a route,
         // so we need to redirect to the route
         if (callbackType === CallbackType.onCommand) {
-          const route = await this.decodeRoute(component.route);
+          const route = await this.decodeRoute({
+            route: component.route,
+          });
           if (!route) {
             Logger.log(`Invalid route: ${component.route}`, "red");
             return;
@@ -287,7 +289,9 @@ export class TelegramAdapter
     return undefined;
   }
 
-  async decodeRoute(route: any): Promise<StoredRoute | undefined> {
+  async decodeRoute(
+    route: StoredRoute | TelegramBot.Message,
+  ): Promise<StoredRoute | undefined> {
     if (typeof route === "object") {
       if ("route" in route) {
         return {
