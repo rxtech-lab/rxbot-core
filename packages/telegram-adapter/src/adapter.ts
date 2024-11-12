@@ -111,6 +111,7 @@ export class TelegramAdapter
           await api.redirectTo(container, routeFromCallback, {
             shouldRender: true,
             shouldAddToHistory: false,
+            shouldRenderWithOldProps: true,
           });
       }
 
@@ -146,7 +147,7 @@ export class TelegramAdapter
           }
 
           try {
-            await api.redirectTo(container, route.route, {
+            await api.redirectTo(container, route, {
               shouldRender: true,
               shouldAddToHistory: true,
             });
@@ -390,10 +391,14 @@ export class TelegramAdapter
       updateMessageId: 0,
     };
 
-    await this.coreApi.redirectTo(container, message.path, {
-      shouldRender: true,
-      shouldAddToHistory: false,
-      keepTextMessage: true,
-    });
+    await this.coreApi.redirectTo(
+      container,
+      { route: message.path },
+      {
+        shouldRender: true,
+        shouldAddToHistory: false,
+        keepTextMessage: true,
+      },
+    );
   }
 }

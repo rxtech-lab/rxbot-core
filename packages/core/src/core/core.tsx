@@ -64,6 +64,11 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
   private readonly timeout: number;
 
   private container: T | undefined;
+  /**
+   * Previous rendered page props.
+   * @private
+   */
+  private renderedPageProps: PageProps | undefined;
 
   constructor({ adapter, storage, timeout }: CoreOptions) {
     super({ adapter, storage });
@@ -136,7 +141,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
         return this.render(container);
       },
       restoreRoute: async (key) => {
-        return (await this.router.getRouteFromKey(key))?.route;
+        return await this.router.getRouteFromKey(key);
       },
       redirectTo: async (container, path, options) => {
         await this.redirect(container, path, options);
@@ -160,9 +165,21 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
           await this.redirect(container, storedRoute, {
             shouldRender: true,
             shouldAddToHistory: true,
+            shouldRenderWithOldProps: true,
           });
         } else {
-          throw new Error("No route found to reload");
+          // reload root route
+          await this.redirect(
+            container,
+            {
+              route: DEFAULT_ROOT_ROUTE,
+            },
+            {
+              shouldRender: true,
+              shouldAddToHistory: true,
+              shouldRenderWithOldProps: true,
+            },
+          );
         }
       },
     };
@@ -217,7 +234,15 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     if (options?.shouldRender) {
       component = await this.loadAndRenderStoredRoute(key, route);
       try {
-        await this.render(container);
+        await this.render(
+          container,
+          options.shouldRenderWithOldProps ? route?.props : undefined,
+        );
+        // store route with page props
+        await this.storage.saveRoute(key, {
+          route: route?.route ?? DEFAULT_ROOT_ROUTE,
+          props: this.renderedPageProps,
+        });
       } catch (e: any) {
         console.error(e);
         const props: ErrorPageProps = {
@@ -318,6 +343,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
           null,
           async () => {
             await this.adapter.componentOnMount(container);
+            this.renderedPageProps = pageProps;
             resolve();
           },
         );

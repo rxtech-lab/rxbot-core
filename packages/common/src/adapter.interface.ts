@@ -1,6 +1,6 @@
 import { BaseMessage, Container } from "./container.interface";
 import { SendMessage } from "./core.interface";
-import { ReloadOptions, Route, StoredRoute } from "./router.interface";
+import { ReloadOptions, StoredRoute } from "./router.interface";
 
 export interface RedirectOptions {
   /**
@@ -21,6 +21,12 @@ export interface RedirectOptions {
    * Should keep the text message in the container.
    */
   keepTextMessage?: boolean;
+
+  /**
+   * Should render with old props. Usually, we set this to true when we are doing the redirect.
+   * @default false
+   */
+  shouldRenderWithOldProps?: boolean;
 }
 
 export interface CreateContainerOptions {
@@ -70,7 +76,7 @@ export interface CoreApi<C extends Container<any, any>> {
    */
   redirectTo: (
     container: C,
-    path: string,
+    path: StoredRoute,
     options: RedirectOptions,
   ) => Promise<C | undefined>;
 
@@ -98,7 +104,7 @@ export interface CoreApi<C extends Container<any, any>> {
    *
    * @returns A promise that resolves to the Route object.
    */
-  restoreRoute: (key: string) => Promise<Route | undefined>;
+  restoreRoute: (key: string) => Promise<StoredRoute | undefined>;
 
   /**
    * Reloads the current route.

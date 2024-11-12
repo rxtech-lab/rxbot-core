@@ -50,12 +50,11 @@ export function useRouter() {
    */
   const reload = useCallback(
     async (options?: ReloadOptions) => {
-      await coreApi.redirectToWithMessage(message, path, {
-        shouldRender: options?.shouldRenderNewMessage ?? false,
-        shouldAddToHistory: false,
+      await coreApi.reload(message, {
+        shouldRenderNewMessage: options?.shouldRenderNewMessage,
       });
     },
-    [coreApi, message, path],
+    [coreApi, message],
   );
 
   return {
