@@ -240,11 +240,13 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
           container,
           options.shouldRenderWithOldProps ? route?.props : undefined,
         );
-        // store route with page props
-        await this.storage.saveRoute(key, {
-          route: route?.route ?? DEFAULT_ROOT_ROUTE,
-          props: this.renderedPageProps,
-        });
+        // store route with page props if the component is not an error page
+        if (component?.isError !== true) {
+          await this.storage.saveRoute(key, {
+            route: route?.route ?? DEFAULT_ROOT_ROUTE,
+            props: this.renderedPageProps,
+          });
+        }
       } catch (e: any) {
         console.error(e);
         const props: ErrorPageProps = {
