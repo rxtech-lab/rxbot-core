@@ -224,10 +224,12 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
 
   async redirect(container: T, routeOrObject: any, options?: RedirectOptions) {
     const key = this.adapter.getRouteKey(container);
-    const route = await this.adapter.decodeRoute(routeOrObject);
+    let route = await this.adapter.decodeRoute(routeOrObject);
     if (route) {
       if (container.message && options?.keepTextMessage !== true)
         container.message.text = undefined;
+    } else {
+      route = await this.storage.restoreRoute(key);
     }
 
     let component: RenderedComponent | undefined;
