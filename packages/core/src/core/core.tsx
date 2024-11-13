@@ -136,9 +136,11 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
    */
   private get coreApi(): CoreApi<T> {
     return {
-      renderApp: (container, callback) => {
+      renderApp: async (container, callback) => {
         this.listeners.set(this.adapter, callback);
-        return this.render(container);
+        const key = this.adapter.getRouteKey(container);
+        const storedRoute = await this.storage.restoreRoute(key);
+        return this.render(container, storedRoute?.props);
       },
       restoreRoute: async (key) => {
         return await this.router.getRouteFromKey(key);
@@ -246,6 +248,13 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
             route: route?.route ?? DEFAULT_ROOT_ROUTE,
             props: this.renderedPageProps,
           });
+
+          if (options?.shouldAddToHistory && route) {
+            await this.storage.addHistory(key, {
+              route: route.route,
+              props: this.renderedPageProps,
+            });
+          }
         }
       } catch (e: any) {
         console.error(e);
@@ -262,13 +271,6 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
         await this.setComponent(errorComponent);
         await this.render(container);
         component.isError = true;
-      }
-    }
-    // only save the route if the component is not an error page
-    if (route && component?.isError !== true) {
-      await this.router.navigateTo(key, route);
-      if (options?.shouldAddToHistory) {
-        await this.storage.addHistory(key, route);
       }
     }
   }
