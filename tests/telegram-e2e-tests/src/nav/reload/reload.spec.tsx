@@ -142,7 +142,7 @@ describe("reload", () => {
       latestMessage = messages.data.messages[1];
       expect(messages.data.count).toBe(2);
       expect(latestMessage?.update_count).toBe(1);
-      expect(latestMessage?.text).toContain("This is the sub page with text: ");
+      expect(latestMessage?.text).toContain("Hi! How can I help you?");
 
       // send message to sub page
       await api.chatroom.sendMessageToChatroom(chatroomId, {

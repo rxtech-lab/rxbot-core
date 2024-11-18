@@ -1,19 +1,18 @@
-"use client";
-
 import { PageProps } from "@rx-lab/common";
-import { useRouter } from "@rx-lab/router/hooks";
+import { BuyActionArea } from "./BuyActionArea";
 
-export default function Page({ text }: PageProps) {
-  const router = useRouter();
-  const now = new Date().toISOString();
+export default function Buy(props: PageProps) {
+  const currentTime = new Date().toLocaleTimeString();
+  if (!props.text) {
+    return <span>Enter a token symbol or address to buy</span>;
+  }
+
   return (
     <div>
       <span>
-        This is the home page with text: {text} and {now}
+        Buying <code>{props.text}</code> at {currentTime}
       </span>
-      <button key={"reload"} onClick={() => router.reload()}>
-        Reload
-      </button>
+      <BuyActionArea token={props.text} />
     </div>
   );
 }

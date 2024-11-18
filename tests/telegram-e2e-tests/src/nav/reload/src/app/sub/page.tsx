@@ -5,6 +5,10 @@ import { useRouter } from "@rx-lab/router/hooks";
 export default function Page({ text }: PageProps) {
   const { reload } = useRouter();
 
+  if (!text) {
+    return <div>Hi! How can I help you?</div>;
+  }
+
   return (
     <div>
       <span>This is the sub page with text: {text}</span>

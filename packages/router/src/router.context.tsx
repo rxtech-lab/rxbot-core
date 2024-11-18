@@ -4,7 +4,6 @@ import {
   Logger,
   PathParams,
   QueryString,
-  ReloadOptions,
 } from "@rx-lab/common";
 import {
   type ReactNode,
@@ -41,7 +40,6 @@ interface RouterContextType<ChatroomInfo extends BaseChatroomInfo, Message> {
   pathParams: PathParams;
   path: string;
   coreApi: CoreApi<any>;
-  reload: (options?: ReloadOptions) => Promise<void>;
 }
 
 // Create the context
@@ -98,16 +96,6 @@ export function RouterProvider<ChatroomInfo extends BaseChatroomInfo, Message>({
     setPendingPromises((prev) => [...prev, promise]);
   }, []);
 
-  const reload = useCallback(
-    async (options?: { shouldRenderNewMessage?: boolean }) => {
-      await coreApi.redirectToWithMessage(message as any, path, {
-        shouldRender: options?.shouldRenderNewMessage ?? true,
-        shouldAddToHistory: false,
-      });
-    },
-    [coreApi, message, path],
-  );
-
   // Create a ref to store the debounced function
   const debouncedEffect = useRef(
     debounce((pendingPromises: Promise<any>[]) => {
@@ -162,7 +150,6 @@ export function RouterProvider<ChatroomInfo extends BaseChatroomInfo, Message>({
     pathParams: pathParams,
     path,
     coreApi,
-    reload,
   };
 
   Logger.log(`RouterProvider isLoading: ${isLoading}`, "red");

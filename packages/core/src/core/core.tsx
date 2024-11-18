@@ -140,6 +140,15 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
         this.listeners.set(this.adapter, callback);
         const key = this.adapter.getRouteKey(container);
         const storedRoute = await this.storage.restoreRoute(key);
+        // if user click on a bot message, the message text itself will be erased.
+        // we need to restore the text from the stored route from user.
+        if (
+          container.message?.text === undefined &&
+          storedRoute?.props?.text !== undefined &&
+          container.message !== undefined
+        ) {
+          container.message.text = storedRoute.props.text;
+        }
         return this.render(container, storedRoute?.props);
       },
       restoreRoute: async (key) => {
@@ -335,7 +344,10 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
           element: this.element,
           storage: this.storage,
           chatroomInfo: container.chatroomInfo,
-          message: container.message,
+          message: {
+            ...container.message,
+            text: pageProps.text,
+          },
           api: this.coreApi,
         },
         await renderServerComponent(Component, pageProps),
