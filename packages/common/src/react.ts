@@ -50,6 +50,8 @@ export enum ReactInstanceType {
   Command = "command",
   Pre = "pre",
   Code = "code",
+  Bold = "b",
+  Italic = "i",
 }
 
 export const REACT_COMPONENT_TYPE = "react.element";

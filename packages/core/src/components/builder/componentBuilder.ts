@@ -13,7 +13,9 @@ import {
   UnsupportedComponentError,
   UnsupportedReactComponentError,
 } from "@rx-lab/errors";
+import { BoldText } from "../BoldText";
 import { Code, Pre } from "../Code";
+import { ItalicText } from "../ItalicText";
 import {
   type BaseComponent,
   Button,
@@ -63,6 +65,12 @@ export class ComponentBuilder implements Builder {
     >,
     [InstanceType.Code]: Code,
     [InstanceType.Pre]: Pre,
+    [InstanceType.BoldText]: BoldText as unknown as Constructor<
+      BaseComponent<any>
+    >,
+    [InstanceType.ItalicText]: ItalicText as unknown as Constructor<
+      BaseComponent<any>
+    >,
   };
 
   /**
@@ -92,6 +100,8 @@ export class ComponentBuilder implements Builder {
     [ReactInstanceType.Command]: InstanceType.Command,
     [ReactInstanceType.Pre]: InstanceType.Pre,
     [ReactInstanceType.Code]: InstanceType.Code,
+    [ReactInstanceType.Bold]: InstanceType.BoldText,
+    [ReactInstanceType.Italic]: InstanceType.ItalicText,
   };
 
   build(
