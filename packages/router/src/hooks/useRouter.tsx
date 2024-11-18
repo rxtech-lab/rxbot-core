@@ -21,7 +21,7 @@ import { RouterContext } from "../router.context";
  *
  */
 export function useRouter() {
-  const { coreApi, message, path } = useContext(RouterContext);
+  const { coreApi, message } = useContext(RouterContext);
 
   /**
    * Redirects to a new location with the given options.
@@ -50,6 +50,7 @@ export function useRouter() {
    */
   const reload = useCallback(
     async (options?: ReloadOptions) => {
+      if (!message) return;
       await coreApi.reload(message, {
         shouldRenderNewMessage: options?.shouldRenderNewMessage,
       });

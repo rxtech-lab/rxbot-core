@@ -88,7 +88,7 @@ export class TelegramAdapter
           userId: query.from.id,
         },
         // sometimes, tg api will send a bot message back, we need to ignore it
-        message: query.message?.from?.is_bot ? null : (query.message as any),
+        message: query.message as any,
         hasUpdated: false,
         updateMessageId: query.message?.message_id,
         //@ts-ignore
@@ -120,6 +120,9 @@ export class TelegramAdapter
       // And if the message is on different route,
       // we need to render the app with the new route as well.
       await api.renderApp(container, async (container: InternalTGContainer) => {
+        if (query?.message?.from?.is_bot) {
+          container.message = null;
+        }
         const [callbackType, component] = container.decodedData ?? [];
         if (container.hasUpdated || container.hasUpdated === undefined) {
           return;
@@ -330,15 +333,15 @@ export class TelegramAdapter
   ): TGContainer {
     // only process message from user
     // this prevents the bot from processing message from itself
-    const messageText = message.from?.is_bot ? undefined : message.text;
+    const messageText = message.from?.is_bot ? undefined : message?.text;
     const container: InternalTGContainer = {
       decodedData: undefined,
       type: "ROOT",
       children: [],
       chatroomInfo: {
-        id: message?.chat?.id as number,
-        messageId: message?.message_id,
-        userId: message?.from?.id,
+        id: message.chat?.id as number,
+        messageId: message.message_id,
+        userId: message.from?.id,
       },
       message: {
         ...message,
