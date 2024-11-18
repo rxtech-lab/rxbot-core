@@ -40,6 +40,10 @@ export const renderElementHelper = (
 
     case InstanceType.Link:
       return [`<a href="${element.props.href}">${children.join("")}</a>`];
+    case InstanceType.BoldText:
+      return [`<b>${children.join("")}</b>`];
+    case InstanceType.ItalicText:
+      return [`<i>${children.join("")}</i>`];
     case InstanceType.Pre:
       return [`<pre>${children.join("")}</pre>`];
     case InstanceType.Code:

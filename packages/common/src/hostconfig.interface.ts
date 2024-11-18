@@ -30,6 +30,8 @@ export enum InstanceType {
   Suspendable = "Suspendable",
   Code = "Code",
   Pre = "Pre",
+  BoldText = "BoldText",
+  ItalicText = "ItalicText",
 }
 
 /**
