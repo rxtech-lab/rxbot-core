@@ -251,7 +251,8 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
           container,
           options.shouldRenderWithOldProps ? route?.props : undefined,
         );
-        // store route with page props if the component is not an error page
+        // Store the route with page props only if the component is not an error page or a redirect page.
+        // Important: Do not store the route if the page is redirecting, as redirected pages already have a stored route.
         if (component?.isError !== true) {
           await this.storage.saveRoute(key, {
             route: route?.route ?? DEFAULT_ROOT_ROUTE,
@@ -266,6 +267,11 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
           }
         }
       } catch (e: any) {
+        if (e instanceof RedirectError) {
+          // if a redirect error is thrown
+          // ignore it
+          return;
+        }
         console.error(e);
         const props: ErrorPageProps = {
           error: e,
@@ -382,7 +388,6 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
             shouldAddToHistory: true,
           },
         );
-        return container;
       }
       throw e;
     }
