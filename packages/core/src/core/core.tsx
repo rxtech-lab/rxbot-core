@@ -254,10 +254,12 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
         // Store the route with page props only if the component is not an error page or a redirect page.
         // Important: Do not store the route if the page is redirecting, as redirected pages already have a stored route.
         if (component?.isError !== true) {
-          await this.storage.saveRoute(key, {
-            route: route?.route ?? DEFAULT_ROOT_ROUTE,
-            props: this.renderedPageProps,
-          });
+          if (options.shouldAddToHistory) {
+            await this.storage.saveRoute(key, {
+              route: route?.route ?? DEFAULT_ROOT_ROUTE,
+              props: this.renderedPageProps,
+            });
+          }
 
           if (options?.shouldAddToHistory && route) {
             await this.storage.addHistory(key, {
