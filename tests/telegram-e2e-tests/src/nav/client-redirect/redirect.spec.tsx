@@ -58,7 +58,10 @@ describe("Simple client-side redirect Tests", () => {
     expect(updatedMessages.data.count).toBe(3);
     const updatedMessage = updatedMessages.data.messages[2];
     expect(updatedMessage?.update_count).toBe(0);
-    expect(updatedMessage?.text).toContain("This is subpage 1");
+    const userId = updatedMessages.data.messages[0]!.user_id;
+    expect(updatedMessage?.text).toContain(
+      `This is subpage 1 with userId ${userId}`,
+    );
   });
 
   afterEach(async () => {

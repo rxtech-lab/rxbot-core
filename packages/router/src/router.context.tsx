@@ -19,7 +19,7 @@ import {
 type RouteChangeCallback = () => void;
 type Queue = (() => void)[];
 
-interface RouterProps<ChatroomInfo, Message> {
+interface RouterProps<ChatroomInfo extends BaseChatroomInfo, Message> {
   children: ReactNode;
   pathParams: PathParams;
   query: QueryString;

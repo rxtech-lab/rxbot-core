@@ -343,7 +343,10 @@ export class TelegramAdapter
       chatroomInfo: {
         id: message.chat?.id as number,
         messageId: message.message_id,
-        userId: message.from?.id,
+        // if options defined userId, use it, otherwise use the message.from.id
+        // when redirecting, the default user id is from bot not from the user
+        userId:
+          options.userId !== undefined ? options.userId : message.from?.id,
       },
       message: {
         ...message,

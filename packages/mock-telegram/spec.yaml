@@ -277,6 +277,13 @@ components:
 
     Message:
       type: object
+      required:
+        - message_id
+        - text
+        - reply_markup
+        - callback_query
+        - update_count
+        - user_id
       properties:
         message_id:
           type: integer
@@ -288,6 +295,9 @@ components:
           type: string
         update_count:
           type: integer
+        user_id:
+          type: integer
+          description: By default, user's ID is 0 and bot's ID is 1
 
     ReplyMarkup:
       type: object

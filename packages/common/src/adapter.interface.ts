@@ -27,6 +27,12 @@ export interface RedirectOptions {
    * @default false
    */
   shouldRenderWithOldProps?: boolean;
+
+  /**
+   * User ID: A unique identifier used to identify the user.
+   * When redirecting, it's essential to use the user's ID instead of the bot's ID to maintain user-specific state.
+   */
+  userId?: string;
 }
 
 export interface CreateContainerOptions {
@@ -34,6 +40,24 @@ export interface CreateContainerOptions {
    * Indicates whether the application should update the current message or render a new one.
    */
   renderNewMessage: boolean;
+  /**
+   * User ID: A unique identifier used to identify the user.
+   * When redirecting, it's essential to use the user's ID instead of the bot's ID to maintain user-specific state.
+   */
+  userId?: string;
+}
+
+export interface ClientRedirectOptions
+  extends Pick<RedirectOptions, "shouldAddToHistory" | "shouldRender"> {
+  /**
+   * Indicates whether the application should update the current message or render a new one.
+   */
+  renderNewMessage: boolean;
+  /**
+   * User ID: A unique identifier used to identify the user.
+   * When redirecting, it's essential to use the user's ID instead of the bot's ID to maintain user-specific state.
+   */
+  userId?: string;
 }
 
 export interface CoreApi<C extends Container<any, any>> {
@@ -92,10 +116,10 @@ export interface CoreApi<C extends Container<any, any>> {
    * @param path The path to redirect to.
    * @param options Options for the redirect operation.
    */
-  redirectToWithMessage: (
+  clientRedirectTo: (
     message: BaseMessage,
     path: string,
-    options: RedirectOptions,
+    options: ClientRedirectOptions,
   ) => Promise<C | undefined>;
 
   /**
