@@ -41,6 +41,7 @@ export type Route = string;
  */
 export type StoredRoute = {
   route: Route;
+  type: SpecialRouteType;
   props?: PageProps;
 };
 

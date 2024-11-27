@@ -35,6 +35,7 @@ class MockAdapter implements AdapterInterface<Container<any, any>, any, any> {
   async decodeRoute(route: string): Promise<StoredRoute> {
     return {
       route: "",
+      type: "page",
     };
   }
 

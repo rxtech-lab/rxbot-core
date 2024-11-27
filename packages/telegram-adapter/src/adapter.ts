@@ -140,6 +140,7 @@ export class TelegramAdapter
         if (callbackType === CallbackType.onCommand) {
           const route = await this.decodeRoute({
             route: component.route,
+            type: "page",
           });
           if (!route) {
             Logger.log(`Invalid route: ${component.route}`, "red");
@@ -171,9 +172,28 @@ export class TelegramAdapter
           container.children,
         );
         if (componentToRender) {
-          componentToRender?.props.onClick?.();
-          container.hasUpdated = true;
-          Logger.log("Callback query", "blue");
+          try {
+            componentToRender?.props.onClick?.();
+            container.hasUpdated = true;
+            Logger.log("Callback query", "blue");
+          } catch (e) {
+            // redirect to error page
+            Logger.log(`Error processing callback query: ${e.message}`, "red");
+            // send error message instead of updating the message
+            container.hasUpdated = true;
+            container.updateMessageId = undefined;
+            await this.coreApi.redirectTo(
+              container,
+              {
+                type: "error",
+                error: e,
+              },
+              {
+                shouldRender: true,
+                shouldAddToHistory: false,
+              },
+            );
+          }
         } else {
           Logger.log(`Component with key ${componentKey} not found`, "red");
         }
@@ -302,6 +322,7 @@ export class TelegramAdapter
         return {
           route: convertTGRouteToRoute(route),
           props: route.props,
+          type: route.type,
         };
       }
 
@@ -309,6 +330,7 @@ export class TelegramAdapter
       if (currentRoute) {
         return {
           route: await this.getCurrentRoute(route),
+          type: "page",
         };
       }
     }
@@ -405,7 +427,7 @@ export class TelegramAdapter
 
     await this.coreApi.redirectTo(
       container,
-      { route: message.path },
+      { route: message.path, type: "page" },
       {
         shouldRender: true,
         shouldAddToHistory: false,

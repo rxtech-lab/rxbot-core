@@ -1,6 +1,10 @@
 import { BaseMessage, Container } from "./container.interface";
 import { SendMessage } from "./core.interface";
-import { ReloadOptions, StoredRoute } from "./router.interface";
+import {
+  ReloadOptions,
+  SpecialRouteType,
+  StoredRoute,
+} from "./router.interface";
 
 export interface RedirectOptions {
   /**
@@ -46,6 +50,11 @@ export interface CreateContainerOptions {
    */
   userId?: string;
 }
+
+export type SpecialRoute = {
+  type: Omit<SpecialRouteType, "page">;
+  error: Error;
+};
 
 export interface ClientRedirectOptions
   extends Pick<RedirectOptions, "shouldAddToHistory" | "shouldRender"> {
@@ -100,7 +109,7 @@ export interface CoreApi<C extends Container<any, any>> {
    */
   redirectTo: (
     container: C,
-    path: StoredRoute,
+    path: StoredRoute | SpecialRoute,
     options: RedirectOptions,
   ) => Promise<C | undefined>;
 

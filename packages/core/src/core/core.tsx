@@ -13,6 +13,7 @@ import {
   RenderedComponent,
   RouteInfoFile,
   SendMessage,
+  SpecialRoute,
   StorageInterface,
   StoredRoute,
 } from "@rx-lab/common";
@@ -155,7 +156,27 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
         return await this.router.getRouteFromKey(key);
       },
       redirectTo: async (container, path, options) => {
-        await this.redirect(container, path, options);
+        if (path.type === "404" || path.type === "error") {
+          // load route from storage
+          const key = this.adapter.getRouteKey(container);
+          const route = await this.storage.restoreRoute(key);
+          // render the error page
+          const props: ErrorPageProps = {
+            error: (path as SpecialRoute).error,
+            code: 500,
+          };
+          const component = await this.router.renderSpecialRoute(
+            route?.route,
+            path.type as any,
+            {},
+            props,
+          );
+          await this.setComponent(component);
+          await this.render(container);
+          component.isError = true;
+        } else {
+          await this.redirect(container, path, options);
+        }
         return container;
       },
       clientRedirectTo: async (message, path, options) => {
@@ -259,6 +280,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
             await this.storage.saveRoute(key, {
               route: route?.route ?? DEFAULT_ROOT_ROUTE,
               props: this.renderedPageProps,
+              type: "page",
             });
           }
 
@@ -266,6 +288,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
             await this.storage.addHistory(key, {
               route: route.route,
               props: this.renderedPageProps,
+              type: "page",
             });
           }
         }
@@ -298,6 +321,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
       key,
       defaultRoute ?? {
         route: DEFAULT_ROOT_ROUTE,
+        type: "page",
       },
     );
     await this.setComponent(component);

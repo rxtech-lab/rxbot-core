@@ -280,6 +280,7 @@ export class Router {
     return {
       currentRoute: {
         route: path,
+        type: type,
       },
       path: matchedRoute.route,
       matchedRoute: {
@@ -303,6 +304,7 @@ export class Router {
       ? defaultRoute
       : ((await this.storage.restoreRoute(key)) ?? {
           route: DEFAULT_ROOT_ROUTE,
+          type: "page",
         });
     const parsedRoute = await this.adapter.decodeRoute(currentRoute);
     // if the route is invalid, render the error page

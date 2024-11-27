@@ -82,6 +82,7 @@ export function useState<T>(
     const loadInitialState = async () => {
       const storedState = await client.restoreState(storedKey, {
         route: DEFAULT_ROOT_ROUTE,
+        type: "page",
       });
       Logger.log(
         `Restored state for key ${storedKey}: ${JSON.stringify(storedState)}`,
@@ -105,6 +106,7 @@ export function useState<T>(
             Logger.log(`Loading new state for key ${storedKey}`);
             const newState = await client.restoreState(storedKey, {
               route: DEFAULT_ROOT_ROUTE,
+              type: "page",
             });
             setLocalState(newState as T);
             onStoreChange();
