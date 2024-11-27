@@ -1,6 +1,8 @@
-import { CoreApi, RenderedComponent } from "@rx-lab/common";
+import { CoreApi, ErrorPageProps, RenderedComponent } from "@rx-lab/common";
 import { RouterProvider } from "@rx-lab/router";
 import { StorageProvider } from "@rx-lab/storage";
+import React from "react";
+import { ErrorBoundary } from "../react-components/ErrorBoundary";
 
 /**
  * Properties that will be passed to each rendered page component.
@@ -21,7 +23,11 @@ export interface WrappedElementProps {
  * @param props
  * @constructor
  */
-export function WrappedElement(props: WrappedElementProps) {
+export function WrappedElement(
+  props: WrappedElementProps & {
+    errorPage: (error: ErrorPageProps) => React.ReactNode;
+  },
+) {
   return (
     <RouterProvider
       chatroomInfo={props.chatroomInfo}
@@ -31,7 +37,11 @@ export function WrappedElement(props: WrappedElementProps) {
       query={props.element.queryString}
       path={props.element.path}
     >
-      <StorageProvider client={props.storage}>{props.children}</StorageProvider>
+      <StorageProvider client={props.storage}>
+        <ErrorBoundary fallback={props.errorPage}>
+          {props.children}
+        </ErrorBoundary>
+      </StorageProvider>
     </RouterProvider>
   );
 }

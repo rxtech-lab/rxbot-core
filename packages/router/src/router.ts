@@ -31,6 +31,11 @@ export async function importRoute(info: RouteInfo): Promise<ImportedRoute> {
   };
 }
 
+/**
+ * Get the special route component.
+ * @param info
+ * @param type
+ */
 async function getSpecialRoute(info: ImportedRoute, type: SpecialRouteType) {
   let component: any | null = null;
   if (type === "error") {
@@ -89,10 +94,10 @@ export async function matchRouteWithPath(
  * @param routes
  * @param path
  */
-export async function matchSpecialRouteWithPath(
+export function matchSpecialRouteWithPath(
   routes: RouteInfo[],
   path: string,
-): Promise<RouteInfo> {
+): RouteInfo {
   // Helper function to check if a route matches the path
   const isMatch = (route: string, inputPath: string): boolean => {
     const routeParts = route.split("/").filter(Boolean);
@@ -267,7 +272,7 @@ export class Router {
     query: Record<string, string>,
     props: RenderedComponentProps,
   ): Promise<RenderedComponent> {
-    const matchedRoute = await matchSpecialRouteWithPath(
+    const matchedRoute = matchSpecialRouteWithPath(
       this.routeInfoFile.routes,
       path ?? DEFAULT_ROOT_ROUTE,
     );
@@ -307,7 +312,7 @@ export class Router {
         //TODO: Use error package in the future
         code: 500,
       };
-      return await this.renderSpecialRoute(
+      return this.renderSpecialRoute(
         currentRoute.route,
         "error",
         {},
