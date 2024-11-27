@@ -3,6 +3,8 @@
     "module": "commonjs",
     "target": "es2022",
     "moduleResolution": "nodenext",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "inlineSourceMap": true,
+    "sourceMap": false
   }
 }

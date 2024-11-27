@@ -5,6 +5,8 @@
   "compilerOptions": {
     "outDir": "dist",
     "moduleResolution": "node16",
-    "module": "Node16"
+    "module": "Node16",
+    "inlineSourceMap": true,
+    "sourceMap": false
   }
 }
