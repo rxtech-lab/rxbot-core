@@ -27,6 +27,7 @@ if (coverageFiles.length === 0) {
 }
 
 console.log(`Found ${coverageFiles.length} coverage files`);
+console.log(coverageFiles);
 
 // Merge coverage data
 const mergedCoverage = coverageFiles.reduce((merged, file) => {
@@ -36,7 +37,7 @@ const mergedCoverage = coverageFiles.reduce((merged, file) => {
     // Normalize file paths to be relative to root
     const normalizedPath = path.relative(
       process.cwd(),
-      path.resolve(path.dirname(file), "..", "..", filePath),
+      path.resolve(path.dirname(file), "..", "..", filePath)
     );
 
     // Skip if we already have coverage for this file with more statements covered
@@ -67,3 +68,24 @@ const outputPath = path.join(config.outputDir, config.outputFile);
 fs.writeFileSync(outputPath, JSON.stringify(mergedCoverage, null, 2));
 
 console.log(`Merged coverage written to ${outputPath}`);
+
+// Generate Codecov-compatible lcov report
+const { create } = require("istanbul-reports");
+const { createContext } = require("istanbul-lib-report");
+const { createCoverageMap } = require("istanbul-lib-coverage");
+
+const coverageMap = createCoverageMap(mergedCoverage);
+const context = createContext({
+  dir: config.outputDir,
+  coverageMap,
+});
+
+// Generate both lcov and json reports
+const lcovReport = create("lcovonly", {
+  file: "lcov.info",
+});
+lcovReport.execute(context);
+
+console.log(
+  `LCOV report generated at ${path.join(config.outputDir, "lcov.info")}`
+);
