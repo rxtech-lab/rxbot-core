@@ -17,3 +17,11 @@ jobs:
         run: pnpm lint
       - name: Test
         run: ./scripts/test.sh
+      - name: Aggregate coverage reports
+        run: node scripts/aggregate-coverage.js
+      - name: Publish coverage report to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/coverage-final.json
+          token: ${{ secrets.CODECOV_TOKEN }}
+

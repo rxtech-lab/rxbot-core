@@ -6,6 +6,7 @@
     "dev": "turbo dev",
     "lint": "biome lint",
     "test": "turbo test --concurrency=1",
+    "coverage": "turbo coverage --concurrency=1",
     "format": "biome format --write .",
     "format:version": "syncpack fix-mismatches",
     "publish:dry": "lerna publish from-package --no-push"
@@ -17,7 +18,8 @@
     "prettier": "3.3.3",
     "syncpack": "13.0.0",
     "turbo": "2.2.3",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "glob": "^11.0.0"
   },
   "packageManager": "pnpm@9.4.0",
   "version": "^3.23.8",
