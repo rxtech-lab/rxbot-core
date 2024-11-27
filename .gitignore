@@ -44,8 +44,9 @@ packit.yaml
 *.js
 *.map
 !packages/router/src/global.d.ts
-mock-telegram
 .rx-lab
 !jest.config.js
 packages/rxbot/test.ts
 packages/create-rx-bot/tests/test-bot
+
+!packages/mock-telegram/generate.js

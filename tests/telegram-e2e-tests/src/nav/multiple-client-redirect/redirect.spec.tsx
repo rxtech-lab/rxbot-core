@@ -1,20 +1,20 @@
-import path from "path";
-import { Api, MessageType } from "@rx-lab/mock-telegram-client";
-import {
-  DEFAULT_RENDERING_WAIT_TIME,
+import { Telegram, Utils } from "@rx-lab/testing";
+
+const {
   PORT,
-  initializeLongPolling,
-  sleep,
-} from "../../utils";
+  Api,
+  initialize,
+  TestingEnvironment,
+  MessageType,
+  DEFAULT_RENDERING_WAIT_TIME,
+} = Telegram;
+const { sleep } = Utils;
 
 const chatroomId = 2002;
 
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-
 // Related to https://github.com/rxtech-lab/rxbot-core/issues/210
 describe("Redirect multiple times", () => {
-  let api: Api<any>;
+  let api: Telegram.Api<any>;
   let coreApi: any;
 
   beforeAll(async () => {
@@ -24,13 +24,11 @@ describe("Redirect multiple times", () => {
   });
 
   it("should redirect", async () => {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
-    const rootDir = path.join(__dirname, "src");
-    const destinationDir = path.join(__dirname);
-    const { core } = await initializeLongPolling(chatroomId, api, {
-      rootDir,
-      destinationDir,
+    const { core } = await initialize({
+      filename: import.meta.url,
+      environment: TestingEnvironment.LongPolling,
+      api,
+      chatroomId,
     });
     coreApi = core;
 

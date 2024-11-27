@@ -4,12 +4,12 @@ import { generateApi } from "swagger-typescript-api";
 import * as YAML from "yaml";
 
 const spec = YAML.parse(
-  fs.readFileSync(path.resolve(process.cwd(), "./spec.yaml"), "utf8"),
+  fs.readFileSync(path.resolve(process.cwd(), "./tg-spec.yaml"), "utf8"),
 );
 
 generateApi({
-  name: "client.ts",
-  output: path.resolve(process.cwd(), "./src/"),
+  name: "tg-client.ts",
+  output: path.resolve(process.cwd(), "./src/telegram"),
   spec: spec,
   httpClientType: "fetch",
   extractEnums: true,

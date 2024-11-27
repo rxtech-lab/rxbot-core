@@ -1,17 +1,19 @@
-import path, { dirname } from "path";
-import { fileURLToPath } from "url";
-import { Api, MessageType } from "@rx-lab/mock-telegram-client";
-import {
-  DEFAULT_RENDERING_WAIT_TIME,
+import { Telegram, Utils } from "@rx-lab/testing";
+
+const {
   PORT,
-  initializeLongPolling,
-  sleep,
-} from "../../utils";
+  Api,
+  initialize,
+  TestingEnvironment,
+  MessageType,
+  DEFAULT_RENDERING_WAIT_TIME,
+} = Telegram;
+const { sleep } = Utils;
 
 const chatroomId = 2000;
 
 describe("Simple server-side redirect Tests", () => {
-  let api: Api<any>;
+  let api: Telegram.Api<any>;
   let coreApi: any;
 
   beforeAll(async () => {
@@ -21,13 +23,11 @@ describe("Simple server-side redirect Tests", () => {
   });
 
   it("should redirect in server component", async () => {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
-    const rootDir = path.join(__dirname, "src");
-    const destinationDir = path.join(__dirname);
-    const { core } = await initializeLongPolling(chatroomId, api, {
-      rootDir,
-      destinationDir,
+    const { core } = await initialize({
+      filename: import.meta.url,
+      environment: TestingEnvironment.LongPolling,
+      api,
+      chatroomId,
     });
     coreApi = core;
 
@@ -57,13 +57,11 @@ describe("Simple server-side redirect Tests", () => {
   });
 
   it("should redirect in callback in server component", async () => {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
-    const rootDir = path.join(__dirname, "src");
-    const destinationDir = path.join(__dirname, ".rx-lab");
-    const { core } = await initializeLongPolling(chatroomId, api, {
-      rootDir,
-      destinationDir,
+    const { core, processManager } = await initialize({
+      filename: import.meta.url,
+      environment: TestingEnvironment.LongPolling,
+      api,
+      chatroomId,
     });
     coreApi = core;
 

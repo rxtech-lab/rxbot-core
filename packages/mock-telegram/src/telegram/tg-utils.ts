@@ -1,20 +1,13 @@
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import { Core } from "@rx-lab/core";
-import { Api } from "@rx-lab/mock-telegram-client";
 import { DelaySimulationFunction, MemoryStorage } from "@rx-lab/storage/memory";
 import { TelegramAdapter } from "@rx-lab/telegram-adapter";
-import Fastify from "fastify";
+import Fastify, { FastifyInstance } from "fastify";
 import { build } from "rxbot-cli/command";
-import { CLIProcessManager } from "./process-manager";
-
-/**
- * Utility function to sleep for a given time
- * @param ms
- */
-export async function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+import { CLIProcessManager } from "../process-manager";
+import { sleep } from "../utils";
+import { Api } from "./tg-client";
 
 export const PORT = 9000;
 
@@ -34,11 +27,11 @@ interface Options {
  * @param api
  * @param opts
  */
-export const initializeLongPolling = async (
+const initializeLongPolling = async (
   chatroomId: number,
   api: Api<any>,
   opts: Options,
-) => {
+): Promise<any> => {
   const client = new MemoryStorage(opts.delaySimulation);
   const adapter = new TelegramAdapter({
     token: "Some token",
@@ -68,7 +61,12 @@ export const initializeWithWebhook = async (
   chatroomId: number,
   api: Api<any>,
   opts: Options,
-) => {
+): Promise<{
+  adapter: TelegramAdapter;
+  core: Core<any>;
+  fastify: FastifyInstance;
+  client: MemoryStorage;
+}> => {
   const client = new MemoryStorage(opts.delaySimulation);
   const fastify = Fastify();
   const adapter = new TelegramAdapter({
@@ -119,7 +117,7 @@ interface InitializeDevServerOptions {
  * @param api
  * @param opts
  */
-export const initializeDevServer = async (
+const initializeDevServer = async (
   api: Api<any>,
   opts: InitializeDevServerOptions,
 ) => {
@@ -155,6 +153,13 @@ interface InitializeOptions {
   chatroomId: number;
 }
 
+/**
+ * Initialize the testing environment
+ * @param filename
+ * @param environment
+ * @param chatroomId
+ * @param api
+ */
 export async function initialize({
   filename,
   environment,
