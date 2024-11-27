@@ -25,11 +25,13 @@ export interface SendMessageResponse {
 }
 
 export interface Message {
-  message_id?: number;
-  text?: string;
-  reply_markup?: ReplyMarkup;
-  callback_query?: string;
-  update_count?: number;
+  message_id: number;
+  text: string;
+  reply_markup: ReplyMarkup;
+  callback_query: string;
+  update_count: number;
+  /** By default, user's ID is 0 and bot's ID is 1 */
+  user_id: number;
 }
 
 export interface ReplyMarkup {

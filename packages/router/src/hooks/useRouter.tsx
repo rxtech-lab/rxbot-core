@@ -1,4 +1,4 @@
-import { RedirectOptions, ReloadOptions } from "@rx-lab/common";
+import { ClientRedirectOptions, ReloadOptions } from "@rx-lab/common";
 import { useCallback, useContext } from "react";
 import { RouterContext } from "../router.context";
 
@@ -21,7 +21,7 @@ import { RouterContext } from "../router.context";
  *
  */
 export function useRouter() {
-  const { coreApi, message } = useContext(RouterContext);
+  const { coreApi, message, chatroomInfo } = useContext(RouterContext);
 
   /**
    * Redirects to a new location with the given options.
@@ -30,14 +30,21 @@ export function useRouter() {
    * @param options{RedirectOptions} - Optional redirect options.
    */
   const redirectTo = useCallback(
-    async (path: string, options?: RedirectOptions) => {
-      await coreApi.redirectToWithMessage(
+    async (path: string, options?: ClientRedirectOptions) => {
+      await coreApi.clientRedirectTo(
         message,
         path,
-        options ?? {
-          shouldRender: true,
-          shouldAddToHistory: true,
-        },
+        options
+          ? {
+              ...options,
+              userId: chatroomInfo.userId as any,
+            }
+          : {
+              renderNewMessage: true,
+              userId: chatroomInfo.userId,
+              shouldAddToHistory: true,
+              shouldRender: true,
+            },
       );
     },
     [coreApi, message],
