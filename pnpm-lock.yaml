@@ -24,6 +24,15 @@ importers:
       glob:
         specifier: ^11.0.0
         version: 11.0.0
+      istanbul-lib-coverage:
+        specifier: ^3.2.2
+        version: 3.2.2
+      istanbul-lib-report:
+        specifier: ^3.0.1
+        version: 3.0.1
+      istanbul-reports:
+        specifier: ^3.1.7
+        version: 3.1.7
       lerna:
         specifier: 8.1.9
         version: 8.1.9(@swc/core@1.7.14)(encoding@0.1.13)

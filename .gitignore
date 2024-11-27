@@ -50,3 +50,4 @@ packages/rxbot/test.ts
 packages/create-rx-bot/tests/test-bot
 
 !packages/mock-telegram/generate.js
+!scripts/generate-coverage-html.js
