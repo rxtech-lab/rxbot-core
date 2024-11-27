@@ -346,6 +346,12 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     };
 
     try {
+      const errorComponent = await this.router.renderSpecialRoute(
+        this.element.path,
+        "error",
+        {},
+        {},
+      );
       const wrappedElement = React.createElement(
         WrappedElement,
         {
@@ -357,6 +363,9 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
             text: pageProps.text,
           },
           api: this.coreApi,
+          errorPage: (error: ErrorPageProps) => {
+            return React.createElement(errorComponent.component, error);
+          },
         },
         await renderServerComponent(Component, pageProps),
       );
