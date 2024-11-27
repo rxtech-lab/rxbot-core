@@ -32,9 +32,11 @@ describe("UpstashStorage", () => {
       const route: Route = "/test/path";
       await upstashStorage.addHistory(key, {
         route,
+        type: "page",
       });
       expect(mockRedis.set).toHaveBeenCalledWith(`${HISTORY_KEY}-${key}`, {
         route,
+        type: "page",
       });
     });
   });
@@ -54,7 +56,7 @@ describe("UpstashStorage", () => {
       const mockListener = jest.fn();
       upstashStorage.subscribeStateChange(key, route, mockListener);
 
-      await upstashStorage.deleteState(key, { route });
+      await upstashStorage.deleteState(key, { route, type: "page" });
 
       expect(mockRedis.del).toHaveBeenCalledWith(`${STATE_KEY}-${key}`);
       expect(mockListener).toHaveBeenCalled();
@@ -114,6 +116,7 @@ describe("UpstashStorage", () => {
 
       const result = await upstashStorage.restoreState(key, {
         route: "/test/path",
+        type: "page",
       });
       expect(mockRedis.get).toHaveBeenCalledWith(`${STATE_KEY}-${key}`);
       expect(result).toEqual(mockState);
@@ -126,6 +129,7 @@ describe("UpstashStorage", () => {
 
       const result = await upstashStorage.restoreState(key, {
         route: "/test/path",
+        type: "page",
       });
       expect(mockRedis.get).toHaveBeenCalledWith(`${STATE_KEY}-${key}`);
       expect(result).toEqual(mockState);
@@ -139,6 +143,7 @@ describe("UpstashStorage", () => {
 
       const result = await upstashStorage.restoreState(key, {
         route: "/test/path",
+        type: "page",
       });
       expect(mockRedis.get).toHaveBeenCalledWith(`${STATE_KEY}-${key}`);
       expect(result).toEqual(mockState);
@@ -151,6 +156,7 @@ describe("UpstashStorage", () => {
 
       const result = await upstashStorage.restoreState(key, {
         route: "/test/path",
+        type: "page",
       });
 
       expect(result).toBeUndefined();
@@ -166,10 +172,12 @@ describe("UpstashStorage", () => {
 
       await upstashStorage.saveRoute(key, {
         route: path,
+        type: "page",
       });
 
       expect(mockRedis.set).toHaveBeenCalledWith(`${ROUTE_KEY}-${key}`, {
         route: path,
+        type: "page",
       });
       expect(mockListener).toHaveBeenCalled();
     });

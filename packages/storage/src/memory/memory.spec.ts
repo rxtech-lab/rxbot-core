@@ -15,6 +15,7 @@ describe("MemoryStorage", () => {
       });
       const result = await memoryStorage.restoreState("testKey", {
         route: "testRoute",
+        type: "page",
       });
       expect(result).toEqual({ foo: "bar" });
     });
@@ -22,6 +23,7 @@ describe("MemoryStorage", () => {
     it("should return undefined if state does not exist for the key", async () => {
       const result = await memoryStorage.restoreState("nonExistentKey", {
         route: "testRoute",
+        type: "page",
       });
       expect(result).toBeUndefined();
     });
@@ -34,6 +36,7 @@ describe("MemoryStorage", () => {
       });
       const result = await memoryStorage.restoreState("testKey", {
         route: "testRoute",
+        type: "page",
       });
       expect(result).toEqual({ foo: "bar" });
     });
@@ -53,9 +56,13 @@ describe("MemoryStorage", () => {
       await memoryStorage.saveState("testKey", "testRoute" as Route, {
         foo: "bar",
       });
-      await memoryStorage.deleteState("testKey", { route: "testRoute" });
+      await memoryStorage.deleteState("testKey", {
+        route: "testRoute",
+        type: "page",
+      });
       const result = await memoryStorage.restoreState("testKey", {
         route: "testRoute",
+        type: "page",
       });
       expect(result).toBeUndefined();
     });
@@ -66,7 +73,10 @@ describe("MemoryStorage", () => {
       await memoryStorage.saveState("testKey", "testRoute" as Route, {
         foo: "bar",
       });
-      await memoryStorage.deleteState("testKey", { route: "testRoute" });
+      await memoryStorage.deleteState("testKey", {
+        route: "testRoute",
+        type: "page",
+      });
       expect(mockListener).toHaveBeenCalledTimes(2);
     });
   });
@@ -75,6 +85,7 @@ describe("MemoryStorage", () => {
     it("should restore route for a given key", async () => {
       await memoryStorage.saveRoute("testKey", {
         route: "/test/route",
+        type: "page",
       });
       const result = await memoryStorage.restoreRoute("testKey");
       expect(result.route).toBe("/test/route");
@@ -90,6 +101,7 @@ describe("MemoryStorage", () => {
     it("should save route for a given key", async () => {
       await memoryStorage.saveRoute("testKey", {
         route: "/test/route",
+        type: "page",
       });
       const result = await memoryStorage.restoreRoute("testKey");
       expect(result.route).toBe("/test/route");
@@ -100,6 +112,7 @@ describe("MemoryStorage", () => {
       memoryStorage.subscribeRouteChange("testKey", mockListener);
       await memoryStorage.saveRoute("testKey", {
         route: "/test/route",
+        type: "page",
       });
       expect(mockListener).toHaveBeenCalled();
     });
