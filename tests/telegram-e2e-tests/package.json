@@ -12,7 +12,7 @@
   "devDependencies": {
     "@rx-lab/common": "workspace:*",
     "@rx-lab/core": "workspace:*",
-    "@rx-lab/mock-telegram-client": "workspace:*",
+    "@rx-lab/testing": "workspace:*",
     "@rx-lab/router": "workspace:*",
     "@rx-lab/storage": "workspace:*",
     "@rx-lab/telegram-adapter": "workspace:*",

@@ -1,13 +1,15 @@
 import { beforeEach } from "node:test";
-import { Api, MessageType } from "@rx-lab/mock-telegram-client";
-import { CLIProcessManager } from "../../process-manager";
-import {
-  DEFAULT_RENDERING_WAIT_TIME,
+import { CLIProcessManager, Telegram, Utils } from "@rx-lab/testing";
+
+const {
   PORT,
-  TestingEnvironment,
+  Api,
   initialize,
-  sleep,
-} from "../../utils";
+  TestingEnvironment,
+  MessageType,
+  DEFAULT_RENDERING_WAIT_TIME,
+} = Telegram;
+const { sleep } = Utils;
 
 const chatroomId = 6000;
 
@@ -16,7 +18,7 @@ const chatroomId = 6000;
  * Will echo the text if user provides a text.
  */
 describe("Ask Tests", () => {
-  let api: Api<any>;
+  let api: Telegram.Api<any>;
   let coreApi: any | undefined;
   let cliProcessManager: CLIProcessManager | undefined;
 

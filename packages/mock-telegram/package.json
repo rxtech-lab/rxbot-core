@@ -1,14 +1,13 @@
 {
-  "name": "@rx-lab/mock-telegram-client",
+  "name": "@rx-lab/testing",
   "version": "1.0.0",
   "description": "",
   "private": false,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "generate": "ts-node generate.ts && tsc",
-    "build": "tsc",
-    "start:mock": "ts-node src/mock.server.ts"
+    "generate": "node generate.js && tsc",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
@@ -18,11 +17,14 @@
   },
   "devDependencies": {
     "swagger-typescript-api": "^13.0.3",
-    "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
   },
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^11.6.4",
+    "@rx-lab/storage": "workspace:*",
+    "@rx-lab/telegram-adapter": "workspace:*",
+    "rxbot-cli": "workspace:*",
+    "@rx-lab/core": "workspace:*",
     "@types/js-yaml": "^4.0.9",
     "fastify": "^4.27.0",
     "js-yaml": "^4.1.0",

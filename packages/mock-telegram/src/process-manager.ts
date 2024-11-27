@@ -1,4 +1,6 @@
-// types.ts
+import { ChildProcess, spawn } from "child_process";
+import { EventEmitter } from "events";
+
 export interface ProcessInfo {
   command: string;
   args: string[];
@@ -16,10 +18,6 @@ export interface ProcessOptions {
   env?: NodeJS.ProcessEnv;
   shell?: boolean;
 }
-
-// cliProcessManager.ts
-import { ChildProcess, spawn } from "child_process";
-import { EventEmitter } from "events";
 
 export class CLIProcessManager extends EventEmitter {
   private process: ChildProcess | null = null;
