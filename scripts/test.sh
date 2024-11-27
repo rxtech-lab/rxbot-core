@@ -9,4 +9,4 @@ mock-telegram serve --bind 0.0.0.0:9000 &
 # Run tests
 pnpm build --filter=rxbot-cli
 pnpm install --no-frozen-lockfile  # Reinstall to update binaries
-pnpm test
+pnpm coverage

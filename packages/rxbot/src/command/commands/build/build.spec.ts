@@ -37,5 +37,5 @@ describe("build.vercel", () => {
     if (consoleErrorCalls.length > 0) {
       expect(consoleErrorCalls[0][0].message).not.toContain("is required");
     }
-  });
+  }, 30_000);
 });

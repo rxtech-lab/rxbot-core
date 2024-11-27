@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --forceExit --runInBand"
+    "test": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --forceExit --runInBand",
+    "coverage": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --coverage --forceExit --runInBand"
   },
   "keywords": [],
   "author": "",

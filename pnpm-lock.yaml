@@ -21,6 +21,9 @@ importers:
       '@types/node':
         specifier: 22.9.0
         version: 22.9.0
+      glob:
+        specifier: ^11.0.0
+        version: 11.0.0
       lerna:
         specifier: 8.1.9
         version: 8.1.9(@swc/core@1.7.14)(encoding@0.1.13)

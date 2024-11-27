@@ -1,32 +1,69 @@
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+// coverage-merge.js
+const fs = require("fs");
+const path = require("path");
+const glob = require("glob");
 
-const packagesDir = path.resolve(__dirname, '../packages');
-const coverageDir = path.resolve(__dirname, '../coverage');
-const mergedCoverageFile = path.join(coverageDir, 'coverage-final.json');
+// Configuration
+const config = {
+  // Pattern to match coverage-final.json files in all packages
+  coveragePattern: "**/coverage/coverage-final.json",
+  // Output directory for merged coverage
+  outputDir: "./coverage",
+  // Output filename for merged report (Codecov looks for coverage.json by default)
+  outputFile: "coverage.json",
+};
 
-if (!fs.existsSync(coverageDir)) {
-  fs.mkdirSync(coverageDir);
+// Create output directory if it doesn't exist
+if (!fs.existsSync(config.outputDir)) {
+  fs.mkdirSync(config.outputDir, { recursive: true });
 }
 
-const coverageFiles = [];
-
-fs.readdirSync(packagesDir).forEach(packageName => {
-  const packageDir = path.join(packagesDir, packageName);
-  const packageCoverageFile = path.join(packageDir, 'coverage', 'coverage-final.json');
-
-  if (fs.existsSync(packageCoverageFile)) {
-    coverageFiles.push(packageCoverageFile);
-  }
-});
+// Find all coverage files
+const coverageFiles = glob.sync(config.coveragePattern);
 
 if (coverageFiles.length === 0) {
-  console.log('No coverage files found.');
-  process.exit(0);
+  console.error("No coverage files found!");
+  process.exit(1);
 }
 
-const mergeCommand = `npx nyc merge ${coverageFiles.join(' ')} -o ${mergedCoverageFile}`;
-execSync(mergeCommand);
+console.log(`Found ${coverageFiles.length} coverage files`);
 
-console.log(`Merged coverage report saved to ${mergedCoverageFile}`);
+// Merge coverage data
+const mergedCoverage = coverageFiles.reduce((merged, file) => {
+  const coverage = JSON.parse(fs.readFileSync(file, "utf8"));
+
+  Object.entries(coverage).forEach(([filePath, fileData]) => {
+    // Normalize file paths to be relative to root
+    const normalizedPath = path.relative(
+      process.cwd(),
+      path.resolve(path.dirname(file), "..", "..", filePath),
+    );
+
+    // Skip if we already have coverage for this file with more statements covered
+    if (
+      merged[normalizedPath] &&
+      getStatementsCovered(merged[normalizedPath]) >
+        getStatementsCovered(fileData)
+    ) {
+      return;
+    }
+
+    merged[normalizedPath] = {
+      ...fileData,
+      path: normalizedPath,
+    };
+  });
+
+  return merged;
+}, {});
+
+// Helper function to count covered statements
+function getStatementsCovered(fileData) {
+  return Object.values(fileData.s).filter((count) => count > 0).length;
+}
+
+// Write merged coverage to file
+const outputPath = path.join(config.outputDir, config.outputFile);
+fs.writeFileSync(outputPath, JSON.stringify(mergedCoverage, null, 2));
+
+console.log(`Merged coverage written to ${outputPath}`);
