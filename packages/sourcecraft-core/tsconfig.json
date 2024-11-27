@@ -5,6 +5,8 @@
     "moduleResolution": "node",
     "outDir": "dist",
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "inlineSourceMap": true,
+    "sourceMap": false
   }
 }

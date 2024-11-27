@@ -4,6 +4,8 @@
   "extends": "../typescript-config/react-library.json",
   "compilerOptions": {
     "outDir": "dist",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "inlineSourceMap": true,
+    "sourceMap": false
   }
 }

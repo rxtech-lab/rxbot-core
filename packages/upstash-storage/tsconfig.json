@@ -3,6 +3,8 @@
   "compilerOptions": {
     "lib": ["es2017"],
     "jsx": "react",
-    "outDir": "dist"
+    "outDir": "dist",
+    "inlineSourceMap": true,
+    "sourceMap": false
   }
 }
