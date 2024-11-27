@@ -10,7 +10,8 @@
   },
   "scripts": {
     "test": "jest",
-    "build": "tsc"
+    "build": "tsc",
+    "coverage": "jest --coverage"
   },
   "keywords": [],
   "author": "",

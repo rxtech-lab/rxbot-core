@@ -17,3 +17,11 @@ jobs:
         run: pnpm lint
       - name: Test
         run: ./scripts/test.sh
+      - name: Run coverage using turbo
+        run: pnpm turbo run coverage
+      - name: Aggregate coverage reports
+        run: node scripts/aggregate-coverage.js
+      - name: Publish coverage report to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/coverage-final.json

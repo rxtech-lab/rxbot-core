@@ -22,7 +22,8 @@
   },
   "scripts": {
     "test": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest",
-    "build": "tsc"
+    "build": "tsc",
+    "coverage": "jest --coverage"
   },
   "keywords": [],
   "author": "",

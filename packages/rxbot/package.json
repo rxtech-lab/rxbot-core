@@ -14,7 +14,8 @@
   "scripts": {
     "build": "tsc && rspack build --config rspack.config.executables.ts",
     "postbuild": "chmod +x ./executables/rxbot.js",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand",
+    "coverage": "jest --coverage"
   },
   "publishConfig": {
     "access": "public"

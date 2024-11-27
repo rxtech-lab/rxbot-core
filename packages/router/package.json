@@ -18,7 +18,8 @@
   },
   "scripts": {
     "test": "jest --passWithNoTests",
-    "build": "tsc"
+    "build": "tsc",
+    "coverage": "jest --coverage"
   },
   "keywords": [],
   "author": "",

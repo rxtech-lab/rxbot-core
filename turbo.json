@@ -20,6 +20,10 @@
     "test": {
       "inputs": ["*.spec.*"],
       "dependsOn": ["^build"]
+    },
+    "coverage": {
+      "inputs": ["*.spec.*"],
+      "dependsOn": ["^build"]
     }
   }
 }
