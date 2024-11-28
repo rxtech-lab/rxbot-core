@@ -11,7 +11,7 @@ export default function Page() {
   const router = useRouter();
   return (
     <div>
-      <span>This is a page with a callback error.</span>
+      <span>This is a page</span>
       <button
         key={"button"}
         onClick={async () => {

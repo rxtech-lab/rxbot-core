@@ -35,6 +35,7 @@ describe("timeout", () => {
         if (!hasClicked) {
           return;
         }
+        await sleep(DEFAULT_RENDERING_WAIT_TIME * 10);
         messages = await api.chatroom.getMessagesByChatroom(chatroomId);
         expect(messages.data.count).toBe(3);
         currentMessage = messages.data.messages[2];
@@ -53,20 +54,17 @@ describe("timeout", () => {
     let messages = await api.chatroom.getMessagesByChatroom(chatroomId);
     expect(messages.data.count).toBe(2);
     let currentMessage = messages.data.messages[1];
-    expect(currentMessage!.text).toContain(
-      "This is a page with a callback error.",
-    );
+    expect(currentMessage!.text).toContain("This is a page");
 
     // click the button
-    await api.chatroom.clickOnMessageInChatroom(
-      chatroomId,
-      currentMessage!.message_id,
-      {
-        text: "Click",
-      },
-    );
     hasClicked = true;
-    await sleep(8_000 + DEFAULT_RENDERING_WAIT_TIME);
+    api.chatroom
+      .clickOnMessageInChatroom(chatroomId, currentMessage!.message_id, {
+        text: "Click",
+      })
+      .then(() => {});
+
+    await sleep(7_000 + 4 * DEFAULT_RENDERING_WAIT_TIME);
     expect(hasFinished).toBeTruthy();
   });
 

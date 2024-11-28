@@ -41,6 +41,8 @@ type ServerEvents = {
   update: <T extends Container<BaseChatroomInfo, BaseMessage>>(
     container: T,
   ) => void;
+  startRenderCallback: () => void;
+  endRenderCallback: () => void;
 };
 
 export class Renderer<
@@ -237,6 +239,13 @@ export class Renderer<
 
   async onUpdate(container: T) {
     await this.update(container);
+    if (container.hasUpdated || container.hasUpdated === undefined) {
+      return;
+    }
+
+    if (container.children[0].props.shouldSuspend) {
+      return;
+    }
     this.emit("update", container);
   }
 }

@@ -38,7 +38,7 @@ interface CoreOptions {
   routeFile: RouteInfoFile;
 }
 
-const DEFAULT_TIMEOUT = 2000;
+const DEFAULT_TIMEOUT = 2 * 1000; // 2 seconds
 
 function checkIsOptionsValid(opts: StartOptions) {
   if (!opts.adapter) {
@@ -138,9 +138,10 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
   private get coreApi(): CoreApi<T> {
     return {
       renderApp: async (container, callback) => {
-        this.removeAllListeners("update");
-        this.on("update", async (container) => {
+        this.once("update", async (container) => {
+          this.emit("startRenderCallback");
           await callback(container as unknown as T);
+          this.emit("endRenderCallback");
         });
 
         const key = this.adapter.getRouteKey(container);
@@ -245,10 +246,22 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     await this.adapter.handleMessageUpdate(message);
     this.updateLastCommitUpdateTime();
     return new Promise<void>((resolve) => {
+      let isUpdating = false;
+      this.on("startRenderCallback", () => {
+        isUpdating = true;
+      });
+
+      this.on("endRenderCallback", () => {
+        isUpdating = false;
+      });
+
       const checkCommitUpdates = () => {
         const currentTime = Date.now();
         if (currentTime - this.lastCommitUpdateTime >= this.timeout) {
-          resolve();
+          // check if the UI is updating
+          if (!isUpdating) {
+            resolve();
+          } else setTimeout(checkCommitUpdates, 100); // Check every 100ms
         } else {
           setTimeout(checkCommitUpdates, 100); // Check every 100ms
         }
