@@ -138,7 +138,11 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
   private get coreApi(): CoreApi<T> {
     return {
       renderApp: async (container, callback) => {
-        this.listeners.set(this.adapter, callback);
+        this.removeAllListeners("update");
+        this.on("update", async (container) => {
+          await callback(container as unknown as T);
+        });
+
         const key = this.adapter.getRouteKey(container);
         const storedRoute = await this.storage.restoreRoute(key);
         // if user click on a bot message, the message text itself will be erased.
@@ -431,8 +435,8 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
 
   async onDestroy() {
     await this.adapter.onDestroy();
-    this.listeners.clear();
     // destroy the renderer
+    this.removeAllListeners();
     if (this.container)
       this.reconciler.updateContainer(
         null,
