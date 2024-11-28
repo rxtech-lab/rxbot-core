@@ -126,14 +126,6 @@ export class TelegramAdapter
       // we need to render the app with the new route as well.
       await api.renderApp(container, async (container: InternalTGContainer) => {
         const [callbackType, component] = container.decodedData ?? [];
-        if (container.hasUpdated || container.hasUpdated === undefined) {
-          return;
-        }
-
-        if (container.children[0].props.shouldSuspend) {
-          return;
-        }
-
         // handle command button
         // if the component is a string, it means that it is a route,
         // so we need to redirect to the route

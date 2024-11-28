@@ -14,6 +14,7 @@ import type ReactReconciler from "react-reconciler";
 import Reconciler from "react-reconciler";
 import { BaseComponent, Suspendable, Text } from "../components";
 import { ComponentBuilder } from "../components/builder/componentBuilder";
+import { TypedEventEmitter } from "./typedListener";
 
 interface RendererOptions {
   adapter: AdapterInterface<any, any, any>;
@@ -34,7 +35,19 @@ function getSuspendableInstance(
   }
 }
 
-export class Renderer<T extends Container<BaseChatroomInfo, BaseMessage>> {
+type ServerEvents = {
+  [K: string]: (...args: any[]) => void;
+} & {
+  update: <T extends Container<BaseChatroomInfo, BaseMessage>>(
+    container: T,
+  ) => void;
+  startRenderCallback: () => void;
+  endRenderCallback: () => void;
+};
+
+export class Renderer<
+  T extends Container<BaseChatroomInfo, BaseMessage>,
+> extends TypedEventEmitter<ServerEvents> {
   reconciler: Reconciler.Reconciler<
     Container<any, any>,
     BaseComponent<any>,
@@ -62,12 +75,8 @@ export class Renderer<T extends Container<BaseChatroomInfo, BaseMessage>> {
    */
   protected handleMessageUpdateResolver: (() => void) | null = null;
 
-  listeners: Map<
-    AdapterInterface<any, any, any>,
-    (container: T) => Promise<void>
-  > = new Map();
-
   constructor({ adapter, storage }: RendererOptions) {
+    super();
     const builder = new ComponentBuilder();
     this.adapter = adapter;
     this.storage = storage;
@@ -230,9 +239,13 @@ export class Renderer<T extends Container<BaseChatroomInfo, BaseMessage>> {
 
   async onUpdate(container: T) {
     await this.update(container);
-
-    for (const listener of this.listeners.values()) {
-      await listener(container);
+    if (container.hasUpdated || container.hasUpdated === undefined) {
+      return;
     }
+
+    if (container.children[0].props.shouldSuspend) {
+      return;
+    }
+    this.emit("update", container);
   }
 }

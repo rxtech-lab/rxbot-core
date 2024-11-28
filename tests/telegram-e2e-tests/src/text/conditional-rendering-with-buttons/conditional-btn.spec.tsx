@@ -80,7 +80,7 @@ describe("conditional rendering button test", () => {
           text: "Refresh",
         },
       );
-      await sleep(DEFAULT_RENDERING_WAIT_TIME);
+      await sleep(DEFAULT_RENDERING_WAIT_TIME * 2);
       messages = await api.chatroom.getMessagesByChatroom(chatroomId);
       expect(messages.data.count).toBe(4);
       firstMessage = messages.data.messages[3];
