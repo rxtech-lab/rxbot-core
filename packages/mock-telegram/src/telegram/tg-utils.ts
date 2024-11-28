@@ -60,7 +60,9 @@ const initializeLongPolling = async (
 export const initializeWithWebhook = async (
   chatroomId: number,
   api: Api<any>,
-  opts: Options,
+  opts: Options & {
+    onHttpReturn?: (data: any) => Promise<void>;
+  },
 ): Promise<{
   adapter: TelegramAdapter;
   core: Core<any>;
@@ -75,6 +77,7 @@ export const initializeWithWebhook = async (
   });
   fastify.post(`/webhook/chatroom/${chatroomId}`, async (req, res) => {
     await adapter.handleMessageUpdate(req.body as any);
+    await opts.onHttpReturn?.({});
     return {
       status: "ok",
     };
