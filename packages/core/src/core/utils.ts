@@ -1,5 +1,7 @@
 import type { InstanceProps } from "@rx-lab/common";
+import React from "react";
 import type { FiberRoot, Reconciler } from "react-reconciler";
+import { v4 as uuidv4 } from "uuid";
 
 export const createEmptyFiberRoot = (
   container: FiberRoot,
@@ -32,3 +34,25 @@ export const isPropsEqual = (
   }
   return true;
 };
+
+/**
+ * Add a unique key to each child element.
+ * @param children
+ */
+export function addKeyToChildren(children: React.ReactNode) {
+  if (!React.isValidElement(children)) {
+    return children;
+  }
+  return React.Children.map(children, (child) => {
+    let childChildren = (child as React.ReactElement).props.children;
+    if (Array.isArray(childChildren)) {
+      childChildren = React.Children.map(childChildren, (child) =>
+        addKeyToChildren(child),
+      );
+    }
+    return React.cloneElement(child as React.ReactElement, {
+      key: child.key ?? uuidv4(),
+      children: childChildren,
+    });
+  });
+}

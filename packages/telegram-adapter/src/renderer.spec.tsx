@@ -3,6 +3,7 @@ import { CallbackParser } from "./callbackParser";
 import { renderElement } from "./renderer";
 
 class MockComponent extends Component {
+  key: string | null = null;
   constructor(
     public id: string,
     public type: InstanceType,

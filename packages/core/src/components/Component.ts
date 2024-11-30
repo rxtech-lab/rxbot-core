@@ -39,10 +39,13 @@ export class BaseComponent<Props extends InstanceProps> extends Component {
    */
   parent: Component | null = null;
 
+  key: string | null = null;
+
   constructor(opts: ComponentOptions<Props>) {
     super();
     this.props = opts.props;
     this.id = opts.props.key ?? uuid();
+    this.key = opts.props.key ?? uuid();
   }
 
   /**
