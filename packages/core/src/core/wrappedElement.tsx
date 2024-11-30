@@ -3,6 +3,7 @@ import { RouterProvider } from "@rx-lab/router";
 import { StorageProvider } from "@rx-lab/storage";
 import React from "react";
 import { ErrorBoundary } from "../react-components/ErrorBoundary";
+import { addKeyToChildren } from "./utils";
 
 /**
  * Properties that will be passed to each rendered page component.
@@ -39,7 +40,7 @@ export function WrappedElement(
     >
       <StorageProvider client={props.storage}>
         <ErrorBoundary fallback={props.errorPage}>
-          {props.children}
+          {addKeyToChildren(props.children)}
         </ErrorBoundary>
       </StorageProvider>
     </RouterProvider>

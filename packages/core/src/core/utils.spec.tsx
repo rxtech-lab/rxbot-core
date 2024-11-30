@@ -1,5 +1,6 @@
+// @ts-ignore
 import React from "react";
-import { isPropsEqual } from "./utils";
+import { addKeyToChildren, isPropsEqual } from "./utils";
 
 interface InstanceProps {
   [key: string]: any;
@@ -104,5 +105,31 @@ describe("isPropsEqual", () => {
     }) as any;
 
     expect(isPropsEqual(element, element2)).toBe(true);
+  });
+});
+
+describe("addKeyToChildren", () => {
+  it("should add key to children", () => {
+    const Element = (
+      <div>
+        <div>1</div>
+        <div>2</div>
+      </div>
+    );
+    const result = addKeyToChildren(Element) as any;
+    expect(result[0].props.children[0].key).toBeDefined();
+    expect(result[0].props.children[1].key).toBeDefined();
+  });
+
+  it("should not add key to children if already present", () => {
+    const Element = (
+      <div>
+        <div key="test">1</div>
+        <div>2</div>
+      </div>
+    );
+    const result = addKeyToChildren(Element) as any;
+    expect(result[0].props.children[0].key).toContain("test");
+    expect(result[0].props.children[1].key).toBeDefined();
   });
 });

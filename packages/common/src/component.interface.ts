@@ -14,6 +14,7 @@ export abstract class Component {
   parent: Component | null = null;
   abstract props: InstanceProps;
   abstract type: InstanceType;
+  abstract key: string | null;
 
   abstract commitUpdate(
     oldProps: InstanceProps,
