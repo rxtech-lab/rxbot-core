@@ -238,6 +238,30 @@ describe("Compiler.compile", () => {
     expect(swc.transformFile).not.toHaveBeenCalled();
     expect(readMetadata).not.toHaveBeenCalled();
   });
+
+  describe("api", () => {
+    it("should compile a api route", async () => {
+      const mockPages = ["/app/home/api/route.ts"];
+      (require("glob").glob.glob as jest.Mock).mockResolvedValue(mockPages);
+      (swc.transformFile as jest.Mock).mockResolvedValue({
+        code: "compiled code",
+      });
+      (readMetadata as jest.Mock).mockResolvedValue({ title: "Home" });
+
+      const result = await compiler.compile();
+
+      expect(result).toStrictEqual({
+        routes: [
+          {
+            route: "/",
+            api: "/path/to/output/app/home/api/route.js",
+            metadata: undefined,
+            subRoutes: [],
+          },
+        ],
+      });
+    });
+  });
 });
 
 describe("Compiler.getOutputPath", () => {

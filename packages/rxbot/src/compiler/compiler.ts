@@ -41,15 +41,29 @@ export interface CompilerOptions {
   hasAdapterFile?: boolean;
 }
 
+/**
+ * The pattern to match page files
+ */
 const PAGE_FILE_PATTERN = "app/**/page.tsx";
+/**
+ * The file extension for the compiled source code
+ */
 const OUTPUT_FILE_EXTENSION = ".js";
+/**
+ * Default destination directory for the compiled source code
+ */
 const DEFAULT_DESTINATION_DIR = "dist";
+/**
+ * Folder where the API routes are stored
+ */
+const API_FOLDER = "api";
 
 export type RoutePath = {
   route: string;
   page?: string;
   404?: string;
   error?: string;
+  api?: string;
   subRoutes: RoutePath[];
 };
 
@@ -92,7 +106,7 @@ export interface BuildSourceCodeOutput {
 export type AppRelatedFileType = "page";
 
 //Add more special files here
-export const SPECIAL_FILES = ["404.js", "page.js", "error.js"];
+export const SPECIAL_FILES = ["404.js", "page.js", "error.js", "route.js"];
 
 export class CompilerUtils {
   constructor(
@@ -483,6 +497,7 @@ export class Compiler extends CompilerUtils {
         "404": rootRoute!["404"]!,
         error: rootRoute!.error!,
         page: rootRoute!.page!,
+        api: rootRoute!.api!,
         route: DEFAULT_ROOT_ROUTE,
         subRoutes: [...info],
       };
@@ -624,6 +639,15 @@ export class Compiler extends CompilerUtils {
         APP_FOLDER,
         route,
         "page.js",
+      );
+    }
+
+    if (type === "api") {
+      specialPage = path.join(
+        this.destinationDir,
+        API_FOLDER,
+        route,
+        "route.js",
       );
     }
 
