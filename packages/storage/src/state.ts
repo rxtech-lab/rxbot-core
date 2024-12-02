@@ -16,17 +16,6 @@ import { encodeStateKey } from "./utils";
  */
 const initializedMap = new Map<string, boolean>();
 
-export type StateScope = "chatroom" | "message";
-
-interface SetStateHookOption {
-  /**
-   * Options for state storage. By default, states are message-scoped and
-   * are not persisted across message boundaries. You can change this behavior
-   * by setting the scope to "chatroom".
-   */
-  scope?: StateScope;
-}
-
 /**
  * A custom useState hook that extends React's useState with persistent storage capabilities.
  *
@@ -58,7 +47,7 @@ interface SetStateHookOption {
 export function useState<T>(
   key: string,
   initialState: T,
-  options?: SetStateOptions & SetStateHookOption,
+  options?: SetStateOptions,
 ) {
   const { client } = useContext(StorageContext);
   const [localState, setLocalState] = useReactState<T>(initialState);

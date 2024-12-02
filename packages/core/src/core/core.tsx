@@ -11,13 +11,16 @@ import {
   RedirectOptions,
   ReloadOptions,
   RenderedComponent,
+  RestoreStateOptions,
   RouteInfoFile,
   SendMessage,
+  SetStateOptions,
   SpecialRoute,
   StorageInterface,
   StoredRoute,
 } from "@rx-lab/common";
 import { RedirectError } from "@rx-lab/errors";
+import { encodeStateKey } from "@rx-lab/storage";
 import React from "react";
 import { Renderer } from "./renderer";
 import { renderServerComponent } from "./server/renderServerComponent";
@@ -383,6 +386,34 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
       userId: container.chatroomInfo.userId,
       routeInfoFile: this.router.routeInfoFile,
       data: container.message?.data,
+      storage: {
+        saveState: async (key: string, state: any, opt?: SetStateOptions) => {
+          const storedKey = encodeStateKey(
+            this.container!.chatroomInfo.id,
+            this.container!.message?.id,
+            key,
+            opt?.scope,
+          );
+          await this.storage.saveState(
+            storedKey,
+            this.element!.currentRoute.route,
+            state,
+            opt,
+          );
+        },
+        restoreState: (key: string, opt?: RestoreStateOptions) => {
+          const storedKey = encodeStateKey(
+            this.container!.chatroomInfo.id,
+            this.container!.message?.id,
+            key,
+            opt?.scope,
+          );
+          return this.storage.restoreState(
+            storedKey,
+            this.element!.currentRoute,
+          );
+        },
+      },
       ...this.element.props,
       ...oldProps,
     };
