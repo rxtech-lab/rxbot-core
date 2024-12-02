@@ -1,8 +1,8 @@
-import { StateScope } from "./state";
+import { StateScope } from "@rx-lab/common";
 
 export function encodeStateKey(
   chatroomId: string | number,
-  messageId: string | number,
+  messageId: string | number | undefined,
   key: string,
   scope?: StateScope,
 ): string {

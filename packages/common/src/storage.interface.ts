@@ -1,12 +1,24 @@
 import { Route, StoredRoute } from "./router.interface";
 
+export type StateScope = "chatroom" | "message";
+
 export interface SetStateOptions {
   /**
    * Whether the state should be persisted.
    * By default, some provider may not persist the state, by setting this option to true, the state will be persisted.
    */
   isPersisted?: boolean;
+
+  /**
+   * Options for state storage. By default, states are message-scoped and
+   * are not persisted across message boundaries. You can change this behavior
+   * by setting the scope to "chatroom".
+   */
+  scope?: StateScope;
 }
+
+export interface RestoreStateOptions
+  extends Omit<SetStateOptions, "isPersisted"> {}
 
 /**
  * Defines the interface for storage operations in the application.
@@ -122,4 +134,39 @@ export interface StorageInterface {
    * @returns A promise that resolves with the associated route, or undefined if not found
    */
   restoreHistory(key: string | number): Promise<StoredRoute | undefined>;
+}
+
+/**
+ * Storage interface in server components
+ */
+export interface StorageClientInterface {
+  /**
+   * Save state to the storage.
+   * @param key - Unique identifier for the state within the current chatroom/message context.
+   * @param state - The state to be saved.
+   * @param opt - Configuration options for storing the state.
+   *
+   * ```typescript
+   * saveState("userProfile", { name: "John Doe" });
+   * ```
+   *
+   * ```
+   * saveState("userProfile", { name: "John Doe" }, { isPersisted: true });
+   * ```
+   */
+  saveState<T>(key: string, state: T, opt?: SetStateOptions): Promise<void>;
+
+  /**
+   * Restore state from the storage.
+   * @param key - Unique identifier for the state within the current chatroom/message context.
+   * @param opt - Configuration options for restoring the state.
+   *
+   * ```typescript
+   * const state = await restoreState("userProfile");
+   * ```
+   */
+  restoreState<T>(
+    key: string,
+    opt?: RestoreStateOptions,
+  ): Promise<T | undefined>;
 }

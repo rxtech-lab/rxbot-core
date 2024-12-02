@@ -1,4 +1,5 @@
 import { RouteInfoFile } from "./router.interface";
+import { StorageClientInterface } from "./storage.interface";
 
 /**
  * Properties that will be passed to each page component.
@@ -32,6 +33,11 @@ export interface PageProps {
    * A file containing information about the routes in the application.
    */
   routeInfoFile: RouteInfoFile;
+  /**
+   * The storage object used for storing and retrieving data. This is typically instantiated within the `useState` hook,
+   * but when working with server components, it can be used as an alternative means to manage state.
+   */
+  storage: StorageClientInterface;
 }
 
 export interface ErrorPageProps {
