@@ -419,6 +419,9 @@ importers:
       '@rx-lab/core':
         specifier: workspace:*
         version: link:../core
+      '@rx-lab/router':
+        specifier: workspace:*
+        version: link:../router
       '@swc/core':
         specifier: ^1.7.10
         version: 1.7.14

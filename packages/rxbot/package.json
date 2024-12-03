@@ -29,6 +29,7 @@
     "@rspack/dev-server": "^1.0.9",
     "@rx-lab/common": "workspace:*",
     "@rx-lab/core": "workspace:*",
+    "@rx-lab/router": "workspace:*",
     "@swc/core": "^1.7.10",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.12",

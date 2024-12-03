@@ -3,8 +3,9 @@ import path from "path";
 import { defineConfig } from "@rspack/cli";
 import { RspackOptions, rspack } from "@rspack/core";
 import { RspackDevServer } from "@rspack/dev-server";
-import { Logger } from "@rx-lab/common";
+import { FunctionRequest, Logger, RouteInfoFile } from "@rx-lab/common";
 import { Core } from "@rx-lab/core";
+import { matchRouteWithPath } from "@rx-lab/router";
 import chokidar from "chokidar";
 import express from "express";
 import fs from "fs/promises";
@@ -68,7 +69,11 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
             persistent: true,
           });
 
-          const initializeCore = async () => {
+          const getModule = async (): Promise<{
+            adapter: any;
+            storage: any;
+            ROUTE_FILE: RouteInfoFile;
+          }> => {
             const modulePath = path.resolve(outputPath, "main.js");
             // node require
             const nativeRequire = require("module").createRequire(
@@ -77,7 +82,12 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
             delete nativeRequire.cache[nativeRequire.resolve(modulePath)];
 
             // Now import the fresh version
-            const mod = nativeRequire(modulePath);
+            return nativeRequire(modulePath);
+          };
+
+          const initializeCore = async () => {
+            // Now import the fresh version
+            const mod = await getModule();
             core = await Core.Dev({
               adapter: mod.adapter,
               storage: mod.storage,
@@ -130,10 +140,50 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
             reload();
           });
 
-          // API endpoint
+          const apiRouteHandler = async (req: any, res: any) => {
+            const mod = await getModule();
+            if (!core) {
+              await initializeCore();
+            }
+            const routeFile = mod.ROUTE_FILE as RouteInfoFile;
+
+            // get request path and method
+            const requestPath = req.path as string;
+            const requestMethod = req.method.toUpperCase();
+
+            const matchedRoute = await matchRouteWithPath(
+              routeFile.routes,
+              requestPath,
+            );
+            if (!matchedRoute || !matchedRoute.api) {
+              res.status(404).json({ error: "Route not found" });
+              return;
+            }
+
+            const api = matchedRoute.api;
+            const handler = api[requestMethod as keyof typeof api] as any;
+            if (!handler) {
+              res.status(404).json({ error: "Method not allowed" });
+              return;
+            }
+            const request: FunctionRequest = {
+              req: req as any,
+              storage: mod.storage,
+              routeInfoFile: routeFile,
+              core: core as any,
+            };
+
+            const resp: Response = await handler(request);
+
+            for (const [key, value] of Object.entries(resp.headers)) {
+              res.set(key, value);
+            }
+            res.status(resp.status).send(await resp.text());
+          };
+
+          // webhook endpoint
           app.post("/api/webhook", async (req, res) => {
             try {
-              // Clear the module from Node's cache
               if (!core) {
                 await initializeCore();
               }
@@ -145,31 +195,8 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
               res.status(500).json({ error: error.message });
             }
           });
-          app.post("/api/send-message", async (req, res) => {
-            try {
-              // Clear the module from Node's cache
-              const modulePath = path.resolve(outputPath, "main.js");
-              delete require.cache[require.resolve(modulePath)];
-
-              // Now import the fresh version
-              const mod = await import(
-                modulePath + "?update=" + Date.now()
-              ).then((mod) => mod.default);
-
-              const core = await Core.Start({
-                adapter: mod.adapter,
-                storage: mod.storage,
-                routeFile: mod.ROUTE_FILE,
-              });
-
-              await core.sendMessage(req.body);
-              res.json({ success: true });
-              await core.onDestroy();
-            } catch (error: any) {
-              console.error("Error processing message:", error);
-              res.status(500).json({ error: error.message });
-            }
-          });
+          app.all("/api/*", apiRouteHandler);
+          app.all("/api", apiRouteHandler);
 
           return middlewares;
         },

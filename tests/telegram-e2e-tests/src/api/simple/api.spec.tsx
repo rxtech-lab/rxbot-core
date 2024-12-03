@@ -1,3 +1,4 @@
+import { beforeEach } from "node:test";
 import { CLIProcessManager, Telegram, Utils } from "@rx-lab/testing";
 
 const {
@@ -10,9 +11,13 @@ const {
 } = Telegram;
 const { sleep } = Utils;
 
-const chatroomId = 6001;
+const chatroomId = 7004;
 
-describe("Storage on the server", () => {
+/**
+ * Test sub functionality. Will prompt a text if user does not provide a text.
+ * Will echo the text if user provides a text.
+ */
+describe("API Tests", () => {
   let api: Telegram.Api<any>;
   let coreApi: any | undefined;
   let cliProcessManager: CLIProcessManager | undefined;
@@ -28,8 +33,8 @@ describe("Storage on the server", () => {
     cliProcessManager = undefined;
   });
 
-  for (const environment of [TestingEnvironment.LongPolling]) {
-    it(`should render the nested component in ${environment}`, async () => {
+  for (const environment of [TestingEnvironment.DEV]) {
+    it(`should render the initial state in ${environment}`, async () => {
       const { core, processManager } = await initialize({
         filename: import.meta.url,
         environment,
@@ -45,25 +50,20 @@ describe("Storage on the server", () => {
       });
 
       await sleep(DEFAULT_RENDERING_WAIT_TIME);
-      let messages = await api.chatroom.getMessagesByChatroom(chatroomId);
+      const messages = await api.chatroom.getMessagesByChatroom(chatroomId);
       expect(messages.data.count).toBe(2);
-      let message = messages.data.messages[1];
-      expect(message?.update_count).toBe(0);
-      expect(message?.text).toContain("Title: ");
+      const firstMessage = messages.data.messages[1];
+      expect(firstMessage?.update_count).toBe(0);
+      expect(firstMessage?.text).toContain("Hello world");
 
-      await api.chatroom.clickOnMessageInChatroom(
-        chatroomId,
-        message!.message_id,
-        {
-          text: "Increment",
-        },
-      );
-      await sleep(DEFAULT_RENDERING_WAIT_TIME * 3);
-      messages = await api.chatroom.getMessagesByChatroom(chatroomId);
-      expect(messages.data.count).toBe(2);
-      message = messages.data.messages[1];
-      expect(message?.update_count).toBe(2);
-      expect(message?.text).toContain("Title: 1");
+      // check whether the API is working
+      let response = await fetch(`http://0.0.0.0:3000/api`);
+      let data = await response.text();
+      expect(data).toBe("Hello world");
+
+      response = await fetch(`http://0.0.0.0:3000/api/json`);
+      data = await response.json();
+      expect(data).toEqual({ message: "Hello world" });
     });
   }
 

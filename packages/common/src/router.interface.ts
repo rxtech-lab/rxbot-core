@@ -1,5 +1,6 @@
 import type React from "react";
 import { z } from "zod";
+import { CoreInterface } from "./core.interface";
 import { ErrorPageProps, PageProps } from "./page.interface";
 
 export const RouteMetadataSchema = z.object({
@@ -109,16 +110,22 @@ export type ReactComponentFunction = () => Promise<
   () => ClientComponent | ServerComponent
 >;
 
+export interface FunctionRequest
+  extends Pick<PageProps, "routeInfoFile" | "storage"> {
+  req: Request;
+  core: CoreInterface<any>;
+}
+
 /**
  * Represents an API function that can be used to define API routes.
  */
-export type APIFunction = () => Promise<{
-  GET?: (req: Request) => Promise<Response>;
-  POST?: (req: Request) => Promise<Response>;
-  PUT?: (req: Request) => Promise<Response>;
-  DELETE?: (req: Request) => Promise<Response>;
-  PATCH?: (req: Request) => Promise<Response>;
-}>;
+export type APIFunction = {
+  GET?: (req: FunctionRequest) => Promise<Response>;
+  POST?: (req: FunctionRequest) => Promise<Response>;
+  PUT?: (req: FunctionRequest) => Promise<Response>;
+  DELETE?: (req: FunctionRequest) => Promise<Response>;
+  PATCH?: (req: FunctionRequest) => Promise<Response>;
+};
 
 /**
  * Represents a route in the application.
@@ -153,7 +160,7 @@ export interface RouteInfo {
    * Facilitates the creation of API routes, allowing the user to define HTTP methods
    * (GET, POST, PUT, DELETE, PATCH) within the function.
    */
-  api?: APIFunction;
+  api?: () => Promise<APIFunction>;
 
   /**
    * Nested routes under this route, if any.

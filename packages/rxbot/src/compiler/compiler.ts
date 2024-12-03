@@ -579,6 +579,13 @@ export class Compiler extends CompilerUtils {
         metadata: outputPageFile.metadata,
       };
       info.push(routeInfo);
+    } else if (route.api) {
+      const routeInfo: RouteInfoWithoutImport = {
+        route: route.route,
+        subRoutes: subPages.flatMap((p) => p.routes),
+        api: route.api,
+      };
+      info.push(routeInfo);
     } else {
       // if the route does not have a file path, compile the sub-routes
       const subPages = (
@@ -645,7 +652,7 @@ export class Compiler extends CompilerUtils {
     if (type === "api") {
       specialPage = path.join(
         this.destinationDir,
-        API_FOLDER,
+        APP_FOLDER,
         route,
         "route.js",
       );
@@ -685,6 +692,17 @@ export class Compiler extends CompilerUtils {
     const pageFile = this.findSpecialPages(route, artifacts, "page");
     const notFoundPage = this.findSpecialPages(route, artifacts, "404");
     const errorPage = this.findSpecialPages(route, artifacts, "error");
+    const apiRoute = this.findSpecialPages(route, artifacts, "api");
+
+    // if the api route is found,
+    // we don't need to check for the page, 404, and error
+    if (apiRoute) {
+      return {
+        route,
+        api: apiRoute,
+        subRoutes: [],
+      };
+    }
 
     return {
       route,
@@ -692,6 +710,7 @@ export class Compiler extends CompilerUtils {
       subRoutes: [],
       404: notFoundPage,
       error: errorPage,
+      api: apiRoute,
     };
   }
 
