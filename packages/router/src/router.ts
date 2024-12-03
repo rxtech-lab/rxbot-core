@@ -26,8 +26,9 @@ export async function importRoute(info: RouteInfo): Promise<ImportedRoute> {
     route: info.route,
     subRoutes: info.subRoutes,
     metadata: info.metadata,
-    error: await info.error().then((mod: any) => mod.default),
-    "404": await info["404"]().then((mod: any) => mod.default),
+    api: (await info.api?.()) as any,
+    error: await info.error?.().then((mod: any) => mod.default),
+    "404": await info["404"]?.().then((mod: any) => mod.default),
   };
 }
 

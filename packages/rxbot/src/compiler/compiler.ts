@@ -41,15 +41,29 @@ export interface CompilerOptions {
   hasAdapterFile?: boolean;
 }
 
+/**
+ * The pattern to match page files
+ */
 const PAGE_FILE_PATTERN = "app/**/page.tsx";
+/**
+ * The file extension for the compiled source code
+ */
 const OUTPUT_FILE_EXTENSION = ".js";
+/**
+ * Default destination directory for the compiled source code
+ */
 const DEFAULT_DESTINATION_DIR = "dist";
+/**
+ * Folder where the API routes are stored
+ */
+const API_FOLDER = "api";
 
 export type RoutePath = {
   route: string;
   page?: string;
   404?: string;
   error?: string;
+  api?: string;
   subRoutes: RoutePath[];
 };
 
@@ -92,7 +106,7 @@ export interface BuildSourceCodeOutput {
 export type AppRelatedFileType = "page";
 
 //Add more special files here
-export const SPECIAL_FILES = ["404.js", "page.js", "error.js"];
+export const SPECIAL_FILES = ["404.js", "page.js", "error.js", "route.js"];
 
 export class CompilerUtils {
   constructor(
@@ -483,6 +497,7 @@ export class Compiler extends CompilerUtils {
         "404": rootRoute!["404"]!,
         error: rootRoute!.error!,
         page: rootRoute!.page!,
+        api: rootRoute!.api!,
         route: DEFAULT_ROOT_ROUTE,
         subRoutes: [...info],
       };
@@ -564,6 +579,13 @@ export class Compiler extends CompilerUtils {
         metadata: outputPageFile.metadata,
       };
       info.push(routeInfo);
+    } else if (route.api) {
+      const routeInfo: RouteInfoWithoutImport = {
+        route: route.route,
+        subRoutes: subPages.flatMap((p) => p.routes),
+        api: route.api,
+      };
+      info.push(routeInfo);
     } else {
       // if the route does not have a file path, compile the sub-routes
       const subPages = (
@@ -627,6 +649,15 @@ export class Compiler extends CompilerUtils {
       );
     }
 
+    if (type === "api") {
+      specialPage = path.join(
+        this.destinationDir,
+        APP_FOLDER,
+        route,
+        "route.js",
+      );
+    }
+
     const specialPageExists = artifacts.find(
       (a) => path.relative(a.outputFilePath, specialPage ?? "") === "",
     );
@@ -661,6 +692,17 @@ export class Compiler extends CompilerUtils {
     const pageFile = this.findSpecialPages(route, artifacts, "page");
     const notFoundPage = this.findSpecialPages(route, artifacts, "404");
     const errorPage = this.findSpecialPages(route, artifacts, "error");
+    const apiRoute = this.findSpecialPages(route, artifacts, "api");
+
+    // if the api route is found,
+    // we don't need to check for the page, 404, and error
+    if (apiRoute) {
+      return {
+        route,
+        api: apiRoute,
+        subRoutes: [],
+      };
+    }
 
     return {
       route,
@@ -668,6 +710,7 @@ export class Compiler extends CompilerUtils {
       subRoutes: [],
       404: notFoundPage,
       error: errorPage,
+      api: apiRoute,
     };
   }
 
