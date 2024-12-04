@@ -30,7 +30,7 @@ export async function POST(request: Request) {
 }
 `;
 
-export const VERCEL_SEND_MESSAGE_TEMPLATE = `
+export const VERCEL_API_ROUTE_TEMPLATE = `
 import { Core } from "@rx-lab/core";
 import { adapter, storage, ROUTE_FILE } from "{{outputDir}}/main.js";
 import { waitUntil } from "@vercel/functions";
