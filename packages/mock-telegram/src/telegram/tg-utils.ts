@@ -11,7 +11,7 @@ import { Api } from "./tg-client";
 
 export const PORT = 9000;
 
-export const DEFAULT_RENDERING_WAIT_TIME = 800;
+export const DEFAULT_RENDERING_WAIT_TIME = 1200;
 
 export const DEFAULT_LONG_RENDERING_WAIT_TIME = 4000;
 

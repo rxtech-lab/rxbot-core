@@ -35,7 +35,6 @@ describe("timeout", () => {
         if (!hasClicked) {
           return;
         }
-        await sleep(DEFAULT_RENDERING_WAIT_TIME * 10);
         messages = await api.chatroom.getMessagesByChatroom(chatroomId);
         expect(messages.data.count).toBe(3);
         currentMessage = messages.data.messages[2];

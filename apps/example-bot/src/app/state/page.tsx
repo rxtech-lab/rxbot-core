@@ -32,6 +32,11 @@ export default function page() {
           Conditional Rendering Demo
         </CommandButton>
       </div>
+      <div>
+        <CommandButton command={"/state/multiple-state"}>
+          Multiple States Demo
+        </CommandButton>
+      </div>
     </div>
   );
 }

@@ -46,7 +46,10 @@ export class Logger {
       // get caller line number
       const stack = new Error().stack;
       if (stack) {
-        const callerLine = stack.split("\n")[2];
+        let callerLine = stack.split("\n")[2];
+        if (callerLine) {
+          callerLine = callerLine.split("/").pop();
+        }
         // biome-ignore lint/suspicious/noConsoleLog: <explanation>
         console.log(
           `${colorize(`[${callerLine?.trim()}]`, "yellow")} ${color ? colorize(message, color) : message}`,
