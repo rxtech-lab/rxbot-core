@@ -5,16 +5,9 @@ import {
   useContext,
   useEffect,
   useState as useReactState,
-  useSyncExternalStore,
 } from "react";
 import { StorageContext } from ".";
 import { encodeStateKey } from "./utils";
-
-/**
- * Tracks which state keys have been initialized to prevent redundant loading
- * from storage during component re-renders.
- */
-const initializedMap = new Map<string, boolean>();
 
 /**
  * A custom useState hook that extends React's useState with persistent storage capabilities.
@@ -51,7 +44,7 @@ export function useState<T>(
 ) {
   const { client } = useContext(StorageContext);
   const [localState, setLocalState] = useReactState<T>(initialState);
-  const { registerLoading, chatroomInfo } = useRouter();
+  const { registerLoading, chatroomInfo, eventEmitter } = useRouter();
 
   // Generate a unique storage key that includes chatroom context
   const storedKey = encodeStateKey(
@@ -63,70 +56,37 @@ export function useState<T>(
 
   // Initialize state from storage on component mount
   useEffect(() => {
-    Logger.log(`Loading initial state for key ${storedKey}`);
-    if (initializedMap.has(storedKey)) {
-      return; // Prevent duplicate initialization
-    }
-
-    const loadInitialState = async () => {
-      const storedState = await client.restoreState(storedKey, {
+    const loadState = async () => {
+      Logger.log(`Loading initial state for key ${storedKey}`);
+      const newState = await client.restoreState(storedKey, {
         route: DEFAULT_ROOT_ROUTE,
         type: "page",
       });
-      Logger.log(
-        `Restored state for key ${storedKey}: ${JSON.stringify(storedState)}`,
-      );
-      if (storedState !== undefined) {
-        setLocalState(storedState as T);
-      } else {
-        setLocalState(initialState);
-      }
+      // if new state is undefined, which means this is the first time the state is being set
+      // we won't set the local state
+      if (newState !== undefined) setLocalState(newState as T);
     };
-    initializedMap.set(key, true);
-    registerLoading(loadInitialState());
+
+    registerLoading(loadState());
   }, []);
-
-  // Subscribe to external state changes and sync with local state
-  const state = useSyncExternalStore<T>(
-    useCallback(
-      (onStoreChange) => {
-        return client.subscribeStateChange(key, DEFAULT_ROOT_ROUTE, () => {
-          const loadNewState = async () => {
-            Logger.log(`Loading new state for key ${storedKey}`);
-            const newState = await client.restoreState(storedKey, {
-              route: DEFAULT_ROOT_ROUTE,
-              type: "page",
-            });
-            setLocalState(newState as T);
-            onStoreChange();
-          };
-
-          registerLoading(loadNewState());
-        });
-      },
-      [client, storedKey, registerLoading],
-    ),
-    () => localState, // Selector for current state
-    () => initialState, // Selector for server-side rendering
-  );
 
   // Create a memoized setState function that persists changes to storage
   const setState = useCallback(
     (newState: T) => {
-      Logger.log(`Saving state for key ${storedKey}`);
       registerLoading(
         client
           .saveState(storedKey, DEFAULT_ROOT_ROUTE, newState, options)
-          .then(() => {
-            setLocalState(newState);
-          })
           .catch((error) => {
             console.error("Failed to save state:", error);
           }),
       );
+      eventEmitter.once("loadingComplete", () => {
+        Logger.log(`Saving state for key ${storedKey}, ${newState}`);
+        setLocalState(newState);
+      });
     },
     [client, storedKey, registerLoading],
   );
 
-  return [state, setState] as const;
+  return [localState, setState] as const;
 }

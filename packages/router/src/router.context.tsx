@@ -1,3 +1,4 @@
+import EventEmitter from "node:events";
 import {
   type BaseChatroomInfo,
   CoreApi,
@@ -40,7 +41,10 @@ interface RouterContextType<ChatroomInfo extends BaseChatroomInfo, Message> {
   pathParams: PathParams;
   path: string;
   coreApi: CoreApi<any>;
+  eventEmitter: EventEmitter;
 }
+
+const eventEmitter = new EventEmitter();
 
 // Create the context
 export const RouterContext = createContext<
@@ -102,13 +106,14 @@ export function RouterProvider<ChatroomInfo extends BaseChatroomInfo, Message>({
       setIsLoading(true);
       if (pendingPromises.length > 0) {
         Promise.all(pendingPromises)
-          .then(() => {
+          .then(async () => {
             Logger.log("All pending promises resolved");
-            setIsLoading(false);
-            setPendingPromises([]);
+            eventEmitter.emit("loadingComplete");
           })
           .catch((error) => {
             console.error("Error during loading:", error);
+          })
+          .finally(() => {
             setIsLoading(false);
             setPendingPromises([]);
           });
@@ -143,13 +148,14 @@ export function RouterProvider<ChatroomInfo extends BaseChatroomInfo, Message>({
     addToQueue,
     isQueueEmpty,
     notifyRouteChange,
-    registerLoading,
     chatroomInfo: chatroomInfo,
     message: message,
     query,
     pathParams: pathParams,
+    registerLoading,
     path,
     coreApi,
+    eventEmitter,
   };
 
   Logger.log(`RouterProvider isLoading: ${isLoading}`, "red");
