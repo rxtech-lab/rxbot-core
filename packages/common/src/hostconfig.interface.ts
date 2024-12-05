@@ -19,6 +19,7 @@ export enum InstanceType {
   Link = "Link",
   Command = "Command",
   Paragraph = "Paragraph",
+  InlineParagraph = "InlineParagraph",
   Header = "Header",
   List = "List",
   Option = "Option",

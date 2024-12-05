@@ -16,6 +16,7 @@ import {
 import { BoldText } from "../BoldText";
 import { Code, Pre } from "../Code";
 import { ItalicText } from "../ItalicText";
+import { InlineParagraph, Paragraph } from "../Paragraph";
 import {
   type BaseComponent,
   Button,
@@ -59,10 +60,12 @@ export class ComponentBuilder implements Builder {
       BaseComponent<any>
     >,
     [InstanceType.Suspendable]: Suspendable,
+    [InstanceType.Paragraph]: Paragraph,
     [InstanceType.Link]: Link as unknown as Constructor<BaseComponent<any>>,
     [InstanceType.Command]: CommandComponent as unknown as Constructor<
       BaseComponent<any>
     >,
+    [InstanceType.InlineParagraph]: InlineParagraph,
     [InstanceType.Code]: Code,
     [InstanceType.Pre]: Pre,
     [InstanceType.BoldText]: BoldText as unknown as Constructor<
@@ -84,8 +87,8 @@ export class ComponentBuilder implements Builder {
     [ReactInstanceType.Button]: InstanceType.Button,
     [ReactInstanceType.Div]: InstanceType.Container,
     [ReactInstanceType.Text]: InstanceType.Text,
-    [ReactInstanceType.Paragraph]: InstanceType.Container,
-    [ReactInstanceType.Span]: InstanceType.Container,
+    [ReactInstanceType.Paragraph]: InstanceType.Paragraph,
+    [ReactInstanceType.Span]: InstanceType.InlineParagraph,
     [ReactInstanceType.Menu]: InstanceType.Menu,
     [ReactInstanceType.H1]: InstanceType.Header,
     [ReactInstanceType.H2]: InstanceType.Header,
