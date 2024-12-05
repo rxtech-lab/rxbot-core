@@ -12,11 +12,12 @@ export const renderElementHelper = (
     return [""];
   }
 
-  if (
-    element.type === InstanceType.Text ||
-    element.type === InstanceType.LineBreak
-  ) {
+  if (element.type === InstanceType.Text) {
     return element.props.nodeValue ?? ("" as any);
+  }
+
+  if (element.type === InstanceType.LineBreak) {
+    return "\n";
   }
 
   let children: any[] = [];
@@ -72,10 +73,13 @@ export const renderElementHelper = (
       return [convertRouteToTGRoute(element.props.command)];
 
     case InstanceType.Paragraph:
-      return [...children, "\n\n"];
-
+      // need to add a space between newline characters
+      // otherwise, telegram will not render the new line
+      return [...children, "\n \n"];
+    case InstanceType.InlineParagraph:
+      return children;
     case InstanceType.Header:
-      return [`<b>${children.join("")}</b>\n`];
+      return [`<b>${children.join("")}</b>`, "\n \n"];
 
     case InstanceType.List:
       return element.children.map(

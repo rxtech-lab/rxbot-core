@@ -130,7 +130,7 @@ describe("renderElement", () => {
       }),
     ];
     expect(renderElement(paragraphElement, parser).text).toEqual(
-      "Paragraph content\n\n",
+      "Paragraph content\n \n",
     );
   });
 
@@ -142,7 +142,7 @@ describe("renderElement", () => {
       }),
     ];
     expect(renderElement(headerElement, parser).text).toEqual(
-      "<b>Header content</b>\n",
+      "<b>Header content</b>\n \n",
     );
   });
 

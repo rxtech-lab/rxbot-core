@@ -12,7 +12,7 @@ if (!apiKey) {
 
 const adapter = new TelegramAdapter({
   token: apiKey,
-  url: "http://0.0.0.0:9000/webhook/chatroom/1",
+  url: process.env.TG_WEBHOOK_URL!,
 });
 
 const storage = new UpstashStorage({
