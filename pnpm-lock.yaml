@@ -149,6 +149,9 @@ importers:
       '@types/glob':
         specifier: ^8.1.0
         version: 8.1.0
+      '@types/lodash':
+        specifier: ^4.17.13
+        version: 4.17.13
       '@types/md5':
         specifier: ^2.3.5
         version: 2.3.5
@@ -164,6 +167,9 @@ importers:
       glob:
         specifier: ^11.0.0
         version: 11.0.0
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
       md5:
         specifier: ^2.3.0
         version: 2.3.0
@@ -2036,6 +2042,9 @@ packages:
 
   '@types/json5@0.0.29':
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
+
+  '@types/lodash@4.17.13':
+    resolution: {integrity: sha512-lfx+dftrEZcdBPczf9d0Qv0x+j/rfNCMuC6OcfXmO8gkfeNAY88PgKUbvG56whcN23gc27yenwF6oJZXGFpYxg==}
 
   '@types/md5@2.3.5':
     resolution: {integrity: sha512-/i42wjYNgE6wf0j2bcTX6kuowmdL/6PE4IVitMpm2eYKBUuYCprdcWVK+xEF0gcV6ufMCRhtxmReGfc6hIK7Jw==}
@@ -9115,6 +9124,8 @@ snapshots:
   '@types/json-schema@7.0.15': {}
 
   '@types/json5@0.0.29': {}
+
+  '@types/lodash@4.17.13': {}
 
   '@types/md5@2.3.5': {}
 

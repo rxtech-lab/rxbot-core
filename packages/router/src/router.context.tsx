@@ -16,10 +16,6 @@ import {
   useState,
 } from "react";
 
-// Types and interfaces
-type RouteChangeCallback = () => void;
-type Queue = (() => void)[];
-
 interface RouterProps<ChatroomInfo extends BaseChatroomInfo, Message> {
   children: ReactNode;
   pathParams: PathParams;
@@ -31,9 +27,6 @@ interface RouterProps<ChatroomInfo extends BaseChatroomInfo, Message> {
 }
 
 interface RouterContextType<ChatroomInfo extends BaseChatroomInfo, Message> {
-  addToQueue: (callback: RouteChangeCallback) => void;
-  isQueueEmpty: () => boolean;
-  notifyRouteChange: () => void;
   registerLoading: (promise: Promise<void>) => void;
   chatroomInfo: ChatroomInfo;
   message: Message;
@@ -74,26 +67,12 @@ export function RouterProvider<ChatroomInfo extends BaseChatroomInfo, Message>({
   coreApi: api,
   ...props
 }: RouterProps<ChatroomInfo, Message>) {
-  const [queue, setQueue] = useState<Queue>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [pendingPromises, setPendingPromises] = useState<Promise<void>[]>([]);
   const [queryParams, setQueryParams] = useState<QueryString>(query);
   const [pathParams, setPathParams] = useState<PathParams>(props.pathParams);
   const [coreApi, setCoreApi] = useState<CoreApi<any>>(api);
   const [path, setPath] = useState<string>(props.path);
-
-  const addToQueue = useCallback((callback: RouteChangeCallback) => {
-    Logger.log(`Adding callback to queue: ${callback}`);
-    setQueue((prevQueue) => [...prevQueue, callback]);
-  }, []);
-
-  const isQueueEmpty = useCallback(() => queue.length === 0, [queue]);
-
-  const notifyRouteChange = useCallback(() => {
-    // biome-ignore lint/complexity/noForEach: <explanation>
-    queue.forEach((callback) => callback());
-    setQueue([]);
-  }, [queue]);
 
   const registerLoading = useCallback((promise: Promise<void>) => {
     setIsLoading(true);
@@ -145,9 +124,6 @@ export function RouterProvider<ChatroomInfo extends BaseChatroomInfo, Message>({
   }, [props.path]);
 
   const contextValue: RouterContextType<ChatroomInfo, Message> = {
-    addToQueue,
-    isQueueEmpty,
-    notifyRouteChange,
     chatroomInfo: chatroomInfo,
     message: message,
     query,

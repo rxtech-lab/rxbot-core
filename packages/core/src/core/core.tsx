@@ -1,4 +1,3 @@
-import * as process from "node:process";
 import {
   type AdapterInterface,
   BaseChatroomInfo,
@@ -8,6 +7,7 @@ import {
   CoreInterface,
   DEFAULT_ROOT_ROUTE,
   ErrorPageProps,
+  Logger,
   PageProps,
   RedirectOptions,
   ReloadOptions,
@@ -23,6 +23,7 @@ import {
 import { RedirectError } from "@rx-lab/errors";
 import { encodeStateKey } from "@rx-lab/storage";
 import React from "react";
+import { DEFAULT_TIMEOUT } from "./configs";
 import { Renderer } from "./renderer";
 import { renderServerComponent } from "./server/renderServerComponent";
 import { createEmptyFiberRoot } from "./utils";
@@ -41,8 +42,6 @@ interface CoreOptions {
   timeout?: number;
   routeFile: RouteInfoFile;
 }
-
-const DEFAULT_TIMEOUT = process.env.DEBUG ? 20 * 1000 : 2 * 1000; // 2 seconds if in production, 20 seconds if in debug mode
 
 function checkIsOptionsValid(opts: StartOptions) {
   if (!opts.adapter) {
@@ -366,6 +365,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
    * @private
    */
   async render(container: T, oldProps?: PageProps) {
+    Logger.log("Rendering component", "bgGreen");
     if (!this.element) {
       throw new Error("No component to render");
     }
@@ -482,6 +482,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
 
   async onDestroy() {
     await this.adapter.onDestroy();
+    this.debouncedAdapt.cancel();
     // destroy the renderer
     this.removeAllListeners();
     if (this.container)

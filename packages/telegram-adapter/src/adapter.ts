@@ -166,6 +166,7 @@ export class TelegramAdapter
         if (componentToRender) {
           try {
             await componentToRender?.props.onClick?.();
+            Logger.log("Updating message", "blue");
             container.hasUpdated = true;
             Logger.log("Callback query", "blue");
           } catch (e) {

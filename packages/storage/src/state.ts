@@ -57,22 +57,25 @@ export function useState<T>(
   // Initialize state from storage on component mount
   useEffect(() => {
     const loadState = async () => {
-      Logger.log(`Loading initial state for key ${storedKey}`);
       const newState = await client.restoreState(storedKey, {
         route: DEFAULT_ROOT_ROUTE,
         type: "page",
       });
       // if new state is undefined, which means this is the first time the state is being set
       // we won't set the local state
+      Logger.log(
+        `Loaded initial state for key ${storedKey}, ${newState}`,
+        "bgYellow",
+      );
       if (newState !== undefined) setLocalState(newState as T);
     };
-
     registerLoading(loadState());
   }, []);
 
   // Create a memoized setState function that persists changes to storage
   const setState = useCallback(
     (newState: T) => {
+      Logger.log(`Setting state for key ${storedKey}, ${newState}`);
       registerLoading(
         client
           .saveState(storedKey, DEFAULT_ROOT_ROUTE, newState, options)
@@ -81,7 +84,10 @@ export function useState<T>(
           }),
       );
       eventEmitter.once("loadingComplete", () => {
-        Logger.log(`Saving state for key ${storedKey}, ${newState}`);
+        Logger.log(
+          `Saving state for key ${storedKey}, ${newState}`,
+          "bgYellow",
+        );
         setLocalState(newState);
       });
     },
