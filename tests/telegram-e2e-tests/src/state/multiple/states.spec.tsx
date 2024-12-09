@@ -35,7 +35,7 @@ describe("Multiple states", () => {
       type: MessageType.Text,
     });
 
-    await sleep(DEFAULT_RENDERING_WAIT_TIME * 10);
+    await sleep(DEFAULT_RENDERING_WAIT_TIME);
     const messages = await api.chatroom.getMessagesByChatroom(chatroomId);
     expect(messages.data.count).toBe(2);
     const firstMessage = messages.data.messages[1];
@@ -48,7 +48,7 @@ describe("Multiple states", () => {
         text: "+1",
       },
     );
-    await sleep(DEFAULT_RENDERING_WAIT_TIME * 10);
+    await sleep(DEFAULT_RENDERING_WAIT_TIME);
     const updatedMessages =
       await api.chatroom.getMessagesByChatroom(chatroomId);
     expect(updatedMessages.data.count).toBe(2);

@@ -10,10 +10,12 @@ import {
   StorageInterface,
 } from "@rx-lab/common";
 import { Router } from "@rx-lab/router";
+import { DebouncedFunc, debounce } from "lodash";
 import type ReactReconciler from "react-reconciler";
 import Reconciler from "react-reconciler";
 import { BaseComponent, Suspendable, Text } from "../components";
 import { ComponentBuilder } from "../components/builder/componentBuilder";
+import { DEFAULT_DEBOUNCE_RENDERING_TIME, DEFAULT_TIMEOUT } from "./configs";
 import { TypedEventEmitter } from "./typedListener";
 
 interface RendererOptions {
@@ -75,6 +77,11 @@ export class Renderer<
    */
   protected handleMessageUpdateResolver: (() => void) | null = null;
 
+  /**
+   * Debounced version of the adapt function.
+   */
+  protected debouncedAdapt: DebouncedFunc<(container: T) => Promise<void>>;
+
   constructor({ adapter, storage }: RendererOptions) {
     super();
     const builder = new ComponentBuilder();
@@ -84,6 +91,18 @@ export class Renderer<
       adapter: adapter,
       storage: storage,
     });
+    this.debouncedAdapt = debounce(
+      async (container: T) => {
+        Logger.log("Executing debounced adapt");
+        await this.adapter.adapt(container, true);
+      },
+      DEFAULT_DEBOUNCE_RENDERING_TIME,
+      {
+        leading: false, // Don't execute on the leading edge
+        trailing: true, // Execute on the trailing edge
+        maxWait: DEFAULT_TIMEOUT, // Maximum time to wait before forcing execution
+      },
+    );
     const hostConfig: Reconciler.HostConfig<
       ReactInstanceType,
       InstanceProps,
@@ -102,6 +121,9 @@ export class Renderer<
       //@ts-expect-error
       now: Date.now,
       supportsMutation: true,
+      isPrimaryRenderer: true,
+      scheduleMicrotask:
+        typeof queueMicrotask === "function" ? queueMicrotask : setTimeout,
       getRootHostContext: () => ({}),
       getChildHostContext: () => ({}),
       prepareForCommit: () => null,
@@ -230,11 +252,15 @@ export class Renderer<
    * Update the container to reflect the changes within the UI.
    * @param container
    */
-  private async update(container: T) {
+  private async update(container: T): Promise<void> {
     if (this.isSuspended(container)) {
       return;
     }
-    await this.adapter.adapt(container, true);
+
+    // create a deep copy of the container
+    // since if the container is updated while debouncing
+    // the debounced function will use the updated container not the old one
+    await this.debouncedAdapt(container);
   }
 
   async onUpdate(container: T) {
