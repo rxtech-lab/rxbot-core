@@ -6,6 +6,7 @@ import {
   PathParams,
   QueryString,
 } from "@rx-lab/common";
+import { debounce } from "lodash";
 import {
   type ReactNode,
   createContext,
@@ -15,6 +16,11 @@ import {
   useRef,
   useState,
 } from "react";
+
+export type RegisterLoadingOptions = {
+  key: string;
+  shouldUpdate: boolean;
+};
 
 interface RouterProps<ChatroomInfo extends BaseChatroomInfo, Message> {
   children: ReactNode;
@@ -27,7 +33,10 @@ interface RouterProps<ChatroomInfo extends BaseChatroomInfo, Message> {
 }
 
 interface RouterContextType<ChatroomInfo extends BaseChatroomInfo, Message> {
-  registerLoading: (promise: Promise<void>) => void;
+  registerLoading: (
+    promise: () => Promise<any>,
+    opts: RegisterLoadingOptions,
+  ) => void;
   chatroomInfo: ChatroomInfo;
   message: Message;
   query: QueryString;
@@ -44,20 +53,6 @@ export const RouterContext = createContext<
   RouterContextType<BaseChatroomInfo, any> | undefined
 >(undefined);
 
-// Debounce function
-function debounce<F extends (...args: any[]) => void>(
-  func: F,
-  wait: number,
-): (...args: Parameters<F>) => void {
-  let timeout: ReturnType<typeof setTimeout> | null = null;
-  return (...args: Parameters<F>) => {
-    if (timeout !== null) {
-      clearTimeout(timeout);
-    }
-    timeout = setTimeout(() => func(...args), wait);
-  };
-}
-
 // RouterProvider component
 export function RouterProvider<ChatroomInfo extends BaseChatroomInfo, Message>({
   children,
@@ -67,44 +62,71 @@ export function RouterProvider<ChatroomInfo extends BaseChatroomInfo, Message>({
   coreApi: api,
   ...props
 }: RouterProps<ChatroomInfo, Message>) {
-  const [isLoading, setIsLoading] = useState(true);
-  const [pendingPromises, setPendingPromises] = useState<Promise<void>[]>([]);
+  const isLoading = useRef(true);
+  const pendingPromises = useRef<Promise<void>[]>([]);
+  // update function that triggers a re-render
+  const [_, update] = useState({});
   const [queryParams, setQueryParams] = useState<QueryString>(query);
   const [pathParams, setPathParams] = useState<PathParams>(props.pathParams);
   const [coreApi, setCoreApi] = useState<CoreApi<any>>(api);
   const [path, setPath] = useState<string>(props.path);
 
-  const registerLoading = useCallback((promise: Promise<void>) => {
-    setIsLoading(true);
-    setPendingPromises((prev) => [...prev, promise]);
-  }, []);
+  const debouncedCheckPromises = useCallback(
+    debounce(
+      (shouldUpdate: boolean) => {
+        if (pendingPromises.current.length > 0) {
+          Logger.log("Setting isLoading to true");
+          Promise.all(pendingPromises.current)
+            .then(() => {
+              Logger.log("All pending promises resolved");
+            })
+            .catch((error) => {
+              console.error("Error during loading:", error);
+              update({});
+            })
+            .finally(() => {
+              Logger.log("Clearing pending promises");
+              pendingPromises.current = [];
+              isLoading.current = false;
+              update({});
+            });
+        }
+      },
+      200,
+      {
+        trailing: true,
+        leading: false,
+        maxWait: 200,
+      },
+    ),
+    [],
+  );
 
-  // Create a ref to store the debounced function
-  const debouncedEffect = useRef(
-    debounce((pendingPromises: Promise<any>[]) => {
-      setIsLoading(true);
-      if (pendingPromises.length > 0) {
-        Promise.all(pendingPromises)
-          .then(async () => {
-            Logger.log("All pending promises resolved");
-            eventEmitter.emit("loadingComplete");
-          })
-          .catch((error) => {
-            console.error("Error during loading:", error);
-          })
-          .finally(() => {
-            setIsLoading(false);
-            setPendingPromises([]);
-          });
-      } else {
-        setIsLoading(false);
-      }
-    }, 100), // 100ms debounce time, adjust as needed
+  const registerLoading = useCallback(
+    (promise: () => Promise<any>, opts: RegisterLoadingOptions) => {
+      isLoading.current = true;
+      Logger.log(`Setting isLoading to true for key: ${opts.key}`);
+      const wrappedPromise = promise().then((value) => {
+        if (value !== undefined) {
+          Logger.log(`emitting loadingComplete-${opts.key} value: ${value}`);
+          eventEmitter.emit(`loadingComplete`, opts.key, value);
+        }
+        return value;
+      });
+
+      pendingPromises.current.push(wrappedPromise);
+      debouncedCheckPromises(opts.shouldUpdate); // Trigger check for resolved promises
+    },
+    [debouncedCheckPromises],
   );
 
   useEffect(() => {
-    debouncedEffect.current(pendingPromises);
-  }, [pendingPromises]);
+    if (pendingPromises.current.length === 0) {
+      isLoading.current = false;
+      Logger.log("Setting isLoading to false");
+      update(Date.now()); // Force a re-render
+    }
+  }, []);
 
   // listen to params changes
   useEffect(() => {
@@ -134,10 +156,10 @@ export function RouterProvider<ChatroomInfo extends BaseChatroomInfo, Message>({
     eventEmitter,
   };
 
-  Logger.log(`RouterProvider isLoading: ${isLoading}`, "red");
+  Logger.log(`RouterProvider isLoading: ${isLoading.current}`, "red");
   return (
     <RouterContext.Provider value={contextValue}>
-      <suspendable shouldSuspend={isLoading}>{children}</suspendable>
+      <suspendable shouldSuspend={isLoading.current}>{children}</suspendable>
     </RouterContext.Provider>
   );
 }

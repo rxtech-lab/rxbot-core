@@ -65,7 +65,7 @@ describe("State in multiple routes Tests", () => {
     );
 
     // go to page 2
-    await sleep(DEFAULT_RENDERING_WAIT_TIME * 10);
+    await sleep(DEFAULT_RENDERING_WAIT_TIME);
     messages = await api.chatroom.getMessagesByChatroom(chatroomId);
     const secondMessage = messages.data.messages[2];
     expect(secondMessage?.update_count).toBe(0);

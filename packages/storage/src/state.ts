@@ -9,6 +9,8 @@ import {
 import { StorageContext } from ".";
 import { encodeStateKey } from "./utils";
 
+export const stateCache = new Map<string, any>();
+
 /**
  * A custom useState hook that extends React's useState with persistent storage capabilities.
  *
@@ -43,10 +45,9 @@ export function useState<T>(
   options?: SetStateOptions,
 ) {
   const { client } = useContext(StorageContext);
-  const [localState, setLocalState] = useReactState<T>(initialState);
-  const { registerLoading, chatroomInfo, eventEmitter } = useRouter();
+  const { registerLoading, chatroomInfo, eventEmitter, path } = useRouter();
 
-  // Generate a unique storage key that includes chatroom context
+  // Generate the stored key early to use it for cache lookup
   const storedKey = encodeStateKey(
     chatroomInfo.id,
     chatroomInfo.messageId,
@@ -54,42 +55,67 @@ export function useState<T>(
     options?.scope,
   );
 
-  // Initialize state from storage on component mount
+  // Use cached state if available, otherwise use initial state
+  const [localState, setLocalState] = useReactState<T>(
+    stateCache.get(storedKey + path) ?? initialState,
+  );
+
+  Logger.log(`Local state: ${storedKey + path}: ${localState}`);
+
   useEffect(() => {
+    Logger.log(`Initializing state for key ${storedKey}`);
     const loadState = async () => {
       const newState = await client.restoreState(storedKey, {
         route: DEFAULT_ROOT_ROUTE,
         type: "page",
       });
-      // if new state is undefined, which means this is the first time the state is being set
-      // we won't set the local state
+
+      if (newState !== undefined) {
+        // only update if the state has changed
+        if (newState === localState) {
+          return newState as T;
+        }
+        // Update both cache and local state
+        stateCache.set(storedKey + path, newState);
+        setLocalState(newState as T);
+      }
       Logger.log(
         `Loaded initial state for key ${storedKey}, ${newState}`,
         "bgYellow",
       );
-      if (newState !== undefined) setLocalState(newState as T);
     };
-    registerLoading(loadState());
+    registerLoading(loadState, {
+      key: storedKey,
+      shouldUpdate: true,
+    });
   }, []);
 
-  // Create a memoized setState function that persists changes to storage
   const setState = useCallback(
     (newState: T) => {
+      eventEmitter.once(`loadingComplete`, (key, value) => {
+        if (key === storedKey) {
+          Logger.log(`Saving state for key ${storedKey}, ${value}`, "bgYellow");
+          // Update both cache and local state
+          stateCache.set(storedKey + path, newState);
+          setLocalState(newState as T);
+        }
+      });
       Logger.log(`Setting state for key ${storedKey}, ${newState}`);
       registerLoading(
-        client
-          .saveState(storedKey, DEFAULT_ROOT_ROUTE, newState, options)
-          .catch((error) => {
-            console.error("Failed to save state:", error);
-          }),
+        async () => {
+          await client.saveState(
+            storedKey,
+            DEFAULT_ROOT_ROUTE,
+            newState,
+            options,
+          );
+          return newState as any;
+        },
+        {
+          key: storedKey,
+          shouldUpdate: false,
+        },
       );
-      eventEmitter.once("loadingComplete", () => {
-        Logger.log(
-          `Saving state for key ${storedKey}, ${newState}`,
-          "bgYellow",
-        );
-        setLocalState(newState);
-      });
     },
     [client, storedKey, registerLoading],
   );
