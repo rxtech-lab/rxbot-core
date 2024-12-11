@@ -8,6 +8,7 @@ import {
   CoreInterface,
   DEFAULT_ROOT_ROUTE,
   ErrorPageProps,
+  Logger,
   PageProps,
   RedirectOptions,
   ReloadOptions,
@@ -21,7 +22,7 @@ import {
   StoredRoute,
 } from "@rx-lab/common";
 import { RedirectError } from "@rx-lab/errors";
-import { encodeStateKey } from "@rx-lab/storage";
+import { encodeStateKey, stateCache } from "@rx-lab/storage";
 import React from "react";
 import { Renderer } from "./renderer";
 import { renderServerComponent } from "./server/renderServerComponent";
@@ -366,6 +367,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
    * @private
    */
   async render(container: T, oldProps?: PageProps) {
+    Logger.log("Rendering component", "bgBlue");
     if (!this.element) {
       throw new Error("No component to render");
     }
@@ -395,6 +397,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
             this.container!.chatroomInfo.id,
             this.container!.message?.id,
             key,
+
             opt?.scope,
           );
           await this.storage.saveState(
@@ -482,6 +485,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
 
   async onDestroy() {
     await this.adapter.onDestroy();
+    stateCache.clear();
     // destroy the renderer
     this.removeAllListeners();
     if (this.container)

@@ -126,6 +126,7 @@ export class TelegramAdapter
       // we need to render the app with the new route as well.
       await api.renderApp(container, async (container: InternalTGContainer) => {
         const [callbackType, component] = container.decodedData ?? [];
+        container.hasUpdated = true;
         // handle command button
         // if the component is a string, it means that it is a route,
         // so we need to redirect to the route
@@ -139,7 +140,6 @@ export class TelegramAdapter
             return;
           }
           Logger.log(`Redirecting to ${route}`, "blue");
-          container.hasUpdated = true;
           // if component is set to render new message
           // we need to reset the updateMessageId
           if (component.new) {
@@ -165,14 +165,13 @@ export class TelegramAdapter
         );
         if (componentToRender) {
           try {
+            Logger.log("Calling Callback query", "blue");
             await componentToRender?.props.onClick?.();
-            container.hasUpdated = true;
-            Logger.log("Callback query", "blue");
+            Logger.log("Callback query has been called", "blue");
           } catch (e) {
             // redirect to error page
             Logger.log(`Error processing callback query: ${e.message}`, "red");
             // send error message instead of updating the message
-            container.hasUpdated = true;
             container.updateMessageId = undefined;
             await this.coreApi.redirectTo(
               container,
@@ -204,12 +203,14 @@ export class TelegramAdapter
     // if hasUpdated is set to false, it means that the message is not updated,
     // so we don't need to send any message
     if (container.hasUpdated !== undefined && !container.hasUpdated) {
+      Logger.log(`Message is not updated`);
       return [];
     }
 
     // if no children in the container
     // don't send any message
     if (container.children.length === 0) {
+      Logger.log(`No children in the container`);
       return [];
     }
 
@@ -224,14 +225,9 @@ export class TelegramAdapter
     if (Array.isArray(message) && message.length === 0) {
       return [];
     }
-
-    Logger.log(
-      `IsSuspense: ${container.children[0].props.shouldSuspend}`,
-      "red",
-    );
     const chatRoomId = container.chatroomInfo.id;
 
-    Logger.log(`Sending message`, "blue");
+    Logger.log(`Sending message`, "bgBlue");
     try {
       if (isUpdate && container.updateMessageId) {
         await this.bot.editMessageText(message.text, {

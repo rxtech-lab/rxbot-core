@@ -60,7 +60,7 @@ describe("Complex conditional rendering", () => {
       await api.chatroom.getMessagesByChatroom(chatroomId);
     expect(updatedMessages.data.count).toBe(2);
     const updatedMessage = updatedMessages.data.messages[1];
-    // expect(updatedMessage?.update_count).toBe(1);
+    expect(updatedMessage?.update_count).toBe(1);
     expect(updatedMessage?.text).toContain(
       "Current start time (24h): ****-**-** **:**",
     );

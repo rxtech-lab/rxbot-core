@@ -75,6 +75,12 @@ export class Renderer<
    */
   protected handleMessageUpdateResolver: (() => void) | null = null;
 
+  /**
+   * Instance field that stores whether the component tree has updated.
+   * @private
+   */
+  private currentHasUpdates = false;
+
   constructor({ adapter, storage }: RendererOptions) {
     super();
     const builder = new ComponentBuilder();
@@ -188,8 +194,13 @@ export class Renderer<
         newProps,
         internalHandle,
       ) => {
-        const hasUpdate = instance.commitUpdate(oldProps, newProps);
-        if (instance.isRoot && hasUpdate) {
+        const willHaveUpdates = instance.commitUpdate(oldProps, newProps);
+        if (willHaveUpdates) {
+          if (!this.currentHasUpdates && willHaveUpdates)
+            Logger.log("Component has updated", "bgCyan");
+          this.currentHasUpdates = true;
+        }
+        if (instance.isRoot && this.currentHasUpdates) {
           this.lastCommitUpdateTime = Date.now();
           await this.onUpdate(instance.parent as any);
         }
@@ -210,7 +221,7 @@ export class Renderer<
    * @param container
    * @private
    */
-  private isSuspended(container: T) {
+  protected isSuspended(container: T) {
     const suspendableInstance = getSuspendableInstance(
       container?.children ?? [],
     );
@@ -232,8 +243,14 @@ export class Renderer<
    */
   private async update(container: T) {
     if (this.isSuspended(container)) {
+      Logger.log("Container is suspended, skipping update", "bgYellow");
       return;
     }
+    Logger.log(
+      "Reconciling container and sending update signal to adapter",
+      "bgCyan",
+    );
+    this.currentHasUpdates = false;
     await this.adapter.adapt(container, true);
   }
 

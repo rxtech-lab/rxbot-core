@@ -3,7 +3,7 @@ import { CommandButton } from "@rx-lab/core";
 import { useState } from "@rx-lab/storage";
 
 export default function Page() {
-  const [state, setState] = useState("counter", 0);
+  const [state, setState] = useState("counter1", 0);
 
   return (
     <div>
