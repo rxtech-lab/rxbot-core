@@ -8,7 +8,7 @@ export default function page() {
   return (
     <div>
       <span>This is a client side redirect example</span>
-      <menu>
+      <div>
         <button
           key={"redirect"}
           onClick={async () => {
@@ -17,7 +17,7 @@ export default function page() {
         >
           Redirect to the home page
         </button>
-      </menu>
+      </div>
     </div>
   );
 }

@@ -17,6 +17,18 @@ export default function Page() {
           >
             Redirect
           </button>
+          <button
+            key={"redirect-without-rendering"}
+            onClick={async () => {
+              await redirectTo("/sub/1", {
+                renderNewMessage: false,
+                shouldRender: false,
+                shouldAddToHistory: true,
+              });
+            }}
+          >
+            Redirect without rendering
+          </button>
         </div>
       </div>
     </div>
