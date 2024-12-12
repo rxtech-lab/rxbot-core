@@ -1,4 +1,3 @@
-import * as process from "node:process";
 import {
   type AdapterInterface,
   BaseChatroomInfo,
@@ -43,7 +42,7 @@ interface CoreOptions {
   routeFile: RouteInfoFile;
 }
 
-const DEFAULT_TIMEOUT = process.env.DEBUG ? 20 * 1000 : 2 * 1000; // 2 seconds if in production, 20 seconds if in debug mode
+const DEFAULT_TIMEOUT = 2 * 1000; // 2 seconds
 
 function checkIsOptionsValid(opts: StartOptions) {
   if (!opts.adapter) {
