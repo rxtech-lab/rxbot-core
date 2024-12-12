@@ -22,6 +22,6 @@ jobs:
       - name: Publish coverage report to Codecov
         uses: codecov/codecov-action@v4
         with:
-          files: ./coverage/lcov.info
+          files: ./coverage/coverage.json
           token: ${{ secrets.CODECOV_TOKEN }}
 
