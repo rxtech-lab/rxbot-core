@@ -256,7 +256,9 @@ export class TelegramAdapter
         const subCommands = this.getSubCommands(menu);
         return [
           {
-            command: convertRouteToTGRoute(menu.href),
+            command: this.convertRootPathToCommand(
+              convertRouteToTGRoute(menu.href),
+            ),
             description: menu.description ?? "",
           },
           ...subCommands,
@@ -273,13 +275,28 @@ export class TelegramAdapter
         const subCommands = this.getSubCommands(child);
         return [
           {
-            command: convertRouteToTGRoute(child.href),
+            command: this.convertRootPathToCommand(
+              convertRouteToTGRoute(child.href),
+            ),
             description: child.description ?? "",
           },
           ...subCommands,
         ];
       }) ?? []
     );
+  }
+
+  /**
+   * Convert the root path `/` to the command `/start`
+   * @param route
+   * @private
+   */
+  private convertRootPathToCommand(route: string): string {
+    if (route === DEFAULT_ROOT_PATH) {
+      return START_COMMAND;
+    }
+
+    return route;
   }
 
   async getCurrentRoute(

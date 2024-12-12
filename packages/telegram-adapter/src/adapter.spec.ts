@@ -1,3 +1,4 @@
+import { Menu } from "@rx-lab/common";
 import * as TelegramBot from "node-telegram-bot-api";
 import { TGContainer, TelegramAdapter } from "./adapter";
 import { renderElement } from "./renderer";
@@ -15,6 +16,7 @@ describe("TelegramAdapter", () => {
       processUpdate: jest.fn(),
       sendMessage: jest.fn(),
       editMessageText: jest.fn(),
+      setMyCommands: jest.fn(),
     } as any as jest.Mocked<TelegramBot>;
     adapter = new TelegramAdapter({ token: "mock-token" });
     adapter["bot"] = mockBot;
@@ -123,6 +125,177 @@ describe("TelegramAdapter", () => {
 
       expect(result).toEqual([]);
       expect(mockBot.sendMessage).toHaveBeenCalled();
+    });
+  });
+
+  describe("setMenus", () => {
+    it("should convert simple menus to telegram commands", async () => {
+      const menus: Menu[] = [
+        {
+          name: "Settings",
+          href: "/settings",
+          description: "User settings",
+        },
+        {
+          name: "Profile",
+          href: "/profile",
+          description: "User profile",
+        },
+      ];
+
+      await adapter.setMenus(menus);
+
+      expect(mockBot.setMyCommands).toHaveBeenCalledWith([
+        {
+          command: "/settings",
+          description: "User settings",
+        },
+        {
+          command: "/profile",
+          description: "User profile",
+        },
+      ]);
+    });
+
+    it("should handle nested menus", async () => {
+      const menus: Menu[] = [
+        {
+          name: "Settings",
+          href: "/settings",
+          description: "Settings",
+          children: [
+            {
+              name: "Notifications",
+              href: "/settings/notifications",
+              description: "Notification settings",
+            },
+            {
+              name: "Privacy",
+              href: "/settings/privacy",
+              description: "Privacy settings",
+            },
+          ],
+        },
+      ];
+
+      await adapter.setMenus(menus);
+
+      expect(mockBot.setMyCommands).toHaveBeenCalledWith([
+        {
+          command: "/settings",
+          description: "Settings",
+        },
+        {
+          command: "/settings_notifications",
+          description: "Notification settings",
+        },
+        {
+          command: "/settings_privacy",
+          description: "Privacy settings",
+        },
+      ]);
+    });
+
+    it("should convert root path to /start command", async () => {
+      const menus: Menu[] = [
+        {
+          name: "Home",
+          href: "/",
+          description: "Home",
+        },
+        {
+          name: "About",
+          href: "/about",
+          description: "About",
+        },
+      ];
+
+      await adapter.setMenus(menus);
+
+      expect(mockBot.setMyCommands).toHaveBeenCalledWith([
+        {
+          command: "/start",
+          description: "Home",
+        },
+        {
+          command: "/about",
+          description: "About",
+        },
+      ]);
+    });
+
+    it("should handle menus without descriptions", async () => {
+      const menus: Menu[] = [
+        {
+          name: "Settings",
+          href: "/settings",
+        },
+        {
+          name: "Profile",
+          href: "/profile",
+          description: "User profile",
+        },
+      ];
+
+      await adapter.setMenus(menus);
+
+      expect(mockBot.setMyCommands).toHaveBeenCalledWith([
+        {
+          command: "/settings",
+          description: "",
+        },
+        {
+          command: "/profile",
+          description: "User profile",
+        },
+      ]);
+    });
+
+    it("should handle deeply nested menus", async () => {
+      const menus: Menu[] = [
+        {
+          name: "Settings",
+          href: "/settings",
+          description: "Settings",
+          children: [
+            {
+              name: "Account",
+              href: "/settings/account",
+              description: "Account settings",
+              children: [
+                {
+                  href: "/settings/account/password",
+                  name: "Password",
+                  description: "Password settings",
+                },
+              ],
+            },
+          ],
+        },
+      ];
+
+      await adapter.setMenus(menus);
+
+      expect(mockBot.setMyCommands).toHaveBeenCalledWith([
+        {
+          command: "/settings",
+          description: "Settings",
+        },
+        {
+          command: "/settings_account",
+          description: "Account settings",
+        },
+        {
+          command: "/settings_account_password",
+          description: "Password settings",
+        },
+      ]);
+    });
+
+    it("should handle empty menu array", async () => {
+      await adapter.setMenus([]);
+
+      expect(mockBot.setMyCommands).toHaveBeenCalledWith([]);
     });
   });
 });
