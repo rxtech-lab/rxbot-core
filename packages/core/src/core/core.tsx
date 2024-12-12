@@ -336,6 +336,19 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
         await this.render(container);
         component.isError = true;
       }
+    } else {
+      if (!route) return;
+      // handles the cases while not rendering but still want to add the route to the history
+      if (options?.shouldAddToHistory) {
+        await Promise.all([
+          this.storage.saveRoute(key, route),
+          this.storage.addHistory(key, {
+            route: route.route,
+            props: this.renderedPageProps,
+            type: "page",
+          }),
+        ]);
+      }
     }
   }
 
