@@ -2,6 +2,7 @@
 const fs = require("fs");
 const path = require("path");
 const glob = require("glob");
+const child_process = require("node:child_process");
 
 // Configuration
 const config = {
@@ -14,10 +15,12 @@ const config = {
 };
 
 // Create output directory if it doesn't exist
-if (!fs.existsSync(config.outputDir)) {
-  fs.mkdirSync(config.outputDir, { recursive: true });
+if (fs.existsSync(config.outputDir)) {
+  // remove
+  fs.rmSync(config.outputDir, { recursive: true });
 }
 
+fs.mkdirSync(config.outputDir, { recursive: true });
 // Find all coverage files
 const coverageFiles = glob.sync(config.coveragePattern);
 
@@ -29,63 +32,24 @@ if (coverageFiles.length === 0) {
 console.log(`Found ${coverageFiles.length} coverage files`);
 console.log(coverageFiles);
 
-// Merge coverage data
-const mergedCoverage = coverageFiles.reduce((merged, file) => {
-  const coverage = JSON.parse(fs.readFileSync(file, "utf8"));
+// copy files into outputDir
+// each coverage file will be renamed to coverage-<count>.json
 
-  Object.entries(coverage).forEach(([filePath, fileData]) => {
-    // Normalize file paths to be relative to root
-    const normalizedPath = path.relative(
-      process.cwd(),
-      path.resolve(path.dirname(file), "..", "..", filePath)
-    );
-
-    // Skip if we already have coverage for this file with more statements covered
-    if (
-      merged[normalizedPath] &&
-      getStatementsCovered(merged[normalizedPath]) >
-        getStatementsCovered(fileData)
-    ) {
-      return;
-    }
-
-    merged[normalizedPath] = {
-      ...fileData,
-      path: normalizedPath,
-    };
-  });
-
-  return merged;
-}, {});
-
-// Helper function to count covered statements
-function getStatementsCovered(fileData) {
-  return Object.values(fileData.s).filter((count) => count > 0).length;
+let counter = 0;
+for (const coverageFile of coverageFiles) {
+  const outputFile = path.join(config.outputDir, `coverage-${counter}.json`);
+  fs.copyFileSync(coverageFile, outputFile);
+  counter++;
+  console.log(`Copied ${coverageFile} to ${outputFile}`);
 }
 
-// Write merged coverage to file
-const outputPath = path.join(config.outputDir, config.outputFile);
-fs.writeFileSync(outputPath, JSON.stringify(mergedCoverage, null, 2));
-
-console.log(`Merged coverage written to ${outputPath}`);
-
-// Generate Codecov-compatible lcov report
-const { create } = require("istanbul-reports");
-const { createContext } = require("istanbul-lib-report");
-const { createCoverageMap } = require("istanbul-lib-coverage");
-
-const coverageMap = createCoverageMap(mergedCoverage);
-const context = createContext({
-  dir: config.outputDir,
-  coverageMap,
-});
-
-// Generate both lcov and json reports
-const lcovReport = create("lcovonly", {
-  file: "lcov.info",
-});
-lcovReport.execute(context);
-
-console.log(
-  `LCOV report generated at ${path.join(config.outputDir, "lcov.info")}`
+// run nyc merge command
+child_process.execSync(
+  `pnpm nyc merge ${config.outputDir} ${path.join(config.outputDir, config.outputFile)}`,
+  { stdio: "inherit" },
 );
+
+// remove copied files
+for (let i = 0; i < counter; i++) {
+  fs.rmSync(path.join(config.outputDir, `coverage-${i}.json`));
+}
