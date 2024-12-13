@@ -23,6 +23,7 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
     // Default config
     const defaultConfig = getRspackConfig(srcPath, tempFolder, outputPath, {
       hasAdapterFile: true,
+      plugins: [],
     });
 
     // Try to load user config

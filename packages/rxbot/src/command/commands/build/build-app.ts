@@ -1,20 +1,27 @@
 import fs from "fs";
 import path from "path";
 import { defineConfig } from "@rspack/cli";
+import { Plugin } from "@rspack/core";
 import { RspackOptions, rspack } from "@rspack/core";
 import { Logger } from "@rx-lab/common";
 import { getRspackConfig, getSrcAndOutputDir } from "../../utils";
+
+interface Options {
+  plugins: Plugin[];
+}
 
 /**
  * Build and bundle the app with all the necessary files and dependencies
  * @param srcFolder The source folder of the app
  * @param outputFolder The output folder of the app
  * @param hasAdapterFile If the app has an adapter file. If this field is false, then you need to provide the adapter during the core's initialization
+ * @param options Options for the build
  */
 export async function buildApp(
   srcFolder: string,
   outputFolder: string,
   hasAdapterFile: boolean,
+  options?: Options,
 ) {
   return new Promise((resolve, reject) => {
     try {
@@ -26,6 +33,7 @@ export async function buildApp(
       // Default config
       const defaultConfig = getRspackConfig(srcFolder, tempFolder, outputPath, {
         hasAdapterFile,
+        plugins: options?.plugins ?? [],
       });
       // Try to load user config
       let userConfig: RspackOptions = {};
