@@ -367,6 +367,10 @@ export class TelegramAdapter
       decodedData: undefined,
       type: "ROOT",
       children: [],
+      isInGroup: message.chat.type !== "private",
+      hasBeenMentioned: message.entities?.some(
+        (entity) => entity.type === "mention",
+      ),
       chatroomInfo: {
         id: message.chat?.id as number,
         messageId: message.message_id,
@@ -420,6 +424,8 @@ export class TelegramAdapter
       children: [],
       decodedData: undefined,
       hasUpdated: true,
+      isInGroup: message.isInGroup,
+      hasBeenMentioned: false,
       message: {
         id: "",
         update_id: 0,

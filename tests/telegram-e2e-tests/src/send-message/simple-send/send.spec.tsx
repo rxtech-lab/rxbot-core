@@ -34,6 +34,7 @@ describe("Simple send message test", () => {
       text: "Hello world",
       to: `${chatroomId}`,
       data: { foo: "bar" },
+      isInGroup: false,
     });
 
     await sleep(DEFAULT_RENDERING_WAIT_TIME);

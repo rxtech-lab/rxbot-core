@@ -30,6 +30,8 @@ describe("TelegramAdapter", () => {
         chatroomInfo: { id: 123, messageId: 456, userId: 789 },
         message: {} as any,
         hasUpdated: false,
+        hasBeenMentioned: false,
+        isInGroup: false,
       };
 
       const result = await adapter.adapt(container as any, false);
@@ -46,6 +48,8 @@ describe("TelegramAdapter", () => {
         chatroomInfo: { id: 123, messageId: 456, userId: 789 },
         message: {} as any,
         hasUpdated: true,
+        hasBeenMentioned: false,
+        isInGroup: false,
       };
 
       const result = await adapter.adapt(container as any, false);
@@ -65,6 +69,8 @@ describe("TelegramAdapter", () => {
         chatroomInfo: { id: 123, messageId: 456, userId: 789 },
         message: {} as any,
         hasUpdated: true,
+        hasBeenMentioned: false,
+        isInGroup: false,
       };
 
       await adapter.adapt(container as any, false);
@@ -119,6 +125,8 @@ describe("TelegramAdapter", () => {
         chatroomInfo: { id: 123, messageId: 456, userId: 789 },
         message: {} as any,
         hasUpdated: true,
+        hasBeenMentioned: false,
+        isInGroup: false,
       };
 
       const result = await adapter.adapt(container as any, false);

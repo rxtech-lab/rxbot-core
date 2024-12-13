@@ -38,6 +38,17 @@ export interface PageProps {
    * but when working with server components, it can be used as an alternative means to manage state.
    */
   storage: StorageClientInterface;
+
+  /**
+   * A boolean value indicating whether the message is from a group chat.
+   */
+  isInGroup: boolean;
+
+  /**
+   * True if the message was invoked by a user's mention, false otherwise.
+   * For example, in `Telegram`, if user type `@bot_name`, the bot will be mentioned.
+   */
+  hasBeenMentioned: boolean;
 }
 
 export interface ErrorPageProps {

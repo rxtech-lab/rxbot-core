@@ -1,7 +1,11 @@
-export default async function Page() {
+import { PageProps } from "@rx-lab/common";
+
+export default async function Page({ isInGroup, hasBeenMentioned }: PageProps) {
   return (
     <div>
       <h1 key={"header"}>Welcome to the Rx-Bot Demo</h1>
+      {isInGroup && <p key={"group"}>You are in a group</p>}
+      {hasBeenMentioned && <p key={"mention"}>You have been mentioned</p>}
       <p>
         <b>
           <i>You can use</i>
