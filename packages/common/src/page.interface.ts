@@ -49,6 +49,11 @@ export interface PageProps {
    * For example, in `Telegram`, if user type `@bot_name`, the bot will be mentioned.
    */
   hasBeenMentioned: boolean;
+
+  /**
+   * Group id of the chatroom.
+   */
+  groupId?: string;
 }
 
 export interface ErrorPageProps {
