@@ -1,13 +1,19 @@
 import path from "path";
 import { RspackOptions } from "@rspack/core";
+import { Plugin } from "@rspack/core";
 import { DEFAULT_OUTPUT_FOLDER, Logger } from "@rx-lab/common";
 import { BuildAppPlugin } from "../plugins/build-app.plugin";
+
+interface Options {
+  hasAdapterFile: boolean;
+  plugins: Plugin[];
+}
 
 export function getRspackConfig(
   sourceDir: string,
   tempDir: string,
   outputDir: string,
-  options: { hasAdapterFile: boolean },
+  options: Options,
 ): RspackOptions {
   const entry = path.resolve(tempDir, "index.ts");
   return {
@@ -61,6 +67,7 @@ export function getRspackConfig(
         outputDir: tempDir,
         hasAdapterFile: options.hasAdapterFile,
       }),
+      ...options.plugins,
     ],
   };
 }

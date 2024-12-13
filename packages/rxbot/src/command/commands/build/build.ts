@@ -1,5 +1,6 @@
 import path from "path";
 import { DEFAULT_OUTPUT_FOLDER, Logger } from "@rx-lab/common";
+import { VercelEnvironmentPlugin } from "../../../plugins/vercel.environment.plugin";
 import { buildApp } from "./build-app";
 import { buildVercel } from "./build-vercel";
 
@@ -23,20 +24,21 @@ export default async function runBuild(
     `Building the app in $${srcFolder} for ${options.environment} environment`,
     "blue",
   );
-  // first build the app
-  await buildApp(srcFolder, outputFolder, options.hasAdapterFile ?? true);
+
   Logger.info("Build app completed successfully", "green");
   switch (options.environment) {
     case "vercel":
       Logger.info("Building specifically for Vercel", "blue");
-      // if vercel, build the app for vercel
+      await buildApp(srcFolder, outputFolder, options.hasAdapterFile ?? true, {
+        plugins: [new VercelEnvironmentPlugin()],
+      });
       await buildVercel({
         outputFolder: path.resolve(outputFolder, DEFAULT_OUTPUT_FOLDER),
       });
       Logger.info("Build for Vercel completed successfully", "green");
       break;
     default:
-      // if local, just build the app
+      await buildApp(srcFolder, outputFolder, options.hasAdapterFile ?? true);
       break;
   }
 }
