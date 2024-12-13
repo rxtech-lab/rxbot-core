@@ -196,6 +196,21 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
               res.status(500).json({ error: error.message });
             }
           });
+
+          app.post("/api/message", async (req, res) => {
+            try {
+              if (!core) {
+                await initializeCore();
+              }
+              await core!.sendMessage(req.body);
+              res.json({ success: true });
+              await core!.onDestroy();
+            } catch (error: any) {
+              console.error("Error processing message:", error);
+              res.status(500).json({ error: error.message });
+            }
+          });
+
           app.all("/api/*", apiRouteHandler);
           app.all("/api", apiRouteHandler);
 

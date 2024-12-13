@@ -246,9 +246,13 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     await this.loadAndRenderStoredRoute("/");
   }
 
-  async handleMessageUpdate(message: BaseMessage) {
-    await this.adapter.handleMessageUpdate(message);
-    this.updateLastCommitUpdateTime();
+  /**
+   * Utility function to wait for the message to be sent.
+   * Since the rendering process is handled asynchronously, we need to wait for the message to be sent.
+   * This function will have a maximum timeout of 2 seconds. If nothing happens within 2 seconds, it will resolve.
+   * @private
+   */
+  private waitForMessageToBeSent() {
     return new Promise<void>((resolve) => {
       let isUpdating = false;
       this.on("startRenderCallback", () => {
@@ -276,6 +280,12 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
       this.handleMessageUpdateResolver = resolve;
       checkCommitUpdates();
     });
+  }
+
+  async handleMessageUpdate(message: BaseMessage) {
+    await this.adapter.handleMessageUpdate(message);
+    this.updateLastCommitUpdateTime();
+    return this.waitForMessageToBeSent();
   }
 
   async redirect(container: T, routeOrObject: any, options?: RedirectOptions) {
@@ -517,5 +527,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
 
   async sendMessage(message: SendMessage) {
     await this.adapter.handleSendMessage(message);
+    this.updateLastCommitUpdateTime();
+    return this.waitForMessageToBeSent();
   }
 }

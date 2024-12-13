@@ -44,7 +44,11 @@ export async function POST(request: Request) {
             routeFile: ROUTE_FILE,
         });
     }
-    await global.core.sendMessage(await request.json());
+    const result = async () => {
+        await global.core.sendMessage(await request.json());
+    }
+    
+    waitUntil(result().catch(console.error));
     return new Response(
         JSON.stringify({
           status: "ok",
