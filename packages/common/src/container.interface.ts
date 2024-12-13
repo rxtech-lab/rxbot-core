@@ -37,6 +37,11 @@ export interface Container<
   isInGroup: boolean;
 
   /**
+   * Group id of the chatroom.
+   */
+  groupId?: string;
+
+  /**
    * True if the message was invoked by a user's mention, false otherwise.
    * For example, in `Telegram`, if user type `@bot_name`, the bot will be mentioned.
    */

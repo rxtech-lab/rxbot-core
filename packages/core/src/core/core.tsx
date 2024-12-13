@@ -404,6 +404,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
       routeInfoFile: this.router.routeInfoFile,
       data: container.message?.data,
       isInGroup: container.isInGroup,
+      groupId: container.groupId,
       hasBeenMentioned: container.hasBeenMentioned,
       storage: {
         saveState: async (key: string, state: any, opt?: SetStateOptions) => {

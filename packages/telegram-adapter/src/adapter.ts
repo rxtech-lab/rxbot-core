@@ -308,7 +308,11 @@ export class TelegramAdapter
 
     for (const entity of message.entities) {
       if (entity.type === "bot_command") {
-        const command = message.text?.slice(entity.offset, entity.length);
+        // if in the private chat, the command looks like /start
+        // but in the group chat, the command looks like /start@bot_name
+        let command = message.text?.slice(entity.offset, entity.length);
+        command = command?.split("@")[0];
+
         if (command === START_COMMAND) {
           return DEFAULT_ROOT_PATH;
         }
@@ -368,6 +372,7 @@ export class TelegramAdapter
       type: "ROOT",
       children: [],
       isInGroup: message.chat.type !== "private",
+      groupId: message.chat.id.toString(),
       hasBeenMentioned: message.entities?.some(
         (entity) => entity.type === "mention",
       ),
@@ -425,6 +430,7 @@ export class TelegramAdapter
       decodedData: undefined,
       hasUpdated: true,
       isInGroup: message.isInGroup,
+      groupId: message.isInGroup ? message.to : undefined,
       hasBeenMentioned: false,
       message: {
         id: "",
