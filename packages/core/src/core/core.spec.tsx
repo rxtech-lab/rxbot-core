@@ -96,6 +96,8 @@ describe.skip("Reconciler(Suspendable)", () => {
       message: undefined,
       type: "ROOT",
       children: [],
+      hasBeenMentioned: false,
+      isInGroup: false,
     });
 
     expect(mockAdapter.messages).toHaveLength(0);
@@ -116,6 +118,8 @@ describe.skip("Reconciler(Suspendable)", () => {
       children: [],
       chatroomInfo: undefined,
       message: undefined,
+      hasBeenMentioned: false,
+      isInGroup: false,
     });
 
     await new Promise((resolve) => setTimeout(resolve, 1000));

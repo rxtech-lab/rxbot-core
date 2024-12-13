@@ -25,6 +25,8 @@ export interface SendMessage {
    * To which user id
    */
   to: string;
+
+  isInGroup: boolean;
 }
 
 export interface CoreInterface<T extends Container<any, any>> {

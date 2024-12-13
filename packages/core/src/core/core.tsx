@@ -403,6 +403,8 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
       userId: container.chatroomInfo.userId,
       routeInfoFile: this.router.routeInfoFile,
       data: container.message?.data,
+      isInGroup: container.isInGroup,
+      hasBeenMentioned: container.hasBeenMentioned,
       storage: {
         saveState: async (key: string, state: any, opt?: SetStateOptions) => {
           const storedKey = encodeStateKey(
