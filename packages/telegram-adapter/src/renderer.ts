@@ -38,7 +38,8 @@ export const renderElementHelper = (
         text: children.join(""),
         callback_data: parser.encode(element),
       };
-
+    case InstanceType.BlockQuote:
+      return [`<blockquote>${children.join("")}</blockquote>`];
     case InstanceType.Link:
       return [`<a href="${element.props.href}">${children.join("")}</a>`];
     case InstanceType.BoldText:

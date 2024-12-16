@@ -19,6 +19,7 @@ export default async function Page({
         <br />
         Click the menu button to see the available options.
       </p>
+      <blockquote>Hello world</blockquote>
     </div>
   );
 }

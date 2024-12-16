@@ -13,6 +13,7 @@ import {
   UnsupportedComponentError,
   UnsupportedReactComponentError,
 } from "@rx-lab/errors";
+import { Blockquote } from "../Blockquote";
 import { BoldText } from "../BoldText";
 import { Code, Pre } from "../Code";
 import { ItalicText } from "../ItalicText";
@@ -71,6 +72,7 @@ export class ComponentBuilder implements Builder {
     [InstanceType.BoldText]: BoldText as unknown as Constructor<
       BaseComponent<any>
     >,
+    [InstanceType.BlockQuote]: Blockquote,
     [InstanceType.ItalicText]: ItalicText as unknown as Constructor<
       BaseComponent<any>
     >,
@@ -88,6 +90,7 @@ export class ComponentBuilder implements Builder {
     [ReactInstanceType.Div]: InstanceType.Container,
     [ReactInstanceType.Text]: InstanceType.Text,
     [ReactInstanceType.Paragraph]: InstanceType.Paragraph,
+    [ReactInstanceType.BlockQuote]: InstanceType.BlockQuote,
     [ReactInstanceType.Span]: InstanceType.InlineParagraph,
     [ReactInstanceType.Menu]: InstanceType.Menu,
     [ReactInstanceType.H1]: InstanceType.Header,

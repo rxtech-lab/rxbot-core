@@ -33,6 +33,7 @@ export enum InstanceType {
   Pre = "Pre",
   BoldText = "BoldText",
   ItalicText = "ItalicText",
+  BlockQuote = "BlockQuote",
 }
 
 /**
