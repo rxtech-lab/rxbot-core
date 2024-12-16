@@ -1,5 +1,9 @@
 ![logo](./assets/bg.jpeg)
 
+[![codecov](https://codecov.io/gh/rxtech-lab/rxbot-core/graph/badge.svg?token=HDZ2CQNV8P)](https://codecov.io/gh/rxtech-lab/rxbot-core)
+[![Test and Lint](https://github.com/rxtech-lab/rxbot-core/actions/workflows/main.yaml/badge.svg)](https://github.com/rxtech-lab/rxbot-core/actions/workflows/main.yaml)
+![GitHub Release](https://img.shields.io/github/v/release/rxtech-lab/rxbot-core)
+
 # RX-Bot: React-based Bot Framework for all Platforms
 
 RX-Bot is an innovative framework for building bots using React inspired by Next.js. It combines the power of React's
