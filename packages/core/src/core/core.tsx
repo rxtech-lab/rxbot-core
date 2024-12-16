@@ -370,6 +370,14 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
         type: "page",
       },
     );
+    // if there is a parse search query, pass it to the component
+    if (component.queryString) {
+      component.queryString = {
+        ...component.queryString,
+        ...defaultRoute?.props?.searchQuery,
+      };
+    }
+
     await this.setComponent(component);
     return component;
   }

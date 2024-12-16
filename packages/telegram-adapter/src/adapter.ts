@@ -49,6 +49,16 @@ interface InternalTGContainer extends TGContainer {
   decodedData: DecodeType;
 }
 
+function parseQueryString(queryString: string) {
+  const urlParams = new URLSearchParams(queryString);
+  const entries = urlParams.entries();
+  const result: Record<string, string> = {};
+  for (const [key, value] of entries) {
+    result[key] = value;
+  }
+  return result;
+}
+
 export class TelegramAdapter
   implements
     AdapterInterface<
@@ -299,9 +309,13 @@ export class TelegramAdapter
     return route;
   }
 
-  async getCurrentRoute(
-    message: TelegramBot.Message,
-  ): Promise<string | undefined> {
+  async getCurrentRoute(message: TelegramBot.Message): Promise<
+    | {
+        route: string;
+        query?: Record<string, string>;
+      }
+    | undefined
+  > {
     if (!message.entities) {
       return;
     }
@@ -314,9 +328,16 @@ export class TelegramAdapter
         command = command?.split("@")[0];
 
         if (command === START_COMMAND) {
-          return DEFAULT_ROOT_PATH;
+          const query = message.text?.split(" ")[1];
+          const decodedQuery = parseQueryString(query ?? "");
+          return {
+            route: DEFAULT_ROOT_PATH,
+            query: decodedQuery as Record<string, string>,
+          };
         }
-        return command;
+        return {
+          route: command,
+        };
       }
     }
 
@@ -338,8 +359,11 @@ export class TelegramAdapter
       const currentRoute = await this.getCurrentRoute(route);
       if (currentRoute) {
         return {
-          route: await this.getCurrentRoute(route),
+          route: currentRoute.route,
           type: "page",
+          props: currentRoute.query
+            ? ({ searchQuery: currentRoute.query } as any)
+            : undefined,
         };
       }
     }

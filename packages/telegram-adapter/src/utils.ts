@@ -55,6 +55,7 @@ export function convertTGRouteToRoute(route: StoredRoute): string {
 
   // Find the position of the first underscore
   const firstUnderscoreIndex = route.route.indexOf("_");
+  const startPayload = route.route.split(" ")[1];
 
   // If there's no underscore, return the route as is
   if (firstUnderscoreIndex === -1) {
