@@ -51,7 +51,7 @@ export const renderElementHelper = (
       return [`<code>${children.join("")}</code>`];
     case InstanceType.Command:
       if (element.props.variant === "button") {
-        if (element.props.command.startsWith("http")) {
+        if (element.props.webapp) {
           return {
             type: "button",
             text: children.join(""),
@@ -60,6 +60,15 @@ export const renderElementHelper = (
             },
           };
         }
+
+        if (element.props.command.startsWith("http")) {
+          return {
+            type: "button",
+            text: children.join(""),
+            url: element.props.command,
+          };
+        }
+
         const callbackData = {
           route: convertRouteToTGRoute(element.props.command),
           new: element.props.renderNewMessage,
@@ -169,8 +178,13 @@ export const renderElement = (
         text: res.text,
         callback_data: res.callback_data,
       };
+
       if (res.web_app) {
         button.web_app = res.web_app;
+      }
+
+      if (res.url) {
+        button.url = res.url;
       }
 
       if (level === 1) {

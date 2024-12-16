@@ -2,6 +2,7 @@ import { Menu } from "@rx-lab/common";
 import * as TelegramBot from "node-telegram-bot-api";
 import { TGContainer, TelegramAdapter } from "./adapter";
 import { renderElement } from "./renderer";
+import { DEFAULT_ROOT_PATH } from "./types";
 
 jest.mock("node-telegram-bot-api");
 jest.mock("./callbackParser");
@@ -304,6 +305,128 @@ describe("TelegramAdapter", () => {
       await adapter.setMenus([]);
 
       expect(mockBot.setMyCommands).toHaveBeenCalledWith([]);
+    });
+  });
+
+  describe("getCurrentRoute", () => {
+    let adapter: TelegramAdapter;
+
+    beforeEach(() => {
+      adapter = new TelegramAdapter({ token: "fake-token" });
+    });
+
+    it("should return undefined for messages without entities", async () => {
+      const message = {
+        message_id: 1,
+        chat: { id: 123 },
+        text: "hello world",
+      } as TelegramBot.Message;
+
+      const result = await adapter.getCurrentRoute(message);
+      expect(result).toBeUndefined();
+    });
+
+    it("should return undefined for non-command entities", async () => {
+      const message = {
+        message_id: 1,
+        chat: { id: 123 },
+        text: "hello @username",
+        entities: [
+          {
+            type: "mention",
+            offset: 6,
+            length: 9,
+          },
+        ],
+      } as TelegramBot.Message;
+
+      const result = await adapter.getCurrentRoute(message);
+      expect(result).toBeUndefined();
+    });
+
+    it("should handle /start command and return root path", async () => {
+      const message = {
+        message_id: 1,
+        chat: { id: 123 },
+        text: "/start",
+        entities: [
+          {
+            type: "bot_command",
+            offset: 0,
+            length: 6,
+          },
+        ],
+      } as TelegramBot.Message;
+
+      const result = await adapter.getCurrentRoute(message);
+      expect(result).toEqual({
+        route: DEFAULT_ROOT_PATH,
+        query: {},
+      });
+    });
+
+    it("should handle /start command with query parameters", async () => {
+      const message = {
+        message_id: 1,
+        chat: { id: 123 },
+        text: "/start param1=value1&param2=value2",
+        entities: [
+          {
+            type: "bot_command",
+            offset: 0,
+            length: 6,
+          },
+        ],
+      } as TelegramBot.Message;
+
+      const result = await adapter.getCurrentRoute(message);
+      expect(result).toEqual({
+        route: DEFAULT_ROOT_PATH,
+        query: {
+          param1: "value1",
+          param2: "value2",
+        },
+      });
+    });
+
+    it("should handle other bot commands", async () => {
+      const message = {
+        message_id: 1,
+        chat: { id: 123 },
+        text: "/help",
+        entities: [
+          {
+            type: "bot_command",
+            offset: 0,
+            length: 5,
+          },
+        ],
+      } as TelegramBot.Message;
+
+      const result = await adapter.getCurrentRoute(message);
+      expect(result).toEqual({
+        route: "/help",
+      });
+    });
+
+    it("should handle bot commands in group chats with bot mention", async () => {
+      const message = {
+        message_id: 1,
+        chat: { id: 123 },
+        text: "/help@mybot",
+        entities: [
+          {
+            type: "bot_command",
+            offset: 0,
+            length: 11,
+          },
+        ],
+      } as TelegramBot.Message;
+
+      const result = await adapter.getCurrentRoute(message);
+      expect(result).toEqual({
+        route: "/help",
+      });
     });
   });
 });
