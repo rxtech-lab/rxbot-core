@@ -294,4 +294,60 @@ describe("renderElement", () => {
     expect(rendered.reply_markup.inline_keyboard[0].length).toBe(2);
     expect(rendered.reply_markup.inline_keyboard[1].length).toBe(1);
   });
+
+  describe("command with url", () => {
+    it("should render button with url", () => {
+      const buttonElement = new MockComponent("18", InstanceType.Command, {
+        variant: "button",
+        command: "https://example.com",
+      });
+      const rendered = renderElement(buttonElement, parser);
+      expect((rendered.reply_markup!.inline_keyboard[0][0] as any).url).toEqual(
+        "https://example.com",
+      );
+    });
+  });
+
+  it("should render button with url in a row", () => {
+    const buttonElement = new MockComponent("18", InstanceType.Command, {
+      variant: "button",
+      command: "https://example.com",
+    });
+
+    const containerElement = new MockComponent(
+      "19",
+      InstanceType.Container,
+      {},
+    );
+
+    containerElement.appendChild(buttonElement);
+
+    const rendered = renderElement(containerElement, parser);
+    expect((rendered.reply_markup!.inline_keyboard[0][0] as any).url).toEqual(
+      "https://example.com",
+    );
+  });
+
+  it("should render button with url in a col", () => {
+    const buttonElement = new MockComponent("18", InstanceType.Command, {
+      variant: "button",
+      command: "https://example.com",
+    });
+
+    const containerElement = new MockComponent(
+      "19",
+      InstanceType.Container,
+      {},
+    );
+
+    const row1 = new MockComponent("20", InstanceType.Container, {});
+
+    row1.appendChild(buttonElement);
+    containerElement.appendChild(row1);
+
+    const rendered = renderElement(containerElement, parser);
+    expect((rendered.reply_markup!.inline_keyboard[0][0] as any).url).toEqual(
+      "https://example.com",
+    );
+  });
 });
