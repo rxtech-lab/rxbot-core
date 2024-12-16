@@ -164,6 +164,7 @@ export const renderElement = (
               text: child.text,
               callback_data: child.callback_data,
               web_app: child.web_app,
+              url: child.url,
             });
           } else {
             processResult(child, level + 1);
@@ -211,6 +212,7 @@ export const renderElement = (
             text: button.text,
             callback_data: button.callback_data,
             web_app: button.web_app,
+            url: button.url,
           }));
         }
         return [];

@@ -7,6 +7,7 @@
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
+    "inlineSourceMap": true,
     "target": "ES2020",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "skipLibCheck": true,
