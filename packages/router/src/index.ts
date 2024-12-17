@@ -8,6 +8,7 @@ export {
   matchRouteWithPath,
 } from "./router";
 export { redirect } from "./redirect";
+export { skip } from "./skip";
 
 interface SuspendableProps {
   children: any;
