@@ -16,4 +16,6 @@ export enum ErrorCode {
   DuplicateKeyProps = 1004,
   // Redirect
   RedirectToNewLocation = 1005,
+  // Skip
+  Skip = 1006,
 }

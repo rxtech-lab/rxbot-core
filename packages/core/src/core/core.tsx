@@ -20,7 +20,7 @@ import {
   StorageInterface,
   StoredRoute,
 } from "@rx-lab/common";
-import { RedirectError } from "@rx-lab/errors";
+import { RedirectError, SkipError } from "@rx-lab/errors";
 import { encodeStateKey, stateCache } from "@rx-lab/storage";
 import React from "react";
 import { Renderer } from "./renderer";
@@ -331,6 +331,11 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
           // ignore it
           return;
         }
+
+        if (e instanceof SkipError) {
+          return;
+        }
+
         console.error(e);
         const props: ErrorPageProps = {
           error: e,
@@ -512,6 +517,13 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
           },
         );
       }
+
+      // skip the current render
+      if (e instanceof SkipError) {
+        // immediately timeout the current render
+        this.lastCommitUpdateTime = 0;
+      }
+
       throw e;
     }
   }
