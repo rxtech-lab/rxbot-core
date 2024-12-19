@@ -209,12 +209,12 @@ export interface AdapterInterface<
    *
    * @param container The container object representing the current state of the UI.
    * @param isUpdate Indicates whether this is an update to an existing UI or a new render.
-   * @returns A promise that resolves to the adapted UI element.
+   * @returns A promise that resolves to the adapted UI element. If the element is not rendered, return undefined.
    *
    * @example
    * const uiElement = await adapter.adapt(container, false);
    */
-  adapt: (container: C, isUpdate: boolean) => Promise<AdaptElement>;
+  adapt: (container: C, isUpdate: boolean) => Promise<C | undefined>;
 
   /**
    * Sets up the menu structure for the target platform.
