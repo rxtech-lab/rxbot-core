@@ -85,7 +85,7 @@ describe("State in multiple routes Tests", () => {
     messages = await api.chatroom.getMessagesByChatroom(chatroomId);
     firstMessage = messages.data.messages[1];
     expect(firstMessage?.text).toContain("Page 1");
-    expect(firstMessage?.text).toContain("Current state: 1");
+    expect(firstMessage?.text).toContain("Current state: 2");
   });
 
   afterEach(async () => {

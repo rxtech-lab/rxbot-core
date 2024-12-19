@@ -7,6 +7,7 @@ import {
   InstanceType,
   Logger,
   type ReactInstanceType,
+  RenderedComponent,
   StorageInterface,
 } from "@rx-lab/common";
 import { Router } from "@rx-lab/router";
@@ -43,6 +44,7 @@ type ServerEvents = {
   ) => void;
   startRenderCallback: () => void;
   endRenderCallback: () => void;
+  onRendered: (container: Container<BaseChatroomInfo, BaseMessage>) => void;
 };
 
 export class Renderer<
@@ -80,6 +82,8 @@ export class Renderer<
    * @private
    */
   private currentHasUpdates = false;
+
+  protected element: RenderedComponent | undefined;
 
   constructor({ adapter, storage }: RendererOptions) {
     super();
@@ -251,7 +255,11 @@ export class Renderer<
       "bgCyan",
     );
     this.currentHasUpdates = false;
-    await this.adapter.adapt(container, true);
+    const adaptedContainer = await this.adapter.adapt(container, true);
+    if (adaptedContainer) {
+      Logger.log("onRendered event emitted", "bgCyan");
+      this.emit("onRendered", adaptedContainer);
+    }
   }
 
   async onUpdate(container: T) {

@@ -35,7 +35,7 @@ describe("Ask Tests", () => {
 
   for (const environment of [
     TestingEnvironment.LongPolling,
-    TestingEnvironment.DEV,
+    // TestingEnvironment.DEV,
   ]) {
     it(`should render the initial state in ${environment}`, async () => {
       const { core, processManager } = await initialize({

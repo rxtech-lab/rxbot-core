@@ -62,7 +62,6 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
   extends Renderer<T>
   implements CoreInterface<any>
 {
-  private element: RenderedComponent | undefined;
   /**
    * Debounce timeout for commit updates.
    */
@@ -149,7 +148,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
         });
 
         const key = this.adapter.getRouteKey(container);
-        const storedRoute = await this.storage.restoreRoute(key);
+        const storedRoute = await this.router.getRouteFromKey(key);
         // if user click on a bot message, the message text itself will be erased.
         // we need to restore the text from the stored route from user.
         if (
@@ -202,7 +201,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
         });
         // get the current route
         const key = this.adapter.getRouteKey(container);
-        const storedRoute = await this.storage.restoreRoute(key);
+        const storedRoute = await this.router.getRouteFromKey(key);
         if (storedRoute) {
           await this.redirect(container, storedRoute, {
             shouldRender: true,
@@ -301,6 +300,29 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     let component: RenderedComponent | undefined;
     if (options?.shouldRender) {
       component = await this.loadAndRenderStoredRoute(key, route);
+      this.once("onRendered", async (renderedContainer) => {
+        const key = this.adapter.getRouteKey(renderedContainer, "message");
+        // means this is newly sent message
+        // we didn't store the route yet
+        if (options?.shouldAddToHistory) {
+          Logger.log("Adding initial message to history", "bgBlue");
+          await Promise.all([
+            this.storage.saveRoute(
+              key,
+              route ?? {
+                route: DEFAULT_ROOT_ROUTE,
+                type: "page",
+              },
+            ),
+            this.storage.addHistory(key, {
+              route: route?.route ?? DEFAULT_ROOT_ROUTE,
+              props: this.renderedPageProps,
+              type: "page",
+            }),
+          ]);
+        }
+      });
+
       try {
         await this.render(
           container,
@@ -310,11 +332,18 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
         // Important: Do not store the route if the page is redirecting, as redirected pages already have a stored route.
         if (component?.isError !== true) {
           if (options.shouldAddToHistory) {
-            await this.storage.saveRoute(key, {
-              route: route?.route ?? DEFAULT_ROOT_ROUTE,
-              props: this.renderedPageProps,
-              type: "page",
-            });
+            const globalKey = this.adapter.getRouteKey(container, "chatroom");
+
+            // save the message level route and the chatroom level route
+            await Promise.all(
+              Array.from(new Set([key, globalKey])).map(async (key) =>
+                this.storage.saveRoute(key, {
+                  route: route?.route ?? DEFAULT_ROOT_ROUTE,
+                  props: this.renderedPageProps,
+                  type: "page",
+                }),
+              ),
+            );
           }
 
           if (options?.shouldAddToHistory && route) {
@@ -355,14 +384,24 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
       if (!route) return;
       // handles the cases while not rendering but still want to add the route to the history
       if (options?.shouldAddToHistory) {
-        await Promise.all([
-          this.storage.saveRoute(key, route),
-          this.storage.addHistory(key, {
-            route: route.route,
-            props: this.renderedPageProps,
-            type: "page",
-          }),
-        ]);
+        const globalKey = this.adapter.getRouteKey(container, "chatroom");
+        await Promise.all(
+          [
+            this.storage.addHistory(key, {
+              route: route.route,
+              props: this.renderedPageProps,
+              type: "page",
+            }),
+          ].concat(
+            Array.from(new Set([key, globalKey])).map(async (key) =>
+              this.storage.saveRoute(key, {
+                route: route?.route ?? DEFAULT_ROOT_ROUTE,
+                props: this.renderedPageProps,
+                type: "page",
+              }),
+            ),
+          ),
+        );
       }
     }
   }
@@ -429,6 +468,8 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
       isInGroup: container.isInGroup,
       groupId: container.groupId,
       hasBeenMentioned: container.hasBeenMentioned,
+      ...this.element.props,
+      ...oldProps,
       storage: {
         saveState: async (key: string, state: any, opt?: SetStateOptions) => {
           const storedKey = encodeStateKey(
@@ -458,8 +499,6 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
           );
         },
       },
-      ...this.element.props,
-      ...oldProps,
     };
 
     try {
