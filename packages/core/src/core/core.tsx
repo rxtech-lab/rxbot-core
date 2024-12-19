@@ -62,7 +62,6 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
   extends Renderer<T>
   implements CoreInterface<any>
 {
-  private element: RenderedComponent | undefined;
   /**
    * Debounce timeout for commit updates.
    */
@@ -301,6 +300,19 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     let component: RenderedComponent | undefined;
     if (options?.shouldRender) {
       component = await this.loadAndRenderStoredRoute(key, route);
+      this.once("onRendered", async (renderedContainer) => {
+        const key = this.adapter.getRouteKey(renderedContainer);
+        // means this is newly sent message
+        // we didn't store the route yet
+        if (options?.shouldAddToHistory && route) {
+          await this.storage.addHistory(key, {
+            route: route.route,
+            props: this.renderedPageProps,
+            type: "page",
+          });
+        }
+      });
+
       try {
         await this.render(
           container,
@@ -461,6 +473,9 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
       ...this.element.props,
       ...oldProps,
     };
+
+    // save the props to the instance
+    this.props = pageProps;
 
     try {
       const errorComponent = await this.router.renderSpecialRoute(

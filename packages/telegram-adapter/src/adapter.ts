@@ -207,25 +207,25 @@ export class TelegramAdapter
   async adapt(
     container: InternalTGContainer,
     isUpdate: boolean,
-  ): Promise<RenderedElement[]> {
+  ): Promise<Container<any, any> | undefined> {
     if (!isUpdate) this.bot.processUpdate(container.message);
 
     // if hasUpdated is set to false, it means that the message is not updated,
     // so we don't need to send any message
     if (container.hasUpdated !== undefined && !container.hasUpdated) {
       Logger.log(`Message is not updated`);
-      return [];
+      return undefined;
     }
 
     // if no children in the container
     // don't send any message
     if (container.children.length === 0) {
       Logger.log(`No children in the container`);
-      return [];
+      return undefined;
     }
 
     if (container.message?.callback_query) {
-      return [];
+      return undefined;
     }
 
     const message = renderElement(
@@ -233,7 +233,7 @@ export class TelegramAdapter
       this.callbackParser,
     );
     if (Array.isArray(message) && message.length === 0) {
-      return [];
+      return undefined;
     }
     const chatRoomId = container.chatroomInfo.id;
 
@@ -247,16 +247,21 @@ export class TelegramAdapter
           message_id: container.updateMessageId as number,
         });
       } else {
-        await this.bot.sendMessage(chatRoomId, message.text, {
-          reply_markup: message.reply_markup as any,
-          parse_mode: "HTML",
-        });
+        const sentMessage = await this.bot.sendMessage(
+          chatRoomId,
+          message.text,
+          {
+            reply_markup: message.reply_markup as any,
+            parse_mode: "HTML",
+          },
+        );
+        container.updateMessageId = sentMessage.message_id;
       }
 
-      return message as any;
+      return container as any;
     } catch (err: any) {
       Logger.log(`Error sending message: ${err.message}`);
-      return [];
+      return undefined;
     }
   }
 
@@ -371,8 +376,15 @@ export class TelegramAdapter
     return undefined;
   }
 
-  getRouteKey(message: TGContainer): string {
-    return `${message.chatroomInfo.id}`;
+  getRouteKey(message: InternalTGContainer): string {
+    // if the message is updated, use the message id as the key
+    if (message.updateMessageId) {
+      return `${message.message.id ?? (message.message as any).message_id}`;
+    }
+
+    // when rendering new message, use the chatroom id as the key
+    // so that we can send a new message without
+    return `chatroom-${message.chatroomInfo.id}`;
   }
 
   async onDestroy(): Promise<void> {
