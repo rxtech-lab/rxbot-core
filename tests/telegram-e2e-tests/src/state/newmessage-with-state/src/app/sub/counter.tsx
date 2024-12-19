@@ -1,3 +1,5 @@
+"use client";
+
 import { CommandButton } from "@rx-lab/core";
 import { useState } from "@rx-lab/storage";
 
@@ -30,14 +32,6 @@ export function Counter() {
         </button>
       </div>
       <div>
-        <button
-          key={"button3"}
-          onClick={() => {
-            setState(0);
-          }}
-        >
-          Reset
-        </button>
         <CommandButton command={"/"} renderNewMessage>
           Home
         </CommandButton>
