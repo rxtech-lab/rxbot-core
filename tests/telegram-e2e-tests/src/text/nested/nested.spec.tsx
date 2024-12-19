@@ -114,7 +114,6 @@ describe("Nested text tests", () => {
   }
 
   afterEach(async () => {
-    await api.reset.resetChatroomState(chatroomId);
     await coreApi?.onDestroy();
     await cliProcessManager?.stop();
   });
