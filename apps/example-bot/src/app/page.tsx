@@ -4,6 +4,8 @@ export default async function Page({
   isInGroup,
   hasBeenMentioned,
   groupId,
+  chatroomId,
+  messageId,
 }: PageProps) {
   return (
     <div>
@@ -19,7 +21,11 @@ export default async function Page({
         <br />
         Click the menu button to see the available options.
       </p>
-      <blockquote>Hello world</blockquote>
+      <blockquote>
+        Chatroom ID: {chatroomId}
+        <br />
+        Message ID: {messageId}
+      </blockquote>
     </div>
   );
 }
