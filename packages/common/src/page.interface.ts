@@ -54,6 +54,16 @@ export interface PageProps {
    * Group id of the chatroom.
    */
   groupId?: string;
+
+  /**
+   * The message id of the current message.
+   */
+  messageId: string;
+
+  /**
+   * The chatroom id of the current chatroom.
+   */
+  chatroomId: string;
 }
 
 export interface ErrorPageProps {

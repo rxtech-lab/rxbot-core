@@ -468,6 +468,8 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
       isInGroup: container.isInGroup,
       groupId: container.groupId,
       hasBeenMentioned: container.hasBeenMentioned,
+      messageId: container.chatroomInfo.messageId?.toString() as any,
+      chatroomId: container.chatroomInfo.id.toString() as any,
       ...this.element.props,
       ...oldProps,
       storage: {
