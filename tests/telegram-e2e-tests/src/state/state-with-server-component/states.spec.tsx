@@ -31,7 +31,7 @@ describe("States within a long run server component", () => {
     cliProcessManager = undefined;
   });
 
-  for (const environment of [TestingEnvironment.DEV]) {
+  for (const environment of [TestingEnvironment.LongPolling]) {
     it(`should render correct state without multiple updates ${environment}`, async () => {
       const { core, processManager } = await initialize({
         filename: import.meta.url,
@@ -68,7 +68,6 @@ describe("States within a long run server component", () => {
       firstMessage = messages.data.messages[1];
       expect(firstMessage?.update_count).toBe(1);
       expect(firstMessage?.text).toContain("State 1: 0.2");
-
       await api.chatroom.clickOnMessageInChatroom(
         chatroomId,
         firstMessage?.message_id!,

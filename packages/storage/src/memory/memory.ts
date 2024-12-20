@@ -63,7 +63,9 @@ export class MemoryStorage extends Storage {
   }
 
   async saveRoute(key: string, path: StoredRoute): Promise<void> {
-    this.routeMap.set(`${ROUTE_KEY}-${key}`, path);
+    this.routeMap.set(`${ROUTE_KEY}-${key}`, {
+      ...path,
+    });
     if (this.delaySimulation) {
       await this.delaySimulation();
     }
@@ -75,7 +77,7 @@ export class MemoryStorage extends Storage {
     if (this.delaySimulation) {
       await this.delaySimulation();
     }
-    this.historyMap.set(key, route);
+    this.historyMap.set(key, JSON.stringify(route) as any);
   }
 
   async deleteHistory(key: string): Promise<void> {
@@ -89,6 +91,7 @@ export class MemoryStorage extends Storage {
     if (this.delaySimulation) {
       await this.delaySimulation();
     }
-    return this.historyMap.get(key);
+    const value = this.historyMap.get(key);
+    return value !== undefined ? JSON.parse(value as any) : undefined;
   }
 }

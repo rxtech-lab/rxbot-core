@@ -5,6 +5,7 @@ import {
   ContainerType,
   type CoreApi,
   CreateContainerOptions,
+  GetRouteKeyLevel,
   Logger,
   type Menu,
   SendMessage,
@@ -207,25 +208,26 @@ export class TelegramAdapter
   async adapt(
     container: InternalTGContainer,
     isUpdate: boolean,
-  ): Promise<RenderedElement[]> {
+  ): Promise<Container<any, any> | undefined> {
     if (!isUpdate) this.bot.processUpdate(container.message);
 
     // if hasUpdated is set to false, it means that the message is not updated,
     // so we don't need to send any message
+    Logger.log(`Message is updated:${container.hasUpdated}`, "bgBlue");
     if (container.hasUpdated !== undefined && !container.hasUpdated) {
       Logger.log(`Message is not updated`);
-      return [];
+      return undefined;
     }
 
     // if no children in the container
     // don't send any message
     if (container.children.length === 0) {
       Logger.log(`No children in the container`);
-      return [];
+      return undefined;
     }
 
     if (container.message?.callback_query) {
-      return [];
+      return undefined;
     }
 
     const message = renderElement(
@@ -233,7 +235,7 @@ export class TelegramAdapter
       this.callbackParser,
     );
     if (Array.isArray(message) && message.length === 0) {
-      return [];
+      return undefined;
     }
     const chatRoomId = container.chatroomInfo.id;
 
@@ -246,17 +248,33 @@ export class TelegramAdapter
           chat_id: chatRoomId,
           message_id: container.updateMessageId as number,
         });
+        container.hasUpdated = false;
       } else {
-        await this.bot.sendMessage(chatRoomId, message.text, {
-          reply_markup: message.reply_markup as any,
-          parse_mode: "HTML",
-        });
+        const sentMessage = await this.bot.sendMessage(
+          chatRoomId,
+          message.text,
+          {
+            reply_markup: message.reply_markup as any,
+            parse_mode: "HTML",
+          },
+        );
+        return {
+          ...container,
+          hasUpdated: false,
+          chatroomInfo: {
+            ...container.chatroomInfo,
+            messageId: sentMessage.message_id,
+          },
+          message: {
+            ...container.message,
+            id: sentMessage.message_id,
+          },
+        };
       }
-
-      return message as any;
+      return undefined;
     } catch (err: any) {
       Logger.log(`Error sending message: ${err.message}`);
-      return [];
+      return undefined;
     }
   }
 
@@ -371,8 +389,28 @@ export class TelegramAdapter
     return undefined;
   }
 
-  getRouteKey(message: TGContainer): string {
-    return `${message.chatroomInfo.id}`;
+  getRouteKey(
+    message: InternalTGContainer,
+    level: GetRouteKeyLevel = "auto",
+  ): string {
+    const messageKey = `${message.message.id ?? (message.message as any).message_id}`;
+    const globalKey = `chatroom-${message.chatroomInfo.id}`;
+    if (level === "message") {
+      return messageKey;
+    }
+
+    if (level === "chatroom") {
+      return globalKey;
+    }
+
+    // if the message is updated, use the message id as the key
+    if (message.updateMessageId) {
+      return messageKey;
+    }
+
+    // when rendering new message, use the chatroom id as the key
+    // so that we can send a new message without
+    return globalKey;
   }
 
   async onDestroy(): Promise<void> {

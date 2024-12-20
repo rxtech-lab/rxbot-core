@@ -3,7 +3,7 @@ name: Create a new release
 
 jobs:
   create-release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     permissions:
       contents: write
     if: ${{ (github.event.pusher.name != 'github action') && (github.ref == 'refs/heads/main') }}

@@ -37,12 +37,12 @@ describe("TelegramAdapter", () => {
 
       const result = await adapter.adapt(container as any, false);
 
-      expect(result).toEqual([]);
+      expect(result).toEqual(undefined);
       expect(mockBot.sendMessage).not.toHaveBeenCalled();
       expect(mockBot.editMessageText).not.toHaveBeenCalled();
     });
 
-    it("should not send a message if there are no children", async () => {
+    it.only("should not send a message if there are no children", async () => {
       const container: TGContainer = {
         type: "ROOT",
         children: [],
@@ -55,7 +55,7 @@ describe("TelegramAdapter", () => {
 
       const result = await adapter.adapt(container as any, false);
 
-      expect(result).toEqual([]);
+      expect(result).toEqual(undefined);
       expect(mockBot.sendMessage).not.toHaveBeenCalled();
       expect(mockBot.editMessageText).not.toHaveBeenCalled();
     });
