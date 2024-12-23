@@ -11,7 +11,7 @@ const {
 } = Telegram;
 const { sleep } = Utils;
 
-const chatroomId = 1000;
+const chatroomId = 1005;
 
 describe("Simple State Tests", () => {
   let api: Telegram.Api<any>;

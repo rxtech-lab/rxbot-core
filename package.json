@@ -1,5 +1,5 @@
 {
-  "name": "@rx-lab/core",
+  "name": "rxbot-core",
   "private": true,
   "scripts": {
     "build": "turbo build",
@@ -9,7 +9,7 @@
     "coverage": "turbo coverage --concurrency=1",
     "format": "biome format --write .",
     "format:version": "syncpack fix-mismatches",
-    "publish:dry": "lerna publish from-package --no-push"
+    "publish:dry": "echo \"n\" | lerna publish from-package"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

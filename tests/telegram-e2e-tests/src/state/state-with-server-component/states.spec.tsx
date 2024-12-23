@@ -12,7 +12,7 @@ const {
 } = Telegram;
 const { sleep } = Utils;
 
-const chatroomId = 1000;
+const chatroomId = 1007;
 
 // related to https://github.com/rxtech-lab/rxbot-core/issues/240
 describe("States within a long run server component", () => {

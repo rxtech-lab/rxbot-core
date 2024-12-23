@@ -7,6 +7,7 @@ import { BuildAppPlugin } from "../plugins/build-app.plugin";
 interface Options {
   hasAdapterFile: boolean;
   plugins: Plugin[];
+  sourceMap?: boolean;
 }
 
 export function getRspackConfig(
@@ -61,6 +62,7 @@ export function getRspackConfig(
         minSize: 0,
       },
     },
+    devtool: options.sourceMap === true ? "source-map" : undefined,
     plugins: [
       new BuildAppPlugin({
         sourceDir: sourceDir,

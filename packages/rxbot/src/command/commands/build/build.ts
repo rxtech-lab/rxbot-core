@@ -9,6 +9,7 @@ type SupportedEnvironments = "local" | "vercel";
 interface Options {
   hasAdapterFile?: boolean;
   environment?: SupportedEnvironments;
+  sourceMap?: boolean;
 }
 
 // Build command
@@ -18,6 +19,7 @@ export default async function runBuild(
   options: Options = {
     environment: "local",
     hasAdapterFile: true,
+    sourceMap: false,
   },
 ) {
   Logger.info(
@@ -38,7 +40,10 @@ export default async function runBuild(
       Logger.info("Build for Vercel completed successfully", "green");
       break;
     default:
-      await buildApp(srcFolder, outputFolder, options.hasAdapterFile ?? true);
+      await buildApp(srcFolder, outputFolder, options.hasAdapterFile ?? true, {
+        sourceMap: options.sourceMap,
+        plugins: [],
+      });
       break;
   }
 }
