@@ -8,6 +8,7 @@ import { getRspackConfig, getSrcAndOutputDir } from "../../utils";
 
 interface Options {
   plugins: Plugin[];
+  sourceMap?: boolean;
 }
 
 /**
@@ -34,6 +35,7 @@ export async function buildApp(
       const defaultConfig = getRspackConfig(srcFolder, tempFolder, outputPath, {
         hasAdapterFile,
         plugins: options?.plugins ?? [],
+        sourceMap: options?.sourceMap,
       });
       // Try to load user config
       let userConfig: RspackOptions = {};
