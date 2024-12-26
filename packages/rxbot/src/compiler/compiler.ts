@@ -798,6 +798,7 @@ export class Compiler extends CompilerUtils {
         (r) => r.route === currentPath,
       );
 
+      // if the route does not exist, create a new route
       if (existingRouteIndex === -1) {
         const newRoute: RoutePath = {
           ...routePath,
@@ -808,9 +809,14 @@ export class Compiler extends CompilerUtils {
         currentTree.push(newRoute);
         currentTree = newRoute.subRoutes;
       } else {
+        // if the route exists, update the current tree and move to the next level
         if (i === parts.length - 1) {
           currentTree[existingRouteIndex]!.page = routePath.page;
+          currentTree[existingRouteIndex]!["404"] = routePath["404"];
+          currentTree[existingRouteIndex]!.error = routePath.error;
+          currentTree[existingRouteIndex]!.api = routePath.api;
         }
+
         currentTree = currentTree[existingRouteIndex]!.subRoutes;
       }
     }
