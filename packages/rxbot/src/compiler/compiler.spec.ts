@@ -1,8 +1,9 @@
+import * as path from "path";
+import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { glob } from "glob";
 //@ts-ignore
 import MemoryFS from "memory-fs";
-import { describe, expect, it, beforeEach, jest } from "@jest/globals";
 import { Compiler } from "./compiler";
-import { glob } from "glob";
 
 jest.mock("glob");
 
@@ -18,10 +19,10 @@ describe("Compiler", () => {
     // Set up initial directory structure
     fs.mkdirpSync(sourceDir);
     fs.mkdirpSync(destDir);
-    fs.mkdirpSync(`${sourceDir}/app`);
-    fs.mkdirpSync(`${sourceDir}/app/home`);
-    fs.mkdirpSync(`${destDir}/app`);
-    fs.mkdirpSync(`${destDir}/app/home`);
+    fs.mkdirpSync(path.join(sourceDir, "app"));
+    fs.mkdirpSync(path.join(sourceDir, "app", "home"));
+    fs.mkdirpSync(path.join(destDir, "app"));
+    fs.mkdirpSync(path.join(destDir, "app", "home"));
 
     compiler = new Compiler({
       rootDir: sourceDir,
@@ -126,6 +127,326 @@ describe("Compiler", () => {
         route: "/home",
         "404": expect.stringContaining("/dist/app/home/404.js"),
       });
+    });
+  });
+
+  describe("Nested routes generation", () => {
+    interface TestCase {
+      title: string;
+      expectedObject: Record<any, any>;
+      // Key is the path of the file, and value is file content
+      fileStructure: Record<string, string>;
+    }
+
+    describe("Custom Error Page", () => {
+      const testCases: TestCase[] = [
+        {
+          title: "Should handle nested error page",
+          fileStructure: {
+            "app/nested/page.tsx": `
+          export default function NestedPage() {
+            return <div>Nested</div>;
+          }
+        `,
+          },
+          expectedObject: {
+            routes: [
+              {
+                "404": "/dist/app/404.js",
+                error: "/dist/app/error.js",
+                metadata: undefined,
+                page: "/dist/app/page.js",
+                route: "/",
+                subRoutes: [
+                  {
+                    "404": "/dist/app/404.js",
+                    error: "/dist/app/error.js",
+                    metadata: undefined,
+                    page: "/dist/app/nested/page.js",
+                    route: "/nested",
+                    subRoutes: [],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+        {
+          title: "Should handle one with custom error page, one without",
+          fileStructure: {
+            "app/sub1/page.tsx": `
+          export default function NestedPage() {
+            return <div>Nested</div>;
+          }
+        `,
+            "app/sub1/error.tsx": `
+          export default function CustomErrorPage() {
+            return <div>Custom Error</div>;
+          }
+        `,
+            "app/sub2/page.tsx": `
+            export default function NestedPage() {
+                return <div>Nested</div>;
+            }
+            `,
+          },
+          expectedObject: {
+            routes: [
+              {
+                "404": "/dist/app/404.js",
+                error: "/dist/app/error.js",
+                metadata: undefined,
+                page: "/dist/app/page.js",
+                route: "/",
+                subRoutes: [
+                  {
+                    "404": "/dist/app/404.js",
+                    error: "/dist/app/sub1/error.js",
+                    metadata: undefined,
+                    page: "/dist/app/sub1/page.js",
+                    route: "/sub1",
+                    subRoutes: [],
+                  },
+                  {
+                    "404": "/dist/app/404.js",
+                    error: "/dist/app/error.js",
+                    metadata: undefined,
+                    page: "/dist/app/sub2/page.js",
+                    route: "/sub2",
+                    subRoutes: [],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+        {
+          title:
+            "Should handle one with custom error page, one using parent error page",
+          fileStructure: {
+            "app/home/sub1/page.tsx": `
+          export default function NestedPage() {
+            return <div>Nested</div>;
+          }
+        `,
+            "app/home/sub1/error.tsx": `
+          export default function CustomErrorPage() {
+            return <div>Custom Error</div>;
+          }
+        `,
+            "app/home/sub2/page.tsx": `
+            export default function NestedPage() {
+                return <div>Nested</div>;
+            }
+            `,
+            "app/home/page.tsx": `
+            export default function HomePage() {
+              return <div>Home</div>;
+            }
+          `,
+            "app/home/error.tsx": `
+            export default function CustomErrorPage() {
+              return <div>Custom Error</div>;
+            }
+          `,
+          },
+          expectedObject: {
+            routes: [
+              {
+                "404": "/dist/app/404.js",
+                error: "/dist/app/error.js",
+                page: "/dist/app/page.js",
+                metadata: undefined,
+                route: "/",
+                subRoutes: [
+                  {
+                    "404": "/dist/app/404.js",
+                    error: "/dist/app/home/error.js",
+                    metadata: undefined,
+                    page: "/dist/app/home/page.js",
+                    route: "/home",
+                    subRoutes: [
+                      {
+                        "404": "/dist/app/404.js",
+                        error: "/dist/app/home/sub1/error.js",
+                        metadata: undefined,
+                        page: "/dist/app/home/sub1/page.js",
+                        route: "/home/sub1",
+                        subRoutes: [],
+                      },
+                      {
+                        "404": "/dist/app/404.js",
+                        error: "/dist/app/home/error.js",
+                        metadata: undefined,
+                        page: "/dist/app/home/sub2/page.js",
+                        route: "/home/sub2",
+                        subRoutes: [],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      ];
+
+      for (const testCase of testCases) {
+        it(testCase.title, async () => {
+          for (const [p, content] of Object.entries(testCase.fileStructure)) {
+            const basePathWithoutFile = path.dirname(p);
+            // make sure the directory exists
+            fs.mkdirpSync(path.join(sourceDir, basePathWithoutFile));
+            fs.writeFileSync(path.join(sourceDir, p), content);
+          }
+          jest.spyOn(glob, "glob").mockImplementation(async () => {
+            return Object.keys(testCase.fileStructure);
+          });
+
+          const result = await compiler.compile();
+          expect(result).toStrictEqual(testCase.expectedObject);
+        });
+      }
+    });
+
+    describe("Custom 404 Page", () => {
+      const testCases: TestCase[] = [
+        {
+          title: "Should handle one with custom 404 page, one without",
+          fileStructure: {
+            "app/sub1/page.tsx": `
+          export default function NestedPage() {
+            return <div>Nested</div>;
+          }
+        `,
+            "app/sub1/404.tsx": `
+          export default function CustomPage() {
+            return <div>Custom 404</div>;
+          }
+        `,
+            "app/sub2/page.tsx": `
+            export default function NestedPage() {
+                return <div>Nested</div>;
+            }
+            `,
+          },
+          expectedObject: {
+            routes: [
+              {
+                "404": "/dist/app/404.js",
+                error: "/dist/app/error.js",
+                metadata: undefined,
+                page: "/dist/app/page.js",
+                route: "/",
+                subRoutes: [
+                  {
+                    "404": "/dist/app/sub1/404.js",
+                    error: "/dist/app/error.js",
+                    metadata: undefined,
+                    page: "/dist/app/sub1/page.js",
+                    route: "/sub1",
+                    subRoutes: [],
+                  },
+                  {
+                    "404": "/dist/app/404.js",
+                    error: "/dist/app/error.js",
+                    metadata: undefined,
+                    page: "/dist/app/sub2/page.js",
+                    route: "/sub2",
+                    subRoutes: [],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+        {
+          title:
+            "Should handle one with custom 404 page, one using parent 404 page",
+          fileStructure: {
+            "app/home/sub1/page.tsx": `
+          export default function NestedPage() {
+            return <div>Nested</div>;
+          }
+        `,
+            "app/home/sub1/404.tsx": `
+          export default function CustomPage() {
+            return <div>Custom 404</div>;
+          }
+        `,
+            "app/home/sub2/page.tsx": `
+            export default function NestedPage() {
+                return <div>Nested</div>;
+            }
+            `,
+            "app/home/page.tsx": `
+            export default function HomePage() {
+              return <div>Home</div>;
+            }
+          `,
+            "app/home/404.tsx": `
+            export default function CustomPage() {
+              return <div>Custom 404</div>;
+            }
+          `,
+          },
+          expectedObject: {
+            routes: [
+              {
+                "404": "/dist/app/404.js",
+                error: "/dist/app/error.js",
+                page: "/dist/app/page.js",
+                metadata: undefined,
+                route: "/",
+                subRoutes: [
+                  {
+                    "404": "/dist/app/home/404.js",
+                    error: "/dist/app/error.js",
+                    metadata: undefined,
+                    page: "/dist/app/home/page.js",
+                    route: "/home",
+                    subRoutes: [
+                      {
+                        "404": "/dist/app/home/sub1/404.js",
+                        error: "/dist/app/error.js",
+                        metadata: undefined,
+                        page: "/dist/app/home/sub1/page.js",
+                        route: "/home/sub1",
+                        subRoutes: [],
+                      },
+                      {
+                        "404": "/dist/app/home/404.js",
+                        error: "/dist/app/error.js",
+                        metadata: undefined,
+                        page: "/dist/app/home/sub2/page.js",
+                        route: "/home/sub2",
+                        subRoutes: [],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      ];
+
+      for (const testCase of testCases) {
+        it(testCase.title, async () => {
+          for (const [p, content] of Object.entries(testCase.fileStructure)) {
+            const basePathWithoutFile = path.dirname(p);
+            // make sure the directory exists
+            fs.mkdirpSync(path.join(sourceDir, basePathWithoutFile));
+            fs.writeFileSync(path.join(sourceDir, p), content);
+          }
+          jest.spyOn(glob, "glob").mockImplementation(async () => {
+            return Object.keys(testCase.fileStructure);
+          });
+
+          const result = await compiler.compile();
+          expect(result).toStrictEqual(testCase.expectedObject);
+        });
+      }
     });
   });
 });
