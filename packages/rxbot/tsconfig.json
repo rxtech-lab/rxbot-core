@@ -4,7 +4,7 @@
     "module": "nodenext",
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": false,
+    "sourceMap": true,
     "inlineSourceMap": true,
     "moduleResolution": "node16",
     "outDir": "./dist",
