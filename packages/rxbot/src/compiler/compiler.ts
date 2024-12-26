@@ -28,7 +28,7 @@ import {
 
 export interface CompilerOptions {
   /**
-   * The root directory of the project
+   * The root directory of the project. Don't need to include the app folder
    */
   rootDir: string;
   /**
@@ -39,6 +39,10 @@ export interface CompilerOptions {
    * Has the adapter file
    */
   hasAdapterFile?: boolean;
+  /**
+   * The file system to use
+   */
+  fs?: typeof fs;
 }
 
 /**
@@ -109,10 +113,15 @@ export type AppRelatedFileType = "page";
 export const SPECIAL_FILES = ["404.js", "page.js", "error.js", "route.js"];
 
 export class CompilerUtils {
+  protected fs: typeof fs;
+
   constructor(
     protected readonly sourceDir: string,
     protected readonly destinationDir: string,
-  ) {}
+    fileSystem?: typeof fs,
+  ) {
+    this.fs = fileSystem || fs;
+  }
 
   /**
    * Add default special pages to the root path if they don't exist.
@@ -208,7 +217,7 @@ export class CompilerUtils {
    * @param fileContent Compiled file content in TypeScript
    * @private
    */
-  private async addAndCompileSpecialPages(
+  protected async addAndCompileSpecialPages(
     path: string,
     outputDir: string,
     fileContent: string,
@@ -230,10 +239,18 @@ export class CompilerUtils {
         type: "commonjs",
       },
     });
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true });
+
+    // Create all parent directories recursively
+    const dirs = outputDir.split("/").filter(Boolean);
+    let currentPath = "";
+    for (const dir of dirs) {
+      currentPath += "/" + dir;
+      if (!this.fs.existsSync(currentPath)) {
+        this.fs.mkdirSync(currentPath);
+      }
     }
-    fs.writeFileSync(path, compiledFile.code);
+
+    this.fs.writeFileSync(path, compiledFile.code);
   }
 
   /**
@@ -252,11 +269,20 @@ export class CompilerUtils {
     sourceCodePath: string,
   ): Promise<BuildSourceCodeOutput> {
     const { outputDir, outputFileName } = this.getOutputPath(sourceCodePath);
-    const srcCode = fs.readFileSync(sourceCodePath, "utf-8");
+    const srcCode = this.fs.readFileSync(sourceCodePath, "utf-8");
     const outputFile = path.join(outputDir, outputFileName);
-    const result = await swc.transformFile(sourceCodePath, {
+    const result = await swc.transform(srcCode, {
       jsc: {
         target: "es2016",
+        parser: isTypeScript(sourceCodePath)
+          ? {
+              tsx: true,
+              syntax: "typescript",
+            }
+          : {
+              jsx: true,
+              syntax: "ecmascript",
+            },
         transform: {
           react: {
             runtime: "automatic",
@@ -349,10 +375,10 @@ export class CompilerUtils {
           path.join(this.sourceDir, file),
         );
         Logger.log(`Compiling ${file} to ${result.outputFilePath}`, "blue");
-        if (!fs.existsSync(result.outputDir)) {
-          fs.mkdirSync(result.outputDir, { recursive: true });
+        if (!this.fs.existsSync(result.outputDir)) {
+          this.fs.mkdirSync(result.outputDir, { recursive: true });
         }
-        fs.writeFileSync(result.outputFilePath, result.code);
+        this.fs.writeFileSync(result.outputFilePath, result.code);
         return result;
       }),
     );
@@ -379,7 +405,7 @@ export class Compiler extends CompilerUtils {
       destinationDir = path.join(process.cwd(), destinationDir);
     }
 
-    super(rootDir, destinationDir);
+    super(rootDir, destinationDir, options.fs);
   }
 
   /**
@@ -514,7 +540,7 @@ export class Compiler extends CompilerUtils {
       ...file,
       hasAdapterFile: this.options.hasAdapterFile,
     });
-    fs.writeFileSync(outputPath, output);
+    this.fs.writeFileSync(outputPath, output);
 
     Logger.log(`Route metadata written to ${outputPath}`, "green");
     return file;

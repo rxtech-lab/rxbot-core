@@ -12,7 +12,7 @@
     }
   },
   "scripts": {
-    "build": "tsc && rspack build --config rspack.config.executables.ts",
+    "build": "tsc -p tsconfig.build.json && rspack build --config rspack.config.executables.ts",
     "postbuild": "chmod +x ./executables/rxbot.js",
     "test": "jest --runInBand",
     "coverage": "jest --runInBand --coverage"
@@ -24,6 +24,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@jest/globals": "^29.7.0",
     "@rspack/cli": "1.1.0",
     "@rspack/core": "1.1.0",
     "@rspack/dev-server": "^1.0.9",
@@ -33,10 +34,12 @@
     "@swc/core": "^1.7.10",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.12",
+    "@types/memory-fs": "^0.3.7",
     "@types/yargs": "^17.0.33",
     "@vercel/functions": "^1.4.1",
     "express": "^4.21.1",
     "glob": "^11.0.0",
+    "memory-fs": "^0.5.0",
     "totalist": "^3.0.1",
     "yargs": "^17.7.2",
     "zod": "^3.23.8"
