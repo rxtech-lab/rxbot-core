@@ -1,6 +1,6 @@
 import { PageProps } from "@rx-lab/common";
 import { ConfigurationArea } from "./config";
-import { ContextProvider } from "./layout";
+import { ContextProvider } from "./context";
 
 export default async function page({ userId }: PageProps) {
   return (

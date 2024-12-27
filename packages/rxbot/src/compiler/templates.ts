@@ -25,13 +25,26 @@ export default function Page() {
 }        
 `;
 
+export const DEFAULT_LAYOUT = `
+import { LayoutProps } from "@rx-lab/common";
+
+export default function RootLayout({ children }: LayoutProps) {
+  return (
+    <div>
+      {children}
+    </div>
+  );
+}        
+`;
+
 export const METADATA_FILE_TEMPLATE = `{% macro renderSubRoutes(items) %}{% for subRoute in items %}
  {
           "route": "{{ subRoute.route }}",{% if subRoute.page %}
           "page": () => import("{{ subRoute.page }}"),{% endif %}{% if subRoute['404'] %}
           "404": () => import("{{ subRoute['404'] }}"),{% endif %}{% if subRoute.api %}
           "api": () => import("{{ subRoute.api }}"),{% endif %}{% if subRoute.error %}
-          "error": () => import("{{ subRoute.error }}"),{% endif %}{% if subRoute.isAsync is defined %}
+          "error": () => import("{{ subRoute.error }}"),{% endif %}{% if subRoute.layouts %}
+          "layouts": [{% for layout in subRoute.layouts %}() => import("{{ layout }}"){% if not loop.last %},{% endif %}{% endfor %}],{% endif %}{% if subRoute.metadata %}
           "metadata": {{ subRoute.metadata | dump }},{% endif %}{% if subRoute.subRoutes %}
           "subRoutes": [{{ renderSubRoutes(subRoute.subRoutes) }}]{% endif %}
         }{% if not loop.last %},{% endif %}{% endfor %}{% endmacro %}
@@ -43,7 +56,8 @@ export const ROUTE_FILE = {
       "page": () => import("{{ route.page }}"),{% endif %}{% if route['404'] %}
       "404": () => import("{{ route['404'] }}"),{% endif %}{% if route.api %}
       "api": () => import("{{ route.api }}"),{% endif %}{% if route.error %}
-      "error": () => import("{{ route.error }}"),{% endif %}{% if route.metadata %}
+      "error": () => import("{{ route.error }}"),{% endif %}{% if route.layouts %}
+      "layouts": [{% for layout in route.layouts %}() => import("{{ layout }}"){% if not loop.last %},{% endif %}{% endfor %}],{% endif %}{% if route.metadata %}
       "metadata": {{ route.metadata | dump }},{% endif %}
       {% if route.subRoutes %}"subRoutes": [{{ renderSubRoutes(route.subRoutes) }}]{% endif %}
     }{% if not loop.last %},{% endif %}{% endfor %}
