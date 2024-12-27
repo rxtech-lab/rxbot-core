@@ -29,7 +29,7 @@ export type RouteMetadata = z.infer<typeof RouteMetadataSchema>;
 /** The default folder name for application components */
 export const DEFAULT_APP_FOLDER = "app";
 
-export type SpecialRouteType = "error" | "404" | "page" | "api";
+export type SpecialRouteType = "error" | "404" | "page" | "api" | "layout";
 
 /**
  * Represents a route in the application.
@@ -171,26 +171,36 @@ export interface RouteInfo {
    * Additional metadata associated with the route.
    */
   metadata?: RouteMetadata;
+
+  /**
+   * Layouts associated with this route, if any.
+   */
+  layouts?: Array<() => Promise<any>>;
 }
 
 export interface RouteInfoWithoutImport
-  extends Omit<RouteInfo, "page" | "error" | 404 | "subRoutes" | "api"> {
+  extends Omit<
+    RouteInfo,
+    "page" | "error" | 404 | "subRoutes" | "api" | "layouts"
+  > {
   page?: string;
   error?: string;
   404?: string;
   api?: string;
   subRoutes?: RouteInfoWithoutImport[];
+  layouts?: string[];
 }
 
 /**
  * Extends RouteInfo with the actual component import.
  */
 export interface ImportedRoute
-  extends Omit<RouteInfo, "page" | "error" | 404 | "api"> {
+  extends Omit<RouteInfo, "page" | "error" | 404 | "api" | "layouts"> {
   page?: () => ClientComponent | ServerComponent;
   error?: () => ClientComponent | ServerComponent;
   404?: () => ClientComponent | ServerComponent;
   api?: () => APIFunction;
+  layouts?: Array<() => Promise<any>>;
 }
 /**
  * Represents a route that has been matched to a specific URL.

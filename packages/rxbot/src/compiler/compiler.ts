@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import assert from "node:assert";
 import path from "path";
 import {
   APP_FOLDER,
@@ -16,6 +17,7 @@ import nunjucks from "nunjucks";
 import {
   DEFAULT_404_PAGE,
   DEFAULT_ERROR_PAGE,
+  DEFAULT_LAYOUT,
   DEFAULT_PAGE,
   METADATA_FILE_TEMPLATE,
 } from "./templates";
@@ -68,6 +70,7 @@ export type RoutePath = {
   404?: string;
   error?: string;
   api?: string;
+  layouts?: string[]; // Array of layout files, ordered from root to most specific
   subRoutes: RoutePath[];
 };
 
@@ -110,7 +113,13 @@ export interface BuildSourceCodeOutput {
 export type AppRelatedFileType = "page";
 
 //Add more special files here
-export const SPECIAL_FILES = ["404.js", "page.js", "error.js", "route.js"];
+export const SPECIAL_FILES = [
+  "404.js",
+  "page.js",
+  "error.js",
+  "route.js",
+  "layout.js",
+];
 
 export class CompilerUtils {
   protected fs: typeof fs;
@@ -142,6 +151,33 @@ export class CompilerUtils {
       page: path.join(outputDir, APP_FOLDER, outputFileName),
       subRoutes: [],
     };
+
+    // Add default root layout if not exists
+    const outputLayoutPath = path.join(
+      outputDir,
+      APP_FOLDER,
+      `layout${OUTPUT_FILE_EXTENSION}`,
+    );
+    await this.addAndCompileSpecialPages(
+      outputLayoutPath,
+      path.join(outputDir, APP_FOLDER),
+      DEFAULT_LAYOUT,
+    );
+    rootRoute.layouts = rootRoute.layouts || [outputLayoutPath];
+
+    if (!rootRoute.page) {
+      const outputPagePath = path.join(
+        outputDir,
+        APP_FOLDER,
+        `page${OUTPUT_FILE_EXTENSION}`,
+      );
+      await this.addAndCompileSpecialPages(
+        outputPagePath,
+        path.join(outputDir, APP_FOLDER),
+        DEFAULT_PAGE,
+      );
+      rootRoute.page = outputPagePath;
+    }
 
     if (!rootRoute["404"]) {
       const output404Path = path.join(
@@ -383,6 +419,72 @@ export class CompilerUtils {
       }),
     );
   }
+
+  /**
+   * Merge routes with the same route.
+   * @param routes
+   * @private
+   */
+  protected mergeDuplicateRoutes(
+    routes: RouteInfoWithoutImport[],
+  ): RouteInfoWithoutImport[] {
+    // Create a map to group routes by their path
+    const routeMap = new Map<string, RouteInfoWithoutImport>();
+
+    for (const route of routes) {
+      const existingRoute = routeMap.get(route.route);
+
+      if (existingRoute) {
+        // Merge the routes if there's an existing route with the same path
+        routeMap.set(route.route, {
+          route: route.route,
+          page: route.page || existingRoute.page,
+          "404": route["404"] || existingRoute["404"],
+          error: route.error || existingRoute.error,
+          api: route.api || existingRoute.api,
+          layouts: route.layouts || existingRoute.layouts,
+          metadata: route.metadata || existingRoute.metadata,
+          // Recursively merge subroutes
+          subRoutes: this.mergeDuplicateRoutes([
+            ...(existingRoute.subRoutes || []),
+            ...(route.subRoutes || []),
+          ]),
+        });
+      } else {
+        // If no existing route, add it to the map with recursively merged subroutes
+        routeMap.set(route.route, {
+          ...route,
+          subRoutes: this.mergeDuplicateRoutes(route.subRoutes || []),
+        });
+      }
+    }
+
+    // Convert the map back to an array
+    return Array.from(routeMap.values());
+  }
+
+  /**
+   * Put routes under the root path.
+   * @param routes
+   * @protected
+   */
+  protected putRoutesUnderRoot(
+    routes: RouteInfoWithoutImport[],
+  ): RouteInfoWithoutImport[] {
+    const rootRoute = routes.find((r) => r.route === DEFAULT_ROOT_ROUTE);
+    const routesNotRoot = routes.filter((r) => r.route !== DEFAULT_ROOT_ROUTE);
+    assert(rootRoute, "Root route not found");
+    // if routes are already under the root path, return them
+    if ((rootRoute.subRoutes?.length ?? 0) > 0) {
+      return routes;
+    }
+    return [
+      {
+        ...rootRoute,
+        subRoutes: routesNotRoot,
+      },
+    ];
+  }
 }
 
 export class Compiler extends CompilerUtils {
@@ -524,11 +626,17 @@ export class Compiler extends CompilerUtils {
         error: rootRoute!.error!,
         page: rootRoute!.page!,
         api: rootRoute!.api!,
+        layouts: rootRoute!.layouts!,
         route: DEFAULT_ROOT_ROUTE,
         subRoutes: [...info],
       };
       info = [rootInfo];
     }
+
+    // merge routes with the same route
+    info = this.mergeDuplicateRoutes(info);
+    // put all routes under the root path
+    info = this.putRoutesUnderRoot(info);
 
     // create route-metadata.json file if it doesn't exist
     const outputPath = path.join(this.destinationDir, ROUTE_METADATA_TS_FILE);
@@ -577,6 +685,7 @@ export class Compiler extends CompilerUtils {
 
     const notFoundPage = route["404"] ?? parent?.["404"];
     const errorPage = route.error ?? parent?.error;
+    const layoutPage = route.layouts ?? parent?.layouts;
     const outputPageFile = await this.buildAppRelatedFiles(
       artifacts.find((a) => a.outputFilePath === route.page)!,
       "page",
@@ -588,12 +697,13 @@ export class Compiler extends CompilerUtils {
             ...route,
             "404": notFoundPage,
             error: errorPage,
+            layouts: layoutPage,
           }),
         ),
       )
     ).flat();
 
-    if (route.page || route["404"] || route.error) {
+    if (route.page || route["404"] || route.error || route.layouts) {
       const routeInfo: RouteInfoWithoutImport = {
         route: route.route,
         // use self 404 or parent 404
@@ -602,6 +712,7 @@ export class Compiler extends CompilerUtils {
         error: errorPage!,
         page: route.page,
         subRoutes: subPages.flatMap((p) => p.routes),
+        layouts: layoutPage,
         metadata: outputPageFile.metadata,
       };
       info.push(routeInfo);
@@ -621,6 +732,7 @@ export class Compiler extends CompilerUtils {
               ...route,
               "404": notFoundPage,
               error: errorPage,
+              layouts: layoutPage,
             }),
           ),
         )
@@ -684,6 +796,15 @@ export class Compiler extends CompilerUtils {
       );
     }
 
+    if (type === "layout") {
+      specialPage = path.join(
+        this.destinationDir,
+        APP_FOLDER,
+        route,
+        "layout.js",
+      );
+    }
+
     const specialPageExists = artifacts.find(
       (a) => path.relative(a.outputFilePath, specialPage ?? "") === "",
     );
@@ -715,13 +836,33 @@ export class Compiler extends CompilerUtils {
     const routeParts = parts.slice(0, -1); // Exclude the file name part
     const route = `/${routeParts.filter((r) => r !== APP_FOLDER).join("/")}`;
 
+    // Find all parent routes to check for layouts, including the root app folder
+    const parentRoutes = routeParts.reduce((acc, part, index) => {
+      // Include the APP_FOLDER for the root layout
+      const currentPath = routeParts.slice(0, index + 1).join("/");
+      acc.push(currentPath);
+      return acc;
+    }, [] as string[]);
+
+    // Find layouts for current route and all parent routes
+    const layouts = parentRoutes
+      .map((parentRoute) => {
+        if (parentRoute.startsWith(APP_FOLDER)) {
+          return this.findSpecialPages(
+            parentRoute.replace(APP_FOLDER, ""),
+            artifacts,
+            "layout",
+          );
+        }
+        return this.findSpecialPages(parentRoute, artifacts, "layout");
+      })
+      .filter((layout): layout is string => layout !== undefined);
+
     const pageFile = this.findSpecialPages(route, artifacts, "page");
     const notFoundPage = this.findSpecialPages(route, artifacts, "404");
     const errorPage = this.findSpecialPages(route, artifacts, "error");
     const apiRoute = this.findSpecialPages(route, artifacts, "api");
 
-    // if the api route is found,
-    // we don't need to check for the page, 404, and error
     if (apiRoute) {
       return {
         route,
@@ -736,7 +877,7 @@ export class Compiler extends CompilerUtils {
       subRoutes: [],
       404: notFoundPage,
       error: errorPage,
-      api: apiRoute,
+      layouts: layouts.length > 0 ? layouts : undefined,
     };
   }
 
@@ -798,7 +939,6 @@ export class Compiler extends CompilerUtils {
         (r) => r.route === currentPath,
       );
 
-      // if the route does not exist, create a new route
       if (existingRouteIndex === -1) {
         const newRoute: RoutePath = {
           ...routePath,
@@ -809,14 +949,13 @@ export class Compiler extends CompilerUtils {
         currentTree.push(newRoute);
         currentTree = newRoute.subRoutes;
       } else {
-        // if the route exists, update the current tree and move to the next level
         if (i === parts.length - 1) {
           currentTree[existingRouteIndex]!.page = routePath.page;
           currentTree[existingRouteIndex]!["404"] = routePath["404"];
           currentTree[existingRouteIndex]!.error = routePath.error;
           currentTree[existingRouteIndex]!.api = routePath.api;
+          currentTree[existingRouteIndex]!.layouts = routePath.layouts;
         }
-
         currentTree = currentTree[existingRouteIndex]!.subRoutes;
       }
     }
