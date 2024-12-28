@@ -41,6 +41,7 @@ const initializeLongPolling = async (
 
   await build(opts.rootDir, opts.destinationDir, {
     hasAdapterFile: false,
+    sourceMap: true,
   });
   const mod = await import(
     path.join(opts.destinationDir, ".rx-lab", "main.js")

@@ -10,7 +10,7 @@ const {
 } = Telegram;
 const { sleep } = Utils;
 
-const chatroomId = 1001;
+const chatroomId = 1006;
 
 describe("Simple State with variable", () => {
   let api: Telegram.Api<any>;

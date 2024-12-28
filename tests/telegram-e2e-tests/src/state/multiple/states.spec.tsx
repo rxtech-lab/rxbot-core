@@ -9,7 +9,7 @@ const {
   DEFAULT_RENDERING_WAIT_TIME,
 } = Telegram;
 const { sleep } = Utils;
-const chatroomId = 1002;
+const chatroomId = 1001;
 
 describe("Multiple states", () => {
   let api: Telegram.Api<any>;

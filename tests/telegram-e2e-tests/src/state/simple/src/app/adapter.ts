@@ -4,7 +4,7 @@ import { TelegramAdapter } from "@rx-lab/telegram-adapter";
 const storage = new MemoryStorage();
 const adapter = new TelegramAdapter({
   token: "Some token",
-  url: `http://0.0.0.0:9000/webhook/chatroom/1000`,
+  url: `http://0.0.0.0:9000/webhook/chatroom/1005`,
 });
 
 export { adapter, storage };

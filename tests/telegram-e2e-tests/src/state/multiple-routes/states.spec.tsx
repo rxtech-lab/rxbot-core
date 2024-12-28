@@ -10,7 +10,7 @@ const {
 } = Telegram;
 const { sleep } = Utils;
 
-let chatroomId = 1100;
+let chatroomId = 1003;
 
 describe("State in multiple routes Tests", () => {
   let api: Telegram.Api<any>;

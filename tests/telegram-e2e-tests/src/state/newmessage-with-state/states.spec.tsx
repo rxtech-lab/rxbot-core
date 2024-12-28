@@ -10,7 +10,7 @@ const {
 } = Telegram;
 const { sleep } = Utils;
 
-const chatroomId = 1000;
+const chatroomId = 1004;
 
 // This test related to https://github.com/rxtech-lab/rxbot-core/issues/274
 describe("Should be able to click old message when updating the state", () => {
