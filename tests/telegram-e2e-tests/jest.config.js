@@ -28,9 +28,11 @@ module.exports = {
     "!<rootDir>/**/node_modules/**",
     "!<rootDir>/**/rxbot/**",
     "!<rootDir>/tests/**",
+    "!<rootDir>/apps/**",
+    "!<rootDir>/**/*.spec.{ts,tsx,js,jsx}",
+    "!<rootDir>/**/*.d.*",
   ],
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json"],
-
   // Added these three configurations to fix the module resolution
   moduleDirectories: ["node_modules", "<rootDir>/packages"],
   moduleNameMapper: {
