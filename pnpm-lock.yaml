@@ -428,6 +428,9 @@ importers:
       '@rx-lab/core':
         specifier: workspace:*
         version: link:../core
+      '@rx-lab/errors':
+        specifier: workspace:*
+        version: link:../errors
       '@rx-lab/router':
         specifier: workspace:*
         version: link:../router

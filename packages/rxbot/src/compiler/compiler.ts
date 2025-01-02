@@ -25,6 +25,7 @@ import {
   generateClientComponentTag,
   isTypeScript,
   parseSourceCode,
+  processRouteGroup,
   readMetadata,
 } from "./utils";
 
@@ -488,6 +489,8 @@ export class CompilerUtils {
 }
 
 export class Compiler extends CompilerUtils {
+  routeMaps: Map<string, SpecialRouteType[]> = new Map();
+
   constructor(private readonly options: CompilerOptions) {
     const isAbsoluteRootDir = path.isAbsolute(options.rootDir);
     const isAbsoluteDestinationDir = path.isAbsolute(
@@ -637,6 +640,8 @@ export class Compiler extends CompilerUtils {
     info = this.mergeDuplicateRoutes(info);
     // put all routes under the root path
     info = this.putRoutesUnderRoot(info);
+    // remove groups
+    info = processRouteGroup(info);
 
     // create route-metadata.json file if it doesn't exist
     const outputPath = path.join(this.destinationDir, ROUTE_METADATA_TS_FILE);
@@ -685,7 +690,9 @@ export class Compiler extends CompilerUtils {
 
     const notFoundPage = route["404"] ?? parent?.["404"];
     const errorPage = route.error ?? parent?.error;
-    const layoutPage = route.layouts ?? parent?.layouts;
+    const layoutPage = Array.from(
+      new Set([...(parent?.layouts ?? []), ...(route.layouts ?? [])]),
+    );
     const outputPageFile = await this.buildAppRelatedFiles(
       artifacts.find((a) => a.outputFilePath === route.page)!,
       "page",

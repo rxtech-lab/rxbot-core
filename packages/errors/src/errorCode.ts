@@ -18,4 +18,5 @@ export enum ErrorCode {
   RedirectToNewLocation = 1005,
   // Skip
   Skip = 1006,
+  DuplicateRoute = 1007,
 }
