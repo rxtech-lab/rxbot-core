@@ -154,17 +154,19 @@ export class CompilerUtils {
     };
 
     // Add default root layout if not exists
-    const outputLayoutPath = path.join(
-      outputDir,
-      APP_FOLDER,
-      `layout${OUTPUT_FILE_EXTENSION}`,
-    );
-    await this.addAndCompileSpecialPages(
-      outputLayoutPath,
-      path.join(outputDir, APP_FOLDER),
-      DEFAULT_LAYOUT,
-    );
-    rootRoute.layouts = rootRoute.layouts || [outputLayoutPath];
+    if ((rootRoute.layouts?.length ?? 0) === 0) {
+      const outputLayoutPath = path.join(
+        outputDir,
+        APP_FOLDER,
+        `layout${OUTPUT_FILE_EXTENSION}`,
+      );
+      await this.addAndCompileSpecialPages(
+        outputLayoutPath,
+        path.join(outputDir, APP_FOLDER),
+        DEFAULT_LAYOUT,
+      );
+      rootRoute.layouts = rootRoute.layouts || [outputLayoutPath];
+    }
 
     if (!rootRoute.page) {
       const outputPagePath = path.join(
