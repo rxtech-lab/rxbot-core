@@ -1,6 +1,6 @@
+import type { ReactNode } from "react";
 import { RouteInfoFile } from "./router.interface";
 import { StorageClientInterface } from "./storage.interface";
-import type { ReactNode } from "react";
 
 /**
  * Properties that will be passed to each page component.
@@ -80,6 +80,6 @@ export interface NotFoundPageProps {
  * Properties that will be passed to layout components.
  * Layout components must accept children as they wrap other components.
  */
-export interface LayoutProps {
+export interface LayoutProps extends PageProps {
   children: ReactNode;
 }

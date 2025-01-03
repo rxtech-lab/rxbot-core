@@ -79,7 +79,11 @@ export type RenderedComponent = {
   /** The matched route information */
   matchedRoute: MatchedRoute;
   /** The actual component to be rendered */
-  component: any;
+  component?: () => React.ReactElement;
+  /**
+   * If the components rendered are layouts, this will contain the layout components.
+   */
+  components?: () => React.ReactElement[];
   /** Query string parameters from the URL */
   queryString: QueryString;
   /** Path parameters extracted from the URL */

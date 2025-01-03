@@ -49,7 +49,7 @@ describe("States within a long run server component", () => {
       });
 
       // server component will take 1 second to render
-      await sleep(DEFAULT_RENDERING_WAIT_TIME + 1000);
+      await sleep(DEFAULT_RENDERING_WAIT_TIME + 1500);
       let messages = await api.chatroom.getMessagesByChatroom(chatroomId);
       expect(messages.data.count).toBe(2);
       let firstMessage = messages.data.messages[1];
