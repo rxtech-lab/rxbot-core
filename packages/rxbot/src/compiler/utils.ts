@@ -1,8 +1,10 @@
 import {
   REACT_CLIENT_COMPONENT_TYPE,
+  RouteInfoWithoutImport,
   RouteMetadata,
   RouteMetadataSchema,
 } from "@rx-lab/common";
+import { DuplicateRouteError } from "@rx-lab/errors";
 import * as swc from "@swc/core";
 
 export async function readMetadata(
@@ -264,3 +266,122 @@ export function checkDuplicateKeys(
     }
   }
 }
+
+/**
+ * Helper functions for handling Next.js route groups
+ */
+
+/**
+ * Checks if a path route represents a route group
+ * @param route The path route to check
+ */
+export const isRouteGroup = (route: string): boolean => {
+  return route.startsWith("/(") && route.endsWith(")");
+};
+
+/**
+ * Removes group segments from a route
+ * @param route
+ *
+ * @example
+ * removeGroupSegmentsFromRoute("/(user)/route") // "/route"
+ * removeGroupSegmentsFromRoute("/(user)/route/(id)/route2") // "/route/route2"
+ */
+export const removeGroupSegmentsFromRoute = (route: string): string => {
+  // Remove any segments that are wrapped in parentheses including the slashes around them
+  const newRoute = route.replace(/\/\([^)]+\)/g, "");
+  if (newRoute === "") {
+    return "/";
+  }
+  return newRoute;
+};
+
+/**
+ * 1. Iterate through each route in the routes array
+ * 2. For each route, check if it is a group
+ * 3. If the route is a group:
+ *    - Take all child routes from the group's children array
+ *    - Move these child routes to the same level as the group in the parent array
+ *    - Remove the group route from the array, preserving its children in their new position
+ * 4. Continue until all groups have been flattened
+ *
+ * @param routes
+ */
+export const processRouteGroup = (
+  routes: RouteInfoWithoutImport[],
+): RouteInfoWithoutImport[] => {
+  const processRoutes = (
+    routes: RouteInfoWithoutImport[],
+  ): RouteInfoWithoutImport[] => {
+    // Create a new array to store processed routes
+    let processedRoutes: RouteInfoWithoutImport[] = [];
+
+    // Iterate through each route
+    for (let i = 0; i < routes.length; i++) {
+      let currentRoute = routes[i];
+
+      // Check if the current route is a group route
+      if (isRouteGroup(currentRoute.route)) {
+        // If it has subRoutes, process them and add them to the current level
+        if (currentRoute.subRoutes?.length === 0) {
+          processedRoutes.push({
+            ...currentRoute,
+            route: removeGroupSegmentsFromRoute(currentRoute.route),
+          });
+        }
+        if ((currentRoute.subRoutes?.length ?? 0) > 0) {
+          // Process nested subRoutes recursively
+          const processedSubRoutes = processRoutes(currentRoute.subRoutes!).map(
+            (r) => ({
+              ...r,
+              route: removeGroupSegmentsFromRoute(r.route),
+            }),
+          );
+          processedRoutes = [...processedRoutes, ...processedSubRoutes];
+        }
+      } else {
+        // If not a group route, process its subRoutes if they exist
+        if (currentRoute.subRoutes) {
+          const newSubRoutes = processRoutes(currentRoute.subRoutes);
+          // check duplicate routes
+          checkDuplicateRoutes(newSubRoutes);
+
+          currentRoute.subRoutes = [];
+          for (const subRoute of newSubRoutes) {
+            if (subRoute.route === currentRoute.route) {
+              currentRoute = subRoute;
+              continue;
+            }
+            currentRoute.subRoutes?.push(subRoute);
+          }
+        }
+        // Add the current route to processed routes
+        processedRoutes.push({
+          ...currentRoute,
+          route: removeGroupSegmentsFromRoute(currentRoute.route),
+        });
+      }
+    }
+
+    return processedRoutes;
+  };
+
+  // Process the top-level routes
+  return processRoutes(routes);
+};
+
+export const checkDuplicateRoutes = (routes: RouteInfoWithoutImport[]) => {
+  const routeMap = new Map<string, boolean>();
+
+  const check = (route: RouteInfoWithoutImport) => {
+    const routeWithoutGroup = removeGroupSegmentsFromRoute(route.route);
+    if (routeMap.has(routeWithoutGroup)) {
+      throw new DuplicateRouteError(routeWithoutGroup);
+    }
+    routeMap.set(routeWithoutGroup, true);
+    if (route.subRoutes) {
+      checkDuplicateRoutes(route.subRoutes);
+    }
+  };
+  routes.forEach(check);
+};

@@ -1,11 +1,21 @@
 import * as path from "path";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+
+import { DuplicateRouteError } from "@rx-lab/errors";
 import { glob } from "glob";
 //@ts-ignore
 import MemoryFS from "memory-fs";
 import { Compiler } from "./compiler";
 
 jest.mock("glob");
+
+interface TestCase {
+  title: string;
+  expectedObject?: Record<any, any>;
+  // Key is the path of the file, and value is file content
+  fileStructure: Record<string, string | null>;
+  error?: Error;
+}
 
 describe("Compiler", () => {
   let fs: MemoryFS;
@@ -266,13 +276,6 @@ describe("Compiler", () => {
   });
 
   describe("Nested routes generation", () => {
-    interface TestCase {
-      title: string;
-      expectedObject: Record<any, any>;
-      // Key is the path of the file, and value is file content
-      fileStructure: Record<string, string>;
-    }
-
     describe("Custom Error Page", () => {
       const testCases: TestCase[] = [
         {
@@ -433,6 +436,54 @@ describe("Compiler", () => {
             ],
           },
         },
+        {
+          title: "Should use parent error page",
+          fileStructure: {
+            "app/home/sub1/page.tsx": `
+          export default function NestedPage() {
+            return <div>Nested</div>;
+          }
+        `,
+            "app/home/error.tsx": `
+          export default function CustomErrorPage() {
+            return <div>Custom Error</div>;
+          }
+        `,
+          },
+          expectedObject: {
+            routes: [
+              {
+                "404": "/dist/app/404.js",
+                error: "/dist/app/error.js",
+                page: "/dist/app/page.js",
+                metadata: undefined,
+                route: "/",
+                layouts: ["/dist/app/layout.js"],
+                subRoutes: [
+                  {
+                    "404": "/dist/app/404.js",
+                    error: "/dist/app/home/error.js",
+                    metadata: undefined,
+                    page: undefined,
+                    route: "/home",
+                    layouts: ["/dist/app/layout.js"],
+                    subRoutes: [
+                      {
+                        "404": "/dist/app/404.js",
+                        error: "/dist/app/home/error.js",
+                        metadata: undefined,
+                        page: "/dist/app/home/sub1/page.js",
+                        route: "/home/sub1",
+                        layouts: ["/dist/app/layout.js"],
+                        subRoutes: [],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        },
       ];
 
       for (const testCase of testCases) {
@@ -441,7 +492,7 @@ describe("Compiler", () => {
             const basePathWithoutFile = path.dirname(p);
             // make sure the directory exists
             fs.mkdirpSync(path.join(sourceDir, basePathWithoutFile));
-            fs.writeFileSync(path.join(sourceDir, p), content);
+            if (content) fs.writeFileSync(path.join(sourceDir, p), content);
           }
           jest.spyOn(glob, "glob").mockImplementation(async () => {
             return Object.keys(testCase.fileStructure);
@@ -588,7 +639,7 @@ describe("Compiler", () => {
             const basePathWithoutFile = path.dirname(p);
             // make sure the directory exists
             fs.mkdirpSync(path.join(sourceDir, basePathWithoutFile));
-            fs.writeFileSync(path.join(sourceDir, p), content);
+            if (content) fs.writeFileSync(path.join(sourceDir, p), content);
           }
           jest.spyOn(glob, "glob").mockImplementation(async () => {
             return Object.keys(testCase.fileStructure);
@@ -602,33 +653,6 @@ describe("Compiler", () => {
 
     describe("Nested layouts generation", () => {
       const testCases: TestCase[] = [
-        // {
-        //   title: "Should handle root layout only",
-        //   fileStructure: {
-        //     "app/layout.tsx": `
-        //     export default function RootLayout({ children }) {
-        //       return <div>Root Layout {children}</div>;
-        //     }
-        //   `,
-        //     "app/page.tsx": `
-        //     export default function Page() {
-        //       return <div>Page</div>;
-        //     }
-        //   `,
-        //   },
-        //   expectedObject: {
-        //     routes: [
-        //       {
-        //         route: "/",
-        //         page: "/dist/app/page.js",
-        //         "404": "/dist/app/404.js",
-        //         error: "/dist/app/error.js",
-        //         layouts: ["/dist/app/layout.js"],
-        //         subRoutes: [],
-        //       },
-        //     ],
-        //   },
-        // },
         {
           title: "Should handle nested layouts",
           fileStructure: {
@@ -825,7 +849,8 @@ describe("Compiler", () => {
             const basePathWithoutFile = path.dirname(filePath);
             fs.mkdirpSync(path.join("/test", basePathWithoutFile));
             fs.mkdirpSync(path.join("/dist", basePathWithoutFile));
-            fs.writeFileSync(path.join("/test", filePath), content);
+            if (content)
+              fs.writeFileSync(path.join("/test", filePath), content);
           }
 
           jest.spyOn(glob, "glob").mockImplementation(async () => {
@@ -837,5 +862,479 @@ describe("Compiler", () => {
         });
       }
     });
+  });
+
+  describe("Groups generation", () => {
+    const layoutTestCases: TestCase[] = [
+      {
+        title: "Nested groups in different routes",
+        fileStructure: {
+          "app/(group1)/route1/page.tsx": `
+        export default function Group1Page() {
+          return <div>Group1 Page</div>;
+        }
+      `,
+          "app/(group2)/route2/page.tsx": `
+        export default function Group2Page() {
+          return <div>Group2 Page</div>;
+        }
+      `,
+          "app/(group1)/layout.tsx": `
+            export default function Layout(props: any) {
+              return <div>
+                {props.children}
+                </div>
+            }
+          `,
+          "app/(group2)/layout.tsx": `
+            export default function Layout(props: any) {
+              return <div>
+                {props.children}
+                </div>
+            }
+          `,
+        },
+        expectedObject: {
+          routes: [
+            {
+              "404": "/dist/app/404.js",
+              error: "/dist/app/error.js",
+              layouts: ["/dist/app/layout.js"],
+              page: "/dist/app/page.js",
+              metadata: undefined,
+              route: "/",
+              subRoutes: [
+                {
+                  route: "/route1",
+                  page: "/dist/app/(group1)/route1/page.js",
+                  "404": "/dist/app/404.js",
+                  error: "/dist/app/error.js",
+                  layouts: [
+                    "/dist/app/layout.js",
+                    "/dist/app/(group1)/layout.js",
+                  ],
+                  metadata: undefined,
+                  subRoutes: [],
+                },
+                {
+                  route: "/route2",
+                  page: "/dist/app/(group2)/route2/page.js",
+                  "404": "/dist/app/404.js",
+                  error: "/dist/app/error.js",
+                  layouts: [
+                    "/dist/app/layout.js",
+                    "/dist/app/(group2)/layout.js",
+                  ],
+                  metadata: undefined,
+                  subRoutes: [],
+                },
+              ],
+            },
+          ],
+        },
+      },
+      // No group at all (Regular rendering)
+      {
+        title: "No group at all (Regular rendering)",
+        fileStructure: {
+          "app/page.tsx": `
+        export default function Home() {
+          return <div>Home</div>;
+        }
+      `,
+        },
+        expectedObject: {
+          routes: [
+            {
+              route: "/",
+              page: "/dist/app/page.js",
+              "404": "/dist/app/404.js",
+              error: "/dist/app/error.js",
+              layouts: ["/dist/app/layout.js"],
+              metadata: undefined,
+              subRoutes: [],
+            },
+          ],
+        },
+      },
+      // Root with groups
+      {
+        title: "Root with groups in same route (should throw error)",
+        fileStructure: {
+          "app/(group1)/page.tsx": `
+        export default function Group1Page() {
+          return <div>Group1 Page</div>;
+        }
+      `,
+          "app/(group2)/page.tsx": `
+        export default function Group2Page() {
+          return <div>Group2 Page</div>;
+        }
+      `,
+        },
+        error: new DuplicateRouteError("/"),
+      },
+      {
+        title: "Nested with groups but with own layout in different routes",
+        fileStructure: {
+          "app/(group1)/route1/page.tsx": `
+        export default function Group1Page() {
+          return <div>Group1 Page</div>;
+        }
+      `,
+          "app/(group2)/route2/page.tsx": `
+        export default function Group2Page() {
+          return <div>Group2 Page</div>;
+        }
+      `,
+          "app/(group1)/route1/layout.tsx": `
+            export default function Layout(props: any) {
+              return <div>
+                {props.children}
+                </div>
+            }
+          `,
+          "app/(group2)/route2/layout.tsx": `
+            export default function Layout(props: any) {
+              return <div>
+                {props.children}
+                </div>
+            }
+          `,
+        },
+        expectedObject: {
+          routes: [
+            {
+              route: "/",
+              page: "/dist/app/page.js",
+              "404": "/dist/app/404.js",
+              error: "/dist/app/error.js",
+              layouts: ["/dist/app/layout.js"],
+              metadata: undefined,
+              subRoutes: [
+                {
+                  route: "/route1",
+                  page: "/dist/app/(group1)/route1/page.js",
+                  "404": "/dist/app/404.js",
+                  error: "/dist/app/error.js",
+                  layouts: [
+                    "/dist/app/layout.js",
+                    "/dist/app/(group1)/route1/layout.js",
+                  ],
+                  metadata: undefined,
+                  subRoutes: [],
+                },
+                {
+                  route: "/route2",
+                  page: "/dist/app/(group2)/route2/page.js",
+                  "404": "/dist/app/404.js",
+                  error: "/dist/app/error.js",
+                  layouts: [
+                    "/dist/app/layout.js",
+                    "/dist/app/(group2)/route2/layout.js",
+                  ],
+                  metadata: undefined,
+                  subRoutes: [],
+                },
+              ],
+            },
+          ],
+        },
+      },
+
+      // Root with layout.tsx and group
+      {
+        title: "Root with layout.tsx and group without layout",
+        fileStructure: {
+          "app/layout.tsx": `
+        export default function RootLayout({ children }) {
+          return (
+            <div>
+              <body>{children}</body>
+            </div>
+          );
+        }
+      `,
+          "app/(group1)/page.tsx": `
+        export default function Group1Page() {
+          return <div>Group1 Page</div>;
+        }
+      `,
+        },
+        expectedObject: {
+          routes: [
+            {
+              route: "/",
+              page: "/dist/app/(group1)/page.js",
+              "404": "/dist/app/404.js",
+              error: "/dist/app/error.js",
+              layouts: ["/dist/app/layout.js"],
+              metadata: undefined,
+              subRoutes: [],
+            },
+          ],
+        },
+      },
+      // Nested groups (Group with groups)
+      {
+        title: "Nested groups (Group with groups)",
+        fileStructure: {
+          "app/(group1)/(group2)/page.tsx": `
+        export default function Group2Page() {
+          return <div>Group2 Page</div>;
+        }
+      `,
+          "app/(group1)/layout.tsx": `
+            export default function Layout(props: any) {
+              return <div>
+                {props.children}
+                </div>
+            }
+          `,
+        },
+        expectedObject: {
+          routes: [
+            {
+              route: "/",
+              page: "/dist/app/(group1)/(group2)/page.js",
+              "404": "/dist/app/404.js",
+              error: "/dist/app/error.js",
+              layouts: ["/dist/app/layout.js", "/dist/app/(group1)/layout.js"],
+              metadata: undefined,
+              subRoutes: [],
+            },
+          ],
+        },
+      },
+      {
+        title: "Nested groups",
+        fileStructure: {
+          "app/(group1)/sub/(group2)/layout.tsx": `
+        export default function Group2Page() {
+          return <div>Group2 Page</div>;
+        }
+      `,
+          "app/(group1)/sub/(group2)/page.tsx": `
+        export default function Group2Page() {
+          return <div>Group2 Page</div>;
+        }
+      `,
+          "app/(group1)/layout.tsx": `
+            export default function Layout(props: any) {
+              return <div>
+                {props.children}
+                </div>
+            }
+          `,
+        },
+        expectedObject: {
+          routes: [
+            {
+              "404": "/dist/app/404.js",
+              error: "/dist/app/error.js",
+              layouts: ["/dist/app/layout.js"],
+              page: "/dist/app/page.js",
+              route: "/",
+              metadata: undefined,
+              subRoutes: [
+                {
+                  "404": "/dist/app/404.js",
+                  error: "/dist/app/error.js",
+                  metadata: undefined,
+                  page: undefined,
+                  layouts: [
+                    "/dist/app/layout.js",
+                    "/dist/app/(group1)/layout.js",
+                    "/dist/app/(group1)/sub/(group2)/layout.js",
+                  ],
+                  route: "/sub",
+                  subRoutes: [
+                    {
+                      "404": "/dist/app/404.js",
+                      error: "/dist/app/error.js",
+                      metadata: undefined,
+                      layouts: [
+                        "/dist/app/layout.js",
+                        "/dist/app/(group1)/layout.js",
+                        "/dist/app/(group1)/sub/(group2)/layout.js",
+                      ],
+                      page: "/dist/app/(group1)/sub/(group2)/page.js",
+                      route: "/sub",
+                      subRoutes: [],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      },
+      // Same groups name in different level
+      {
+        title: "Same group name in different level",
+        fileStructure: {
+          "app/(group1)/page.tsx": `
+        export default function Group1Page() {
+          return <div>Group1 Page</div>;
+        }
+      `,
+          "app/(group2)/sub/(group1)/page.tsx": `
+        export default function NestedGroup1Page() {
+          return <div>Nested Group1 Page</div>;
+        }
+      `,
+          "app/(group1)/layout.tsx": `
+            export default function Layout(props: any) {
+              return <div>
+                {props.children}
+                </div>
+            }
+      `,
+        },
+        expectedObject: {
+          // This may or may not be an error in your system.
+          // If you allow a “(group1)” folder nested inside another “(group1)”
+          // and treat them independently, you might produce something like:
+          routes: [
+            {
+              route: "/",
+              page: "/dist/app/(group1)/page.js",
+              "404": "/dist/app/404.js",
+              error: "/dist/app/error.js",
+              layouts: ["/dist/app/layout.js", "/dist/app/(group1)/layout.js"],
+              metadata: undefined,
+              subRoutes: [
+                {
+                  route: "/sub",
+                  page: "/dist/app/(group2)/sub/(group1)/page.js",
+                  "404": "/dist/app/404.js",
+                  error: "/dist/app/error.js",
+                  layouts: ["/dist/app/layout.js"],
+                  metadata: undefined,
+                  subRoutes: [],
+                },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        title: "complex real world example",
+        fileStructure: {
+          "app/(admin)/admin/page.tsx": `
+        export default function Group1Page() {
+          return <div>Group1 Page</div>;
+        }
+      `,
+          "app/(admin)/admin/layout.tsx": `
+        export default function Layout(props: any) {
+              return <div>
+                {props.children}
+                </div>
+            }
+      `,
+          "app/(admin)/admin/user/layout.tsx": `
+            export default function Layout(props: any) {
+              return <div>
+                {props.children}
+                </div>
+            }
+      `,
+          "app/(admin)/admin/user/page.tsx": `
+             export default function page() {
+              return <div>page</div>;
+            }
+      `,
+          "app/(user)/user/layout.tsx": `
+            export default function Layout(props: any) {
+              return <div>
+                {props.children}
+                </div>
+            }
+      `,
+          "app/(user)/user/page.tsx": `
+             export default function page() {
+              return <div>page</div>;
+            }
+      `,
+        },
+        expectedObject: {
+          routes: [
+            {
+              "404": "/dist/app/404.js",
+              error: "/dist/app/error.js",
+              layouts: ["/dist/app/layout.js"],
+              page: "/dist/app/page.js",
+              route: "/",
+              metadata: undefined,
+              subRoutes: [
+                {
+                  "404": "/dist/app/404.js",
+                  error: "/dist/app/error.js",
+                  layouts: [
+                    "/dist/app/layout.js",
+                    "/dist/app/(admin)/admin/layout.js",
+                  ],
+                  page: "/dist/app/(admin)/admin/page.js",
+                  route: "/admin",
+                  metadata: undefined,
+                  subRoutes: [
+                    {
+                      "404": "/dist/app/404.js",
+                      error: "/dist/app/error.js",
+                      metadata: undefined,
+                      layouts: [
+                        "/dist/app/layout.js",
+                        "/dist/app/(admin)/admin/layout.js",
+                        "/dist/app/(admin)/admin/user/layout.js",
+                      ],
+                      page: "/dist/app/(admin)/admin/user/page.js",
+                      route: "/admin/user",
+                      subRoutes: [],
+                    },
+                  ],
+                },
+                {
+                  "404": "/dist/app/404.js",
+                  error: "/dist/app/error.js",
+                  metadata: undefined,
+                  layouts: [
+                    "/dist/app/layout.js",
+                    "/dist/app/(user)/user/layout.js",
+                  ],
+                  page: "/dist/app/(user)/user/page.js",
+                  route: "/user",
+                  subRoutes: [],
+                },
+              ],
+            },
+          ],
+        },
+      },
+    ];
+
+    for (const testCase of layoutTestCases) {
+      it(testCase.title, async () => {
+        for (const [p, content] of Object.entries(testCase.fileStructure)) {
+          const basePathWithoutFile = path.dirname(p);
+          // make sure the directory exists
+          fs.mkdirpSync(path.join(sourceDir, basePathWithoutFile));
+          fs.mkdirpSync(path.join(destDir, basePathWithoutFile));
+          if (content) {
+            fs.writeFileSync(path.join(sourceDir, p), content);
+          }
+        }
+        jest.spyOn(glob, "glob").mockImplementation(async () => {
+          return Object.keys(testCase.fileStructure);
+        });
+
+        if (testCase.error) {
+          await expect(compiler.compile()).rejects.toThrowError(testCase.error);
+        } else {
+          const result = await compiler.compile();
+          expect(result).toStrictEqual(testCase.expectedObject);
+        }
+      });
+    }
   });
 });

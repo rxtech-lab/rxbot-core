@@ -1,11 +1,15 @@
 import { describe } from "node:test";
+// @ts-ignore
 import mockJsonAst2 from "../tests/mock/react-ast-metadata.mock.json";
+// @ts-ignore
 import mockJsonAst1 from "../tests/mock/react-ast.mock.json";
 import {
   extractJSXKeyAttributes,
   generateClientComponentTag,
   isClientComponent,
+  isRouteGroup,
   parseSourceCode,
+  processRouteGroup,
   readMetadata,
 } from "./utils";
 
