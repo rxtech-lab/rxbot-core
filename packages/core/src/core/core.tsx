@@ -7,6 +7,7 @@ import {
   CoreInterface,
   DEFAULT_ROOT_ROUTE,
   ErrorPageProps,
+  LayoutProps,
   Logger,
   PageProps,
   RedirectOptions,
@@ -434,6 +435,27 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     this.element = component;
   }
 
+  private async wrapWithLayouts(
+    Component: React.ComponentType<any>,
+    layouts: React.ComponentType<LayoutProps>[],
+    pageProps: PageProps,
+  ): Promise<React.ReactElement> {
+    // Start with the innermost component (the actual page component)
+    let wrappedComponent = React.createElement(Component, pageProps);
+
+    // Wrap the component with layouts from inside out
+    for (let i = layouts.length - 1; i >= 0; i--) {
+      const Layout = layouts[i];
+      wrappedComponent = React.createElement(Layout as any, {
+        // biome-ignore lint/correctness/noChildrenProp: <explanation>
+        children: wrappedComponent,
+        ...pageProps,
+      });
+    }
+
+    return await renderServerComponent(wrappedComponent, pageProps);
+  }
+
   /**
    * Helper function to render the app asynchronously.
    * @param container The container to render the app in
@@ -454,6 +476,13 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     // wrap the element with the router and storage providers so that
     // the components can access the router and storage
     const Component = this.element.component;
+    const layoutResult = await this.router.renderSpecialRoute(
+      this.element.path,
+      "layout",
+      {},
+      {},
+    );
+    const LayoutComponents = layoutResult.components || [];
 
     /**
      * Default props to pass to the page component.
@@ -510,6 +539,16 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
         {},
         {},
       );
+      const serverRenderedComponent = await renderServerComponent(
+        Component,
+        pageProps,
+      );
+      const wrappedWithLayouts = await this.wrapWithLayouts(
+        Component as any,
+        LayoutComponents as any,
+        pageProps,
+      );
+
       const wrappedElement = React.createElement(
         WrappedElement,
         {
@@ -522,10 +561,10 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
           },
           api: this.coreApi,
           errorPage: (error: ErrorPageProps) => {
-            return React.createElement(errorComponent.component, error);
+            return React.createElement(errorComponent.component as any, error);
           },
         },
-        await renderServerComponent(Component, pageProps),
+        wrappedWithLayouts,
       );
       this.updateLastCommitUpdateTime();
 

@@ -13,6 +13,7 @@ import {
   StorageInterface,
   StoredRoute,
 } from "@rx-lab/common";
+import React from "react";
 import { matchRoute, parseQuery } from "./router.utils";
 
 /**
@@ -37,14 +38,23 @@ export async function importRoute(info: RouteInfo): Promise<ImportedRoute> {
  * @param info
  * @param type
  */
-async function getSpecialRoute(info: ImportedRoute, type: SpecialRouteType) {
-  let component: any | null = null;
+async function getSpecialRoute(
+  info: ImportedRoute,
+  type: SpecialRouteType,
+): Promise<() => React.ReactElement | (() => React.ReactElement)[]> {
   if (type === "error") {
-    component = info.error();
-  } else {
-    component = info["404"]();
+    return (info.error() as any).then((mod: any) => mod.default);
   }
-  return component;
+  if (type === "404") {
+    return (info["404"]() as any).then((mod: any) => mod.default);
+  }
+
+  const layouts = info.layouts;
+  return (await Promise.all(
+    layouts.map(async (layout) => {
+      return (await layout()).default;
+    }),
+  )) as any;
 }
 
 /**
@@ -289,7 +299,8 @@ export class Router {
         query: {},
         route: matchedRoute.route,
       },
-      component: component.default,
+      component: Array.isArray(component) ? undefined : (component as any),
+      components: Array.isArray(component) ? (component as any) : undefined,
       queryString: {},
       props: props,
       params: {},
@@ -342,7 +353,7 @@ export class Router {
     return {
       matchedRoute,
       queryString,
-      component: matchedRoute.page,
+      component: matchedRoute.page as any,
       params: matchedRoute.params,
       path: matchedRoute.route,
       currentRoute: currentRoute,
