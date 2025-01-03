@@ -297,6 +297,27 @@ export const removeGroupSegmentsFromRoute = (route: string): string => {
 };
 
 /**
+ * Merge target route into base route. Will overwrite any conflicting properties in the base route.
+ * If property in targetRoute is undefined, it will not overwrite the baseRoute property.
+ * @param baseRoute
+ * @param targetRoute
+ */
+const mergeRoute = (
+  baseRoute: RouteInfoWithoutImport,
+  targetRoute: RouteInfoWithoutImport,
+): RouteInfoWithoutImport => {
+  const newRoute = { ...baseRoute };
+  for (const key in targetRoute) {
+    //@ts-expect-error
+    if (targetRoute[key] !== undefined) {
+      //@ts-expect-error
+      newRoute[key] = targetRoute[key];
+    }
+  }
+  return newRoute;
+};
+
+/**
  * 1. Iterate through each route in the routes array
  * 2. For each route, check if it is a group
  * 3. If the route is a group:
@@ -349,7 +370,7 @@ export const processRouteGroup = (
           currentRoute.subRoutes = [];
           for (const subRoute of newSubRoutes) {
             if (subRoute.route === currentRoute.route) {
-              currentRoute = subRoute;
+              currentRoute = mergeRoute(currentRoute, subRoute);
               continue;
             }
             currentRoute.subRoutes?.push(subRoute);

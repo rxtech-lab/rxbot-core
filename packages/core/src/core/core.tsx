@@ -21,7 +21,7 @@ import {
   StorageInterface,
   StoredRoute,
 } from "@rx-lab/common";
-import { RedirectError, SkipError } from "@rx-lab/errors";
+import { ComponentNotFound, RedirectError, SkipError } from "@rx-lab/errors";
 import { encodeStateKey, stateCache } from "@rx-lab/storage";
 import React from "react";
 import { Renderer } from "./renderer";
@@ -440,6 +440,10 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     layouts: React.ComponentType<LayoutProps>[],
     pageProps: PageProps,
   ): Promise<React.ReactElement> {
+    if (Component === undefined) {
+      throw new ComponentNotFound();
+    }
+
     // Start with the innermost component (the actual page component)
     let wrappedComponent = React.createElement(Component, pageProps);
 
@@ -538,10 +542,6 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
         "error",
         {},
         {},
-      );
-      const serverRenderedComponent = await renderServerComponent(
-        Component,
-        pageProps,
       );
       const wrappedWithLayouts = await this.wrapWithLayouts(
         Component as any,

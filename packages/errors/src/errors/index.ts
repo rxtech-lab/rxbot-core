@@ -5,3 +5,4 @@ export * from "./duplicatedKeyProps";
 export * from "./redirect";
 export * from "./skip";
 export * from "./duplicateRoute";
+export * from "./componentNotFound";

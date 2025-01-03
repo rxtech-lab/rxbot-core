@@ -1257,6 +1257,16 @@ describe("Compiler", () => {
               return <div>page</div>;
             }
       `,
+          "app/home/(home)/page.tsx": `
+             export default function page() {
+              return <div>page</div>;
+            }
+          `,
+          "app/home/(home)/layout.tsx": `
+             export default function page() {
+              return <div>page</div>;
+            }
+          `,
         },
         expectedObject: {
           routes: [
@@ -1305,6 +1315,143 @@ describe("Compiler", () => {
                   page: "/dist/app/(user)/user/page.js",
                   route: "/user",
                   subRoutes: [],
+                },
+                {
+                  "404": "/dist/app/404.js",
+                  error: "/dist/app/error.js",
+                  metadata: undefined,
+                  layouts: [
+                    "/dist/app/layout.js",
+                    "/dist/app/home/(home)/layout.js",
+                  ],
+                  page: "/dist/app/home/(home)/page.js",
+                  route: "/home",
+                  subRoutes: [],
+                },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        title: "complex real world example 2",
+        fileStructure: {
+          "app/(group1)/sub/page.tsx": `
+        export default function Group1Page() {
+          return <div>Group1 Page</div>;
+        }
+      `,
+          "app/(group1)/sub/layout.tsx": `
+        export default function Layout(props: any) {
+              return <div>
+                {props.children}
+                </div>
+            }
+      `,
+          "app/sub2/page.tsx": `
+            export default function Group1Page() {
+          return <div>Group1 Page</div>;
+        }
+      `,
+          "app/sub2/layout.tsx": `
+               export default function Layout(props: any) {
+              return <div>
+                {props.children}
+                </div>
+            }
+      `,
+          "app/sub2/(group2)/sub3/layout.tsx": `
+            export default function Layout(props: any) {
+              return <div>
+                {props.children}
+                </div>
+            }
+      `,
+          "app/sub2/(group2)/sub3/page.tsx": `
+             export default function page() {
+              return <div>page</div>;
+            }
+      `,
+          "app/sub2/(group2)/sub4/page.tsx": `
+             export default function page() {
+              return <div>page</div>;
+            }
+          `,
+          "app/page.tsx": `
+             export default function page() {
+              return <div>page</div>;
+            }
+          `,
+          "app/layout.tsx": `
+            export default function Layout(props: any) {
+              return <div>
+                {props.children}
+                </div>
+            }
+      `,
+        },
+        expectedObject: {
+          routes: [
+            {
+              "404": "/dist/app/404.js",
+              error: "/dist/app/error.js",
+              layouts: ["/dist/app/layout.js"],
+              page: "/dist/app/page.js",
+              route: "/",
+              api: undefined,
+              metadata: undefined,
+              subRoutes: [
+                {
+                  "404": "/dist/app/404.js",
+                  error: "/dist/app/error.js",
+                  metadata: undefined,
+                  layouts: [
+                    "/dist/app/layout.js",
+                    "/dist/app/(group1)/sub/layout.js",
+                  ],
+                  page: "/dist/app/(group1)/sub/page.js",
+                  route: "/sub",
+                  subRoutes: [],
+                },
+                {
+                  "404": "/dist/app/404.js",
+                  error: "/dist/app/error.js",
+                  metadata: undefined,
+                  layouts: [
+                    "/dist/app/layout.js",
+                    "/dist/app/sub2/layout.js",
+                    "/dist/app/sub2/(group2)/sub3/layout.js",
+                  ],
+                  page: "/dist/app/sub2/page.js",
+                  route: "/sub2",
+                  subRoutes: [
+                    {
+                      "404": "/dist/app/404.js",
+                      error: "/dist/app/error.js",
+                      metadata: undefined,
+                      layouts: [
+                        "/dist/app/layout.js",
+                        "/dist/app/sub2/layout.js",
+                        "/dist/app/sub2/(group2)/sub3/layout.js",
+                      ],
+                      page: "/dist/app/sub2/(group2)/sub3/page.js",
+                      route: "/sub2/sub3",
+                      subRoutes: [],
+                    },
+                    {
+                      "404": "/dist/app/404.js",
+                      error: "/dist/app/error.js",
+                      metadata: undefined,
+                      layouts: [
+                        "/dist/app/layout.js",
+                        "/dist/app/sub2/layout.js",
+                        "/dist/app/sub2/(group2)/sub3/layout.js",
+                      ],
+                      page: "/dist/app/sub2/(group2)/sub4/page.js",
+                      route: "/sub2/sub4",
+                      subRoutes: [],
+                    },
+                  ],
                 },
               ],
             },
