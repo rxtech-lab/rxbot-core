@@ -59,8 +59,7 @@ function checkIsOptionsValid(opts: StartOptions) {
   }
 }
 
-export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
-  extends Renderer<T>
+export class Core <T extends Container<BaseChatroomInfo, BaseMessage>> extends Renderer<T>
   implements CoreInterface<any>
 {
   /**
