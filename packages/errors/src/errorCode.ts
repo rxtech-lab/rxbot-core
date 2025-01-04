@@ -19,4 +19,5 @@ export enum ErrorCode {
   // Skip
   Skip = 1006,
   DuplicateRoute = 1007,
+  ComponentIsNotFunction = 3000,
 }
