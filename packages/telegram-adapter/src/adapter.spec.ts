@@ -3,6 +3,7 @@ import * as TelegramBot from "node-telegram-bot-api";
 import { TGContainer, TelegramAdapter } from "./adapter";
 import { renderElement } from "./renderer";
 import { DEFAULT_ROOT_PATH } from "./types";
+import { AuthorizationError } from "@rx-lab/errors";
 
 jest.mock("node-telegram-bot-api");
 jest.mock("./callbackParser");
@@ -427,6 +428,51 @@ describe("TelegramAdapter", () => {
       expect(result).toEqual({
         route: "/help",
       });
+    });
+  });
+
+  describe("authorize", () => {
+    const originalEnv = process.env;
+
+    beforeEach(() => {
+      jest.resetModules();
+      process.env = { ...originalEnv };
+    });
+
+    afterEach(() => {
+      process.env = originalEnv;
+    });
+
+    it("should authorize request with valid secret token", async () => {
+      process.env.TELEGRAM_SECRET_TOKEN = "valid_token";
+      const request = {
+        headers: {
+          "x-telegram-bot-api-secret-token": "valid_token",
+        },
+      };
+
+      await expect(adapter.authorize(request)).resolves.toBeUndefined();
+    });
+
+    it("should throw AuthorizationError for invalid secret token", async () => {
+      process.env.TELEGRAM_SECRET_TOKEN = "valid_token";
+      const request = {
+        headers: {
+          "x-telegram-bot-api-secret-token": "invalid_token",
+        },
+      };
+
+      await expect(adapter.authorize(request)).rejects.toThrow(
+        AuthorizationError,
+      );
+    });
+
+    it("should pass authorization if secret token is not provided", async () => {
+      const request = {
+        headers: {},
+      };
+
+      await expect(adapter.authorize(request)).resolves.toBeUndefined();
     });
   });
 });

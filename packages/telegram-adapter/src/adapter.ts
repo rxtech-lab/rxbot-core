@@ -16,6 +16,7 @@ import { CallbackParser, CallbackType, DecodeType } from "./callbackParser";
 import { renderElement } from "./renderer";
 import { DEFAULT_ROOT_PATH, RenderedElement, START_COMMAND } from "./types";
 import { convertRouteToTGRoute, convertTGRouteToRoute } from "./utils";
+import { AuthorizationError } from "@rx-lab/errors";
 
 export type TelegramAppOpts =
   | {
@@ -513,5 +514,14 @@ export class TelegramAdapter
         keepTextMessage: true,
       },
     );
+  }
+
+  async authorize(request: any): Promise<void> {
+    const secretToken = process.env.TELEGRAM_SECRET_TOKEN;
+    const requestToken = request.headers["x-telegram-bot-api-secret-token"];
+
+    if (secretToken && requestToken !== secretToken) {
+      throw new AuthorizationError("Authorization failed: Invalid secret token");
+    }
   }
 }

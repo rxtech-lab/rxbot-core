@@ -630,4 +630,8 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     this.updateLastCommitUpdateTime();
     return this.waitForMessageToBeSent();
   }
+
+  async authorize(request: Request): Promise<void> {
+    await this.adapter.authorize(request);
+  }
 }
