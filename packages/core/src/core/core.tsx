@@ -59,7 +59,8 @@ function checkIsOptionsValid(opts: StartOptions) {
   }
 }
 
-export class Core <T extends Container<BaseChatroomInfo, BaseMessage>> extends Renderer<T>
+export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
+  extends Renderer<T>
   implements CoreInterface<any>
 {
   /**
@@ -281,7 +282,8 @@ export class Core <T extends Container<BaseChatroomInfo, BaseMessage>> extends R
     });
   }
 
-  async handleMessageUpdate(message: BaseMessage) {
+  async handleMessageUpdate(request: Request, message: BaseMessage) {
+    await this.adapter.authorize(request);
     await this.adapter.handleMessageUpdate(message);
     this.updateLastCommitUpdateTime();
     return this.waitForMessageToBeSent();
@@ -628,9 +630,5 @@ export class Core <T extends Container<BaseChatroomInfo, BaseMessage>> extends R
     await this.adapter.handleSendMessage(message);
     this.updateLastCommitUpdateTime();
     return this.waitForMessageToBeSent();
-  }
-
-  async authorize(request: Request): Promise<void> {
-    await this.adapter.authorize(request);
   }
 }

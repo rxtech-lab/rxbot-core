@@ -13,7 +13,7 @@ export async function POST(request: Request) {
         });
     }
     const result = async () => {
-        await global.core.handleMessageUpdate(await request.json());
+        await global.core.handleMessageUpdate(request, await request.json());
     };
     
     waitUntil(result().catch(console.error));

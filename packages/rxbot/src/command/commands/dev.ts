@@ -188,7 +188,7 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
               if (!core) {
                 await initializeCore();
               }
-              await core?.handleMessageUpdate(req.body);
+              await core?.handleMessageUpdate(req as any, req.body);
               res.json({ success: true });
               await core?.onDestroy();
             } catch (error: any) {

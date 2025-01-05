@@ -77,7 +77,7 @@ export const initializeWithWebhook = async (
     url: `http://0.0.0.0:${PORT}/webhook/chatroom/${chatroomId}`,
   });
   fastify.post(`/webhook/chatroom/${chatroomId}`, async (req, res) => {
-    await core.handleMessageUpdate(req.body as any);
+    await core.handleMessageUpdate(req as any, req.body as any);
     opts.onHttpReturn?.({}).then(() => {});
     return {
       status: "ok",

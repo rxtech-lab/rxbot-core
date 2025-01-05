@@ -123,7 +123,7 @@ export interface CoreInterface<T extends Container<any, any>> {
    *   };
    * });
    */
-  handleMessageUpdate: (message: any) => Promise<void>;
+  handleMessageUpdate: (request: Request, message: any) => Promise<void>;
 
   /**
    * Send message to the user.
