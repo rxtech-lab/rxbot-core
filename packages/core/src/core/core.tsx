@@ -282,7 +282,8 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
     });
   }
 
-  async handleMessageUpdate(message: BaseMessage) {
+  async handleMessageUpdate(request: Request, message: BaseMessage) {
+    await this.adapter.authorize(request);
     await this.adapter.handleMessageUpdate(message);
     this.updateLastCommitUpdateTime();
     return this.waitForMessageToBeSent();

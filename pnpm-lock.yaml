@@ -587,6 +587,9 @@ importers:
       '@rx-lab/common':
         specifier: workspace:*
         version: link:../common
+      '@rx-lab/errors':
+        specifier: workspace:*
+        version: link:../errors
       '@rx-lab/router':
         specifier: workspace:*
         version: link:../router

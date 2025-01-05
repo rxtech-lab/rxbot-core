@@ -302,4 +302,11 @@ export interface AdapterInterface<
    * @param options Options for creating the container.
    */
   createContainer: (message: Message, options: CreateContainerOptions) => C;
+
+  /**
+   * Authorizes the request.
+   * @param request The full request object.
+   * @returns A promise that resolves if the request is authorized, otherwise rejects with an error.
+   */
+  authorize: (request: Request) => Promise<void>;
 }
