@@ -301,7 +301,10 @@ export interface AdapterInterface<
    * @param message
    * @param options Options for creating the container.
    */
-  createContainer: (message: Message, options: CreateContainerOptions) => C;
+  createContainer: (
+    message: Message,
+    options: CreateContainerOptions,
+  ) => Promise<C>;
 
   /**
    * Authorizes the request.

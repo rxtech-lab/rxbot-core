@@ -1,4 +1,5 @@
 import type React from "react";
+import { Attachment } from "./attachment.interface";
 
 export enum ContainerType {
   ROOT = "ROOT",
@@ -46,4 +47,9 @@ export interface Container<
    * For example, in `Telegram`, if user type `@bot_name`, the bot will be mentioned.
    */
   hasBeenMentioned: boolean;
+
+  /**
+   * Attachments that are sent with the message.
+   */
+  attachments: Attachment[];
 }

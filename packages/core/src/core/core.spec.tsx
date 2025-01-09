@@ -102,6 +102,7 @@ describe.skip("Reconciler(Suspendable)", () => {
       children: [],
       hasBeenMentioned: false,
       isInGroup: false,
+      attachments: [],
     });
 
     expect(mockAdapter.messages).toHaveLength(0);
@@ -124,6 +125,7 @@ describe.skip("Reconciler(Suspendable)", () => {
       message: undefined,
       hasBeenMentioned: false,
       isInGroup: false,
+      attachments: [],
     });
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
