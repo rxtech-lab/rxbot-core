@@ -189,7 +189,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
         return container;
       },
       clientRedirectTo: async (message, path, options) => {
-        const container = this.adapter.createContainer(message, {
+        const container = await this.adapter.createContainer(message, {
           renderNewMessage: options.renderNewMessage ?? true,
           userId: options.userId,
         });
@@ -197,7 +197,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
         return container;
       },
       reload: async (message: BaseMessage, options: ReloadOptions) => {
-        const container = this.adapter.createContainer(message, {
+        const container = await this.adapter.createContainer(message, {
           renderNewMessage: options.shouldRenderNewMessage ?? false,
         });
         // get the current route
@@ -283,10 +283,17 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
   }
 
   async handleMessageUpdate(request: Request, message: BaseMessage) {
-    await this.adapter.authorize(request);
-    await this.adapter.handleMessageUpdate(message);
-    this.updateLastCommitUpdateTime();
-    return this.waitForMessageToBeSent();
+    try {
+      await this.adapter.authorize(request);
+      await this.adapter.handleMessageUpdate(message);
+      this.updateLastCommitUpdateTime();
+      return this.waitForMessageToBeSent();
+    } catch (e) {
+      if (e instanceof SkipError) {
+        return;
+      }
+      throw e;
+    }
   }
 
   async redirect(container: T, routeOrObject: any, options?: RedirectOptions) {
@@ -504,6 +511,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
       hasBeenMentioned: container.hasBeenMentioned,
       messageId: container.chatroomInfo.messageId?.toString() as any,
       chatroomId: container.chatroomInfo.id.toString() as any,
+      attachments: container.attachments,
       ...this.element.props,
       ...oldProps,
       storage: {

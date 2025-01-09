@@ -1,5 +1,7 @@
 import {
   type AdapterInterface,
+  Attachment,
+  AttachmentType,
   type BaseChatroomInfo,
   type Container,
   ContainerType,
@@ -11,12 +13,12 @@ import {
   SendMessage,
   StoredRoute,
 } from "@rx-lab/common";
+import { AuthorizationError, SkipError } from "@rx-lab/errors";
 import TelegramBot from "node-telegram-bot-api";
 import { CallbackParser, CallbackType, DecodeType } from "./callbackParser";
 import { renderElement } from "./renderer";
 import { DEFAULT_ROOT_PATH, RenderedElement, START_COMMAND } from "./types";
 import { convertRouteToTGRoute, convertTGRouteToRoute } from "./utils";
-import { AuthorizationError } from "@rx-lab/errors";
 
 export type TelegramAppOpts =
   | {
@@ -423,10 +425,106 @@ export class TelegramAdapter
     }
   }
 
-  createContainer(
+  async createContainer(
     message: TelegramBot.Message,
     options: CreateContainerOptions,
-  ): TGContainer {
+  ): Promise<TGContainer> {
+    // get attachments from the message
+    const attachments: Attachment[] = [];
+
+    if (message.media_group_id) {
+      await this.bot.sendMessage(
+        message.chat.id,
+        "Media group is not supported yet",
+      );
+      throw new SkipError();
+    }
+
+    // TODO: Handle media group in the future
+    if (message.photo) {
+      const photo = message.photo[message.photo.length - 1];
+      const file = await this.bot.getFile(photo.file_id);
+      attachments.push({
+        type: AttachmentType.Image,
+        url: `https://api.telegram.org/file/bot${this.opts.token}/${file.file_path}`,
+      });
+    }
+
+    if (message.sticker) {
+      attachments.push({
+        type: AttachmentType.Sticker,
+        url: message.sticker.file_id,
+      });
+    }
+
+    if (message.location) {
+      attachments.push({
+        type: AttachmentType.Location,
+        data: {
+          latitude: message.location.latitude,
+          longitude: message.location.longitude,
+        },
+      });
+    }
+
+    if (message.contact) {
+      attachments.push({
+        type: AttachmentType.Contact,
+        data: {
+          name: message.contact.first_name,
+          phoneNumber: message.contact.phone_number,
+        },
+      });
+    }
+
+    if (message.poll) {
+      attachments.push({
+        type: AttachmentType.Poll,
+        data: {
+          question: message.poll.question,
+          options: message.poll.options.map((option) => ({
+            text: option.text,
+            votes: option.voter_count,
+          })),
+        },
+      });
+    }
+
+    if (message.voice) {
+      attachments.push({
+        type: AttachmentType.Voice,
+        url: message.voice.file_id,
+        duration: message.voice.duration,
+      });
+    }
+
+    if (message.document) {
+      attachments.push({
+        type: AttachmentType.File,
+        url: message.document.file_id,
+        size: message.document.file_size,
+        mimeType: message.document.mime_type,
+      });
+    }
+
+    if (message.audio) {
+      attachments.push({
+        type: AttachmentType.File,
+        url: message.audio.file_id,
+        size: message.audio.file_size,
+        mimeType: message.audio.mime_type,
+      });
+    }
+
+    if (message.video) {
+      attachments.push({
+        type: AttachmentType.File,
+        url: message.video.file_id,
+        size: message.video.file_size,
+        mimeType: message.video.mime_type,
+      });
+    }
+
     // only process message from user
     // this prevents the bot from processing message from itself
     const messageText = message.text;
@@ -439,6 +537,7 @@ export class TelegramAdapter
       hasBeenMentioned: message.entities?.some(
         (entity) => entity.type === "mention",
       ),
+      attachments: attachments,
       chatroomInfo: {
         id: message.chat?.id as number,
         messageId: message.message_id,
@@ -467,14 +566,21 @@ export class TelegramAdapter
       message: TelegramBot.Message,
     ) => Promise<void>,
   ) {
-    this.bot.on("message", (message) => {
+    this.bot.on("message", async (message) => {
       if (message.web_app_data !== undefined) {
         return;
       }
-      const container = this.createContainer(message, {
-        renderNewMessage: true,
-      });
-      return callback(container, message);
+      try {
+        const container = this.createContainer(message, {
+          renderNewMessage: true,
+        });
+        return callback(await container, message);
+      } catch (e) {
+        if (e instanceof SkipError) {
+          return;
+        }
+        throw e;
+      }
     });
   }
 
@@ -495,6 +601,7 @@ export class TelegramAdapter
       isInGroup: message.isInGroup,
       groupId: message.isInGroup ? message.to : undefined,
       hasBeenMentioned: false,
+      attachments: [],
       message: {
         id: "",
         update_id: 0,
@@ -521,7 +628,9 @@ export class TelegramAdapter
     const requestToken = request.headers["x-telegram-bot-api-secret-token"];
 
     if (secretToken && requestToken !== secretToken) {
-      throw new AuthorizationError("Authorization failed: Invalid secret token");
+      throw new AuthorizationError(
+        "Authorization failed: Invalid secret token",
+      );
     }
   }
 }

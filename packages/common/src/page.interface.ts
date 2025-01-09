@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Attachment } from "./attachment.interface";
 import { RouteInfoFile } from "./router.interface";
 import { StorageClientInterface } from "./storage.interface";
 
@@ -65,6 +66,11 @@ export interface PageProps {
    * The chatroom id of the current chatroom.
    */
   chatroomId: string;
+
+  /**
+   * Attachments that are sent with the message.
+   */
+  attachments: Attachment[];
 }
 
 export interface ErrorPageProps {

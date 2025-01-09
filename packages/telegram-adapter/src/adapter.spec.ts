@@ -1,9 +1,9 @@
 import { Menu } from "@rx-lab/common";
+import { AuthorizationError } from "@rx-lab/errors";
 import * as TelegramBot from "node-telegram-bot-api";
 import { TGContainer, TelegramAdapter } from "./adapter";
 import { renderElement } from "./renderer";
 import { DEFAULT_ROOT_PATH } from "./types";
-import { AuthorizationError } from "@rx-lab/errors";
 
 jest.mock("node-telegram-bot-api");
 jest.mock("./callbackParser");
@@ -34,6 +34,7 @@ describe("TelegramAdapter", () => {
         hasUpdated: false,
         hasBeenMentioned: false,
         isInGroup: false,
+        attachments: [],
       };
 
       const result = await adapter.adapt(container as any, false);
@@ -52,6 +53,7 @@ describe("TelegramAdapter", () => {
         hasUpdated: true,
         hasBeenMentioned: false,
         isInGroup: false,
+        attachments: [],
       };
 
       const result = await adapter.adapt(container as any, false);
@@ -73,6 +75,7 @@ describe("TelegramAdapter", () => {
         hasUpdated: true,
         hasBeenMentioned: false,
         isInGroup: false,
+        attachments: [],
       };
 
       await adapter.adapt(container as any, false);
@@ -129,6 +132,7 @@ describe("TelegramAdapter", () => {
         hasUpdated: true,
         hasBeenMentioned: false,
         isInGroup: false,
+        attachments: [],
       };
 
       const result = await adapter.adapt(container as any, false);

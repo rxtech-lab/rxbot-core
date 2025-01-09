@@ -10,3 +10,4 @@ export * from "./router.interface";
 export * from "./storage.interface";
 export * from "./page.interface";
 export * from "./compiler.interface";
+export * from "./attachment.interface";
