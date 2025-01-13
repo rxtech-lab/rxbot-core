@@ -1,10 +1,11 @@
 import { existsSync } from "fs";
 import path from "path";
 import { rspack } from "@rspack/core";
+import { RouteInfo } from "@rx-lab/common";
 import fs from "fs/promises";
 import nunjucks from "nunjucks";
 import {
-  VERCEL_SEND_MESSAGE_TEMPLATE,
+  VERCEL_API_ROUTE_TEMPLATE,
   VERCEL_WEBHOOK_FUNCTION_TEMPLATE,
 } from "../../../templates/vercel";
 
@@ -28,53 +29,74 @@ const VERCEL_CONFIG_FILE_NAME = "config.json";
  * @param content
  */
 async function writeVercelFunctionToDisk(apiRoute: string, content: string) {
-  const functionOutputFolder =
-    path.resolve(VERCEL_FUNCTIONS_FOLDER, apiRoute) + ".func";
+  try {
+    let functionOutputFolder = path.join(
+      path.resolve(VERCEL_FUNCTIONS_FOLDER),
+      apiRoute + ".func",
+    );
 
-  // check if the folder exists
-  if (!existsSync(functionOutputFolder)) {
-    await fs.mkdir(functionOutputFolder, { recursive: true });
+    // check if the folder exists
+    if (!existsSync(functionOutputFolder)) {
+      await fs.mkdir(functionOutputFolder, { recursive: true });
+    }
+
+    const configFilePath = path.join(
+      functionOutputFolder,
+      VERCEL_FUNCTION_CONFIG_FILENAME,
+    );
+
+    await build(content, VERCEL_FUNCTION_FILE_NAME, functionOutputFolder);
+    // write config
+    await fs.writeFile(
+      configFilePath,
+      JSON.stringify(
+        {
+          runtime: "nodejs20.x",
+          handler: "index.js",
+          launcherType: "Nodejs",
+          shouldAddHelpers: true,
+        },
+        null,
+        2,
+      ),
+    );
+  } catch (e) {
+    console.error(e);
+    throw e;
   }
-
-  const configFilePath = path.join(
-    functionOutputFolder,
-    VERCEL_FUNCTION_CONFIG_FILENAME,
-  );
-
-  await build(content, VERCEL_FUNCTION_FILE_NAME, functionOutputFolder);
-  // write config
-  await fs.writeFile(
-    configFilePath,
-    JSON.stringify(
-      {
-        runtime: "nodejs20.x",
-        handler: "index.js",
-        launcherType: "Nodejs",
-        shouldAddHelpers: true,
-      },
-      null,
-      2,
-    ),
-  );
 }
 
 /**
  * Generate vercel function
  * @param outputDir The generated source code output directory
+ * @param route The route information
  * @param type The type of function to generate
  */
 async function generateVercelFunction(
   outputDir: string,
-  type: "webhook" | "send-message",
+  type: "webhook" | "api",
+  route?: RouteInfo,
 ): Promise<string> {
   switch (type) {
     case "webhook":
       return nunjucks.renderString(VERCEL_WEBHOOK_FUNCTION_TEMPLATE, {
         outputDir,
       });
-    case "send-message":
-      return nunjucks.renderString(VERCEL_SEND_MESSAGE_TEMPLATE, {
+    case "api":
+      // import the api
+      const api = await route?.api!();
+      const supportedMethods = [];
+      for (const method of ["GET", "POST", "PUT", "DELETE", "PATCH"]) {
+        //@ts-expect-error
+        if (api[method]) {
+          supportedMethods.push(method);
+        }
+      }
+
+      return nunjucks.renderString(VERCEL_API_ROUTE_TEMPLATE, {
         outputDir,
+        methods: supportedMethods,
+        path: route!.route,
       });
     default:
       throw new Error(`Unsupported function type: ${type}`);
@@ -174,18 +196,49 @@ async function writeVercelConfigFile() {
   );
 }
 
+/**
+ * Recursively process routes and generate API functions
+ * @param routes Array of route information
+ * @param outputFolder Output folder path
+ */
+async function processRoutes(routes: RouteInfo[], outputFolder: string) {
+  for (const route of routes) {
+    // Generate API function if route has api field
+    if (route.api) {
+      const apiFunction = await generateVercelFunction(
+        outputFolder,
+        "api",
+        route,
+      );
+      await writeVercelFunctionToDisk(route.route, apiFunction);
+    }
+
+    // Recursively process sub-routes if they exist
+    if (route.subRoutes && route.subRoutes.length > 0) {
+      await processRoutes(route.subRoutes, outputFolder);
+    }
+  }
+}
+
 export async function buildVercel({ outputFolder }: Options) {
   await removeVercelFolder();
   // create output folder
   await fs.mkdir(VERCEL_OUTPUT_FOLDER, { recursive: true });
+  // get route file
+  const routeFile = path.resolve(outputFolder, "main.js");
+  // node require
+  const nativeRequire = require("module").createRequire(process.cwd());
+  delete nativeRequire.cache[nativeRequire.resolve(routeFile)];
+  // Now import the fresh version
+  const { ROUTE_FILE } = nativeRequire(routeFile);
+
   // build webhook function
   const webhookFunction = await generateVercelFunction(outputFolder, "webhook");
-  const sendMessageFunction = await generateVercelFunction(
-    outputFolder,
-    "send-message",
-  );
   // write webhook function to disk
   await writeVercelFunctionToDisk("api/webhook", webhookFunction);
-  await writeVercelFunctionToDisk("api/message", sendMessageFunction);
+
+  // Process all routes recursively
+  await processRoutes(ROUTE_FILE.routes, outputFolder);
+
   await writeVercelConfigFile();
 }

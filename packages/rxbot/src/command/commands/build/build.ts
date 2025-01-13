@@ -23,11 +23,10 @@ export default async function runBuild(
   },
 ) {
   Logger.info(
-    `Building the app in $${srcFolder} for ${options.environment} environment`,
+    `Building the app in ${srcFolder} for ${options.environment} environment`,
     "blue",
   );
 
-  Logger.info("Build app completed successfully", "green");
   switch (options.environment) {
     case "vercel":
       Logger.info("Building specifically for Vercel", "blue");
@@ -35,7 +34,11 @@ export default async function runBuild(
         plugins: [new VercelEnvironmentPlugin()],
       });
       await buildVercel({
-        outputFolder: path.resolve(outputFolder, DEFAULT_OUTPUT_FOLDER),
+        outputFolder: path.resolve(
+          process.cwd(),
+          outputFolder,
+          DEFAULT_OUTPUT_FOLDER,
+        ),
       });
       Logger.info("Build for Vercel completed successfully", "green");
       break;
@@ -44,6 +47,7 @@ export default async function runBuild(
         sourceMap: options.sourceMap,
         plugins: [],
       });
+      Logger.info("Build app completed successfully", "green");
       break;
   }
 }
