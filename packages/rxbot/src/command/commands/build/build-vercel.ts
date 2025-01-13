@@ -29,38 +29,41 @@ const VERCEL_CONFIG_FILE_NAME = "config.json";
  * @param content
  */
 async function writeVercelFunctionToDisk(apiRoute: string, content: string) {
-  let functionOutputFolder =
-    path.resolve(VERCEL_FUNCTIONS_FOLDER, apiRoute) + ".func";
+  try {
+    let functionOutputFolder = path.join(
+      path.resolve(VERCEL_FUNCTIONS_FOLDER),
+      apiRoute + ".func",
+    );
 
-  if (apiRoute === "/api") {
-    functionOutputFolder = path.resolve(VERCEL_FUNCTIONS_FOLDER, "api.func");
+    // check if the folder exists
+    if (!existsSync(functionOutputFolder)) {
+      await fs.mkdir(functionOutputFolder, { recursive: true });
+    }
+
+    const configFilePath = path.join(
+      functionOutputFolder,
+      VERCEL_FUNCTION_CONFIG_FILENAME,
+    );
+
+    await build(content, VERCEL_FUNCTION_FILE_NAME, functionOutputFolder);
+    // write config
+    await fs.writeFile(
+      configFilePath,
+      JSON.stringify(
+        {
+          runtime: "nodejs20.x",
+          handler: "index.js",
+          launcherType: "Nodejs",
+          shouldAddHelpers: true,
+        },
+        null,
+        2,
+      ),
+    );
+  } catch (e) {
+    console.error(e);
+    throw e;
   }
-
-  // check if the folder exists
-  if (!existsSync(functionOutputFolder)) {
-    await fs.mkdir(functionOutputFolder, { recursive: true });
-  }
-
-  const configFilePath = path.join(
-    functionOutputFolder,
-    VERCEL_FUNCTION_CONFIG_FILENAME,
-  );
-
-  await build(content, VERCEL_FUNCTION_FILE_NAME, functionOutputFolder);
-  // write config
-  await fs.writeFile(
-    configFilePath,
-    JSON.stringify(
-      {
-        runtime: "nodejs20.x",
-        handler: "index.js",
-        launcherType: "Nodejs",
-        shouldAddHelpers: true,
-      },
-      null,
-      2,
-    ),
-  );
 }
 
 /**
