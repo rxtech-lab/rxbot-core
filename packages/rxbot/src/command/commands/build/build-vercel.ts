@@ -29,8 +29,12 @@ const VERCEL_CONFIG_FILE_NAME = "config.json";
  * @param content
  */
 async function writeVercelFunctionToDisk(apiRoute: string, content: string) {
-  const functionOutputFolder =
+  let functionOutputFolder =
     path.resolve(VERCEL_FUNCTIONS_FOLDER, apiRoute) + ".func";
+
+  if (apiRoute === "/api") {
+    functionOutputFolder = path.resolve(VERCEL_FUNCTIONS_FOLDER, "api.func");
+  }
 
   // check if the folder exists
   if (!existsSync(functionOutputFolder)) {
@@ -76,8 +80,20 @@ async function generateVercelFunction(
         outputDir,
       });
     case "api":
+      // import the api
+      const api = await route?.api!();
+      const supportedMethods = [];
+      for (const method of ["GET", "POST", "PUT", "DELETE", "PATCH"]) {
+        //@ts-expect-error
+        if (api[method]) {
+          supportedMethods.push(method);
+        }
+      }
+
       return nunjucks.renderString(VERCEL_API_ROUTE_TEMPLATE, {
         outputDir,
+        methods: supportedMethods,
+        path: route!.route,
       });
     default:
       throw new Error(`Unsupported function type: ${type}`);
@@ -177,6 +193,30 @@ async function writeVercelConfigFile() {
   );
 }
 
+/**
+ * Recursively process routes and generate API functions
+ * @param routes Array of route information
+ * @param outputFolder Output folder path
+ */
+async function processRoutes(routes: RouteInfo[], outputFolder: string) {
+  for (const route of routes) {
+    // Generate API function if route has api field
+    if (route.api) {
+      const apiFunction = await generateVercelFunction(
+        outputFolder,
+        "api",
+        route,
+      );
+      await writeVercelFunctionToDisk(route.route, apiFunction);
+    }
+
+    // Recursively process sub-routes if they exist
+    if (route.subRoutes && route.subRoutes.length > 0) {
+      await processRoutes(route.subRoutes, outputFolder);
+    }
+  }
+}
+
 export async function buildVercel({ outputFolder }: Options) {
   await removeVercelFolder();
   // create output folder
@@ -193,13 +233,9 @@ export async function buildVercel({ outputFolder }: Options) {
   const webhookFunction = await generateVercelFunction(outputFolder, "webhook");
   // write webhook function to disk
   await writeVercelFunctionToDisk("api/webhook", webhookFunction);
-  for (const route of ROUTE_FILE.routes) {
-    const apiFunctions = await generateVercelFunction(
-      outputFolder,
-      "api",
-      route,
-    );
-    await writeVercelFunctionToDisk(route.route, apiFunctions);
-  }
+
+  // Process all routes recursively
+  await processRoutes(ROUTE_FILE.routes, outputFolder);
+
   await writeVercelConfigFile();
 }
