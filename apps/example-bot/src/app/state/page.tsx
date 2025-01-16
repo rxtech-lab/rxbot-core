@@ -2,7 +2,7 @@ import { RouteMetadata } from "@rx-lab/common";
 import { CommandButton } from "@rx-lab/core";
 
 export const metadata: RouteMetadata = {
-  title: "State Management",
+  title: "State Management1",
   description: "Learn how to manage states in your bot",
   includeInMenu: true,
 };
