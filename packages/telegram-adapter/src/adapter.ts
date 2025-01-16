@@ -491,35 +491,39 @@ export class TelegramAdapter
     }
 
     if (message.voice) {
+      const url = await this.bot.getFileLink(message.voice.file_id);
       attachments.push({
         type: AttachmentType.Voice,
-        url: message.voice.file_id,
+        url: url,
         duration: message.voice.duration,
       });
     }
 
     if (message.document) {
+      const url = await this.bot.getFileLink(message.document.file_id);
       attachments.push({
         type: AttachmentType.File,
-        url: message.document.file_id,
+        url: url,
         size: message.document.file_size,
         mimeType: message.document.mime_type,
       });
     }
 
     if (message.audio) {
+      const url = await this.bot.getFileLink(message.audio.file_id);
       attachments.push({
         type: AttachmentType.File,
-        url: message.audio.file_id,
+        url: url,
         size: message.audio.file_size,
         mimeType: message.audio.mime_type,
       });
     }
 
     if (message.video) {
+      const url = await this.bot.getFileLink(message.video.file_id);
       attachments.push({
         type: AttachmentType.File,
-        url: message.video.file_id,
+        url: url,
         size: message.video.file_size,
         mimeType: message.video.mime_type,
       });
