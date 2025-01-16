@@ -312,4 +312,10 @@ export interface AdapterInterface<
    * @returns A promise that resolves if the request is authorized, otherwise rejects with an error.
    */
   authorize: (request: Request) => Promise<void>;
+
+  /**
+   * Sets the loading state of the adapter. Will display a loading indicator on the UI based on the platform.
+   * @param loading
+   */
+  setLoadingState: (container: C, loading: boolean) => Promise<void>;
 }

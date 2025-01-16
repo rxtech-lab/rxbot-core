@@ -633,4 +633,14 @@ export class TelegramAdapter
       );
     }
   }
+
+  async setLoadingState(
+    container: TGContainer,
+    loading: boolean,
+  ): Promise<void> {
+    await this.bot.sendChatAction(
+      container.chatroomInfo.id,
+      loading ? "typing" : undefined,
+    );
+  }
 }

@@ -62,18 +62,21 @@ export function isReactClientElement(jsx: any): boolean {
  * Render the server component.
  * @param jsx
  * @param props
+ * @param onAsyncServerComponent Callback function to handle async server component.
  */
 export async function renderServerComponent(
   jsx: any,
   props: any,
+  onAsyncServerComponent?: (jsx: any) => Promise<void>,
 ): Promise<any> {
-  return renderServerComponentHelper(true, jsx, props);
+  return renderServerComponentHelper(true, jsx, props, onAsyncServerComponent);
 }
 
 async function renderServerComponentHelper(
   isRoot: boolean,
   jsx: any,
   props: any,
+  onAsyncServerComponent?: (jsx: any) => Promise<void>,
 ): Promise<any> {
   if (!jsx) {
     return null;
@@ -85,7 +88,14 @@ async function renderServerComponentHelper(
 
   if (Array.isArray(jsx)) {
     return await Promise.all(
-      jsx.map((element) => renderServerComponentHelper(false, element, props)),
+      jsx.map((element) =>
+        renderServerComponentHelper(
+          false,
+          element,
+          props,
+          onAsyncServerComponent,
+        ),
+      ),
     );
   }
 
@@ -111,7 +121,12 @@ async function renderServerComponentHelper(
           ...jsx,
           props: {
             ...jsxProps,
-            ...(await renderServerComponentHelper(false, jsx.props, props)),
+            ...(await renderServerComponentHelper(
+              false,
+              jsx.props,
+              props,
+              onAsyncServerComponent,
+            )),
           },
         };
       }
@@ -125,15 +140,35 @@ async function renderServerComponentHelper(
         if (isRoot) {
           jsxProps = { ...props, ...jsxProps };
         }
-        const component = await Component(jsxProps);
-        return await renderServerComponentHelper(false, component, jsxProps);
+
+        const componentFunc = Component(jsxProps);
+        // check if component function is a promise
+        if (componentFunc instanceof Promise) {
+          onAsyncServerComponent?.(jsx);
+        }
+
+        const component = await componentFunc;
+        return await renderServerComponentHelper(
+          false,
+          component,
+          jsxProps,
+          onAsyncServerComponent,
+        );
       }
     }
 
     const entries = Object.entries(jsx);
     const processedEntries = await Promise.all(
       entries.map(async ([key, value]) => {
-        return [key, await renderServerComponentHelper(false, value, props)];
+        return [
+          key,
+          await renderServerComponentHelper(
+            false,
+            value,
+            props,
+            onAsyncServerComponent,
+          ),
+        ];
       }),
     );
 

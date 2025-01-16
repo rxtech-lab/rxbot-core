@@ -466,7 +466,17 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
       });
     }
 
-    return await renderServerComponent(wrappedComponent, pageProps);
+    let hasSentLoading = false;
+
+    return await renderServerComponent(
+      wrappedComponent,
+      pageProps,
+      async () => {
+        if (!hasSentLoading)
+          await this.adapter.setLoadingState(this.container!, true);
+        hasSentLoading = true;
+      },
+    );
   }
 
   /**

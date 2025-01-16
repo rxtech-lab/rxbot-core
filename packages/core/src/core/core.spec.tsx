@@ -39,6 +39,10 @@ class MockAdapter implements AdapterInterface<Container<any, any>, any, any> {
     };
   }
 
+  setLoadingState(container: any, isLoading: boolean): Promise<void> {
+    return Promise.resolve(undefined);
+  }
+
   getRouteKey(message: Container<any, any>): string {
     return "";
   }
