@@ -191,7 +191,7 @@ importers:
         version: 0.29.2(react@18.3.1)
       ts-jest:
         specifier: ^29.2.5
-        version: 29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0)(ts-node@10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2)))(typescript@5.7.2)
+        version: 29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0))(typescript@5.7.2)
       typescript:
         specifier: ^5.6.3
         version: 5.7.2
@@ -218,7 +218,7 @@ importers:
         version: link:../sourcecraft-core
       ts-jest:
         specifier: ^29.2.5
-        version: 29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0)(ts-node@10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2)))(typescript@5.7.2)
+        version: 29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0))(typescript@5.7.2)
       yaml:
         specifier: ^2.4.2
         version: 2.6.1
@@ -228,7 +228,7 @@ importers:
     devDependencies:
       '@rspack/cli':
         specifier: 1.1.0
-        version: 1.1.0(@rspack/core@1.1.0)(@types/express@4.17.21)(webpack@5.97.1(@swc/core@1.10.3))
+        version: 1.1.0(@rspack/core@1.1.0)(@types/express@5.0.0)(webpack@5.97.1(@swc/core@1.10.3))
       '@rspack/core':
         specifier: 1.1.0
         version: 1.1.0
@@ -268,7 +268,7 @@ importers:
         version: 7.18.0(eslint@8.57.1)(typescript@5.7.2)
       '@vercel/style-guide':
         specifier: ^5.2.0
-        version: 5.2.0(eslint@8.57.1)(jest@29.7.0(@types/node@22.9.0)(ts-node@10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2)))(prettier@3.3.3)(typescript@5.7.2)
+        version: 5.2.0(eslint@8.57.1)(jest@29.7.0(@types/node@22.9.0))(prettier@3.3.3)(typescript@5.7.2)
       eslint-config-prettier:
         specifier: ^9.1.0
         version: 9.1.0(eslint@8.57.1)
@@ -317,7 +317,7 @@ importers:
         version: 29.7.0
       ts-jest:
         specifier: ^29.2.5
-        version: 29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0)(ts-node@10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2)))(typescript@5.7.2)
+        version: 29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0))(typescript@5.7.2)
       typescript:
         specifier: ^5.6.3
         version: 5.7.2
@@ -403,7 +403,7 @@ importers:
         version: 4.17.21
       ts-jest:
         specifier: ^29.2.5
-        version: 29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0)(ts-node@10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2)))(typescript@5.7.2)
+        version: 29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0))(typescript@5.7.2)
       typescript:
         specifier: ^5.6.3
         version: 5.7.2
@@ -441,7 +441,7 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0
       '@types/jest':
-        specifier: ^29.5.12
+        specifier: ^29.5.14
         version: 29.5.14
       '@types/memory-fs':
         specifier: ^0.3.7
@@ -491,7 +491,7 @@ importers:
         version: 18.3.1
       ts-jest:
         specifier: ^29.2.5
-        version: 29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0)(ts-node@10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2)))(typescript@5.7.2)
+        version: 29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0))(typescript@5.7.2)
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2)
@@ -537,7 +537,7 @@ importers:
         version: 29.7.0(@types/node@22.9.0)(ts-node@10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2))
       ts-jest:
         specifier: ^29.2.5
-        version: 29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0)(ts-node@10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2)))(typescript@5.7.2)
+        version: 29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0))(typescript@5.7.2)
       typescript:
         specifier: ^5.6.3
         version: 5.7.2
@@ -577,7 +577,7 @@ importers:
         version: 29.7.0
       ts-jest:
         specifier: ^29.2.5
-        version: 29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0)(ts-node@10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2)))(typescript@5.7.2)
+        version: 29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0))(typescript@5.7.2)
       typescript:
         specifier: ^5.6.3
         version: 5.7.2
@@ -614,7 +614,7 @@ importers:
         version: 29.7.0(@types/node@22.9.0)(ts-node@10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2))
       ts-jest:
         specifier: ^29.2.5
-        version: 29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0)(ts-node@10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2)))(typescript@5.7.2)
+        version: 29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0))(typescript@5.7.2)
       typescript:
         specifier: ^5.6.3
         version: 5.7.2
@@ -641,7 +641,7 @@ importers:
         version: 29.7.0(@types/node@22.9.0)(ts-node@10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2))
       ts-jest:
         specifier: ^29.2.5
-        version: 29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0)(ts-node@10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2)))(typescript@5.7.2)
+        version: 29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0))(typescript@5.7.2)
       typescript:
         specifier: ^5.6.3
         version: 5.7.2
@@ -690,7 +690,7 @@ importers:
         version: 29.7.0(@types/node@22.9.0)(ts-node@10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2))
       ts-jest:
         specifier: ^29.2.5
-        version: 29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0)(ts-node@10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2)))(typescript@5.7.2)
+        version: 29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0))(typescript@5.7.2)
       typescript:
         specifier: ^5.6.3
         version: 5.7.2
@@ -745,7 +745,7 @@ importers:
         version: link:../../packages/rxbot
       ts-jest:
         specifier: ^29.2.5
-        version: 29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0)(ts-node@10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2)))(typescript@5.7.2)
+        version: 29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0))(typescript@5.7.2)
       typescript:
         specifier: ^5.6.3
         version: 5.7.2
@@ -8997,27 +8997,6 @@ snapshots:
       '@rspack/binding-win32-ia32-msvc': 1.1.0
       '@rspack/binding-win32-x64-msvc': 1.1.0
 
-  '@rspack/cli@1.1.0(@rspack/core@1.1.0)(@types/express@4.17.21)(webpack@5.97.1(@swc/core@1.10.3))':
-    dependencies:
-      '@discoveryjs/json-ext': 0.5.7
-      '@rspack/core': 1.1.0
-      '@rspack/dev-server': 1.0.9(@rspack/core@1.1.0)(@types/express@4.17.21)(webpack@5.97.1(@swc/core@1.10.3))
-      colorette: 2.0.19
-      exit-hook: 4.0.0
-      interpret: 3.1.1
-      rechoir: 0.8.0
-      semver: 7.6.3
-      webpack-bundle-analyzer: 4.6.1
-      yargs: 17.6.2
-    transitivePeerDependencies:
-      - '@types/express'
-      - bufferutil
-      - debug
-      - supports-color
-      - utf-8-validate
-      - webpack
-      - webpack-cli
-
   '@rspack/cli@1.1.0(@rspack/core@1.1.0)(@types/express@5.0.0)(webpack@5.97.1(@swc/core@1.10.3))':
     dependencies:
       '@discoveryjs/json-ext': 0.5.7
@@ -9053,27 +9032,6 @@ snapshots:
       connect-history-api-fallback: 2.0.0
       express: 4.21.2
       http-proxy-middleware: 2.0.7(@types/express@5.0.0)
-      mime-types: 2.1.35
-      p-retry: 4.6.2
-      webpack-dev-middleware: 7.4.2(webpack@5.97.1(@swc/core@1.10.3))
-      webpack-dev-server: 5.0.4(webpack@5.97.1(@swc/core@1.10.3))
-      ws: 8.18.0
-    transitivePeerDependencies:
-      - '@types/express'
-      - bufferutil
-      - debug
-      - supports-color
-      - utf-8-validate
-      - webpack
-      - webpack-cli
-
-  '@rspack/dev-server@1.0.9(@rspack/core@1.1.0)(@types/express@4.17.21)(webpack@5.97.1(@swc/core@1.10.3))':
-    dependencies:
-      '@rspack/core': 1.1.0
-      chokidar: 3.6.0
-      connect-history-api-fallback: 2.0.0
-      express: 4.21.2
-      http-proxy-middleware: 2.0.7(@types/express@4.17.21)
       mime-types: 2.1.35
       p-retry: 4.6.2
       webpack-dev-middleware: 7.4.2(webpack@5.97.1(@swc/core@1.10.3))
@@ -9856,7 +9814,7 @@ snapshots:
       json-schema-to-ts: 1.6.4
       ts-morph: 12.0.0
 
-  '@vercel/style-guide@5.2.0(eslint@8.57.1)(jest@29.7.0(@types/node@22.9.0)(ts-node@10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2)))(prettier@3.3.3)(typescript@5.7.2)':
+  '@vercel/style-guide@5.2.0(eslint@8.57.1)(jest@29.7.0(@types/node@22.9.0))(prettier@3.3.3)(typescript@5.7.2)':
     dependencies:
       '@babel/core': 7.26.0
       '@babel/eslint-parser': 7.25.9(@babel/core@7.26.0)(eslint@8.57.1)
@@ -9868,9 +9826,9 @@ snapshots:
       eslint-import-resolver-typescript: 3.7.0(eslint-plugin-import@2.31.0)(eslint@8.57.1)
       eslint-plugin-eslint-comments: 3.2.0(eslint@8.57.1)
       eslint-plugin-import: 2.31.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1)
-      eslint-plugin-jest: 27.9.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1)(jest@29.7.0(@types/node@22.9.0)(ts-node@10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2)))(typescript@5.7.2)
+      eslint-plugin-jest: 27.9.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1)(jest@29.7.0(@types/node@22.9.0))(typescript@5.7.2)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.57.1)
-      eslint-plugin-playwright: 0.16.0(eslint-plugin-jest@27.9.0(@typescript-eslint/eslint-plugin@6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1)(jest@29.7.0(@types/node@22.9.0)(ts-node@10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2)))(typescript@5.7.2))(eslint@8.57.1)
+      eslint-plugin-playwright: 0.16.0(eslint-plugin-jest@27.9.0(@typescript-eslint/eslint-plugin@6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1)(jest@29.7.0(@types/node@22.9.0))(typescript@5.7.2))(eslint@8.57.1)
       eslint-plugin-react: 7.37.3(eslint@8.57.1)
       eslint-plugin-react-hooks: 4.6.2(eslint@8.57.1)
       eslint-plugin-testing-library: 6.5.0(eslint@8.57.1)(typescript@5.7.2)
@@ -11434,7 +11392,7 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-plugin-jest@27.9.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1)(jest@29.7.0(@types/node@22.9.0)(ts-node@10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2)))(typescript@5.7.2):
+  eslint-plugin-jest@27.9.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1)(jest@29.7.0(@types/node@22.9.0))(typescript@5.7.2):
     dependencies:
       '@typescript-eslint/utils': 5.62.0(eslint@8.57.1)(typescript@5.7.2)
       eslint: 8.57.1
@@ -11466,11 +11424,11 @@ snapshots:
 
   eslint-plugin-only-warn@1.1.0: {}
 
-  eslint-plugin-playwright@0.16.0(eslint-plugin-jest@27.9.0(@typescript-eslint/eslint-plugin@6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1)(jest@29.7.0(@types/node@22.9.0)(ts-node@10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2)))(typescript@5.7.2))(eslint@8.57.1):
+  eslint-plugin-playwright@0.16.0(eslint-plugin-jest@27.9.0(@typescript-eslint/eslint-plugin@6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1)(jest@29.7.0(@types/node@22.9.0))(typescript@5.7.2))(eslint@8.57.1):
     dependencies:
       eslint: 8.57.1
     optionalDependencies:
-      eslint-plugin-jest: 27.9.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1)(jest@29.7.0(@types/node@22.9.0)(ts-node@10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2)))(typescript@5.7.2)
+      eslint-plugin-jest: 27.9.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1)(jest@29.7.0(@types/node@22.9.0))(typescript@5.7.2)
 
   eslint-plugin-react-hooks@4.6.2(eslint@8.57.1):
     dependencies:
@@ -15479,7 +15437,7 @@ snapshots:
     dependencies:
       typescript: 5.7.2
 
-  ts-jest@29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0)(ts-node@10.9.2(@swc/core@1.10.3)(@types/node@22.9.0)(typescript@5.7.2)))(typescript@5.7.2):
+  ts-jest@29.2.5(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.9.0))(typescript@5.7.2):
     dependencies:
       bs-logger: 0.2.6
       ejs: 3.1.10

@@ -34,6 +34,7 @@ type StartOptions = {
   adapter: AdapterInterface<any, any, any>;
   storage: StorageInterface;
   routeFile: RouteInfoFile;
+  updateMenu?: boolean;
 };
 
 interface CoreOptions {
@@ -131,7 +132,7 @@ export class Core<T extends Container<BaseChatroomInfo, BaseMessage>>
       routeFile: opts.routeFile,
     });
 
-    await core.router.initFromRoutes(opts.routeFile, true);
+    await core.router.initFromRoutes(opts.routeFile, opts.updateMenu ?? false);
     await core.init();
     return core;
   }

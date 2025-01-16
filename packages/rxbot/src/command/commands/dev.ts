@@ -9,7 +9,11 @@ import { matchRouteWithPath } from "@rx-lab/router";
 import chokidar from "chokidar";
 import express from "express";
 import fs from "fs/promises";
-import { getRspackConfig, getSrcAndOutputDir } from "../utils";
+import {
+  getRspackConfig,
+  getSrcAndOutputDir,
+  isRouteMetadataEqual,
+} from "../utils";
 
 export default async function runDev(srcFolder = "./src", outputFolder = "./") {
   try {
@@ -61,6 +65,7 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
           let core: Core<any> | undefined;
           let isReady = false;
           let isReloading = false;
+          let previousRouteFile: RouteInfoFile | undefined;
 
           // Parse JSON bodies
           app.use(express.json());
@@ -89,11 +94,17 @@ export default async function runDev(srcFolder = "./src", outputFolder = "./") {
           const initializeCore = async () => {
             // Now import the fresh version
             const mod = await getModule();
+            const isRouteEqual = isRouteMetadataEqual(
+              previousRouteFile,
+              mod.ROUTE_FILE,
+            );
             core = await Core.Dev({
               adapter: mod.adapter,
               storage: mod.storage,
               routeFile: mod.ROUTE_FILE,
+              updateMenu: !isRouteEqual,
             });
+            if (!isRouteEqual) previousRouteFile = mod.ROUTE_FILE;
           };
 
           const reload = () => {
