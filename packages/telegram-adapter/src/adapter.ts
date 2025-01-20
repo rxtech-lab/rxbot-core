@@ -245,6 +245,7 @@ export class TelegramAdapter
     Logger.log(`Sending message`, "bgBlue");
     try {
       if (isUpdate && container.updateMessageId) {
+        // updating the image is not supported in telegram
         await this.bot.editMessageText(message.text, {
           parse_mode: "HTML",
           reply_markup: message.reply_markup as any,
@@ -261,6 +262,18 @@ export class TelegramAdapter
             parse_mode: "HTML",
           },
         );
+
+        if (message.media.length > 0) {
+          await this.bot.sendMediaGroup(
+            chatRoomId,
+            message.media.map((media) => ({
+              media: media.media,
+              caption: media.caption,
+              type: media.type,
+            })),
+          );
+        }
+
         return {
           ...container,
           hasUpdated: false,

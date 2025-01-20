@@ -1,5 +1,11 @@
 import { InlineKeyboardButton, KeyboardButton } from "node-telegram-bot-api";
 
+export type Media = {
+  type: "photo" | "video";
+  media: string;
+  caption: string;
+};
+
 export type RenderedElement = {
   text: string;
   reply_markup?: {
@@ -7,6 +13,7 @@ export type RenderedElement = {
     keyboard?: KeyboardButton[][];
     remove_keyboard?: boolean;
   };
+  media: Media[];
 };
 
 export const DEFAULT_ROOT_PATH = "/";
