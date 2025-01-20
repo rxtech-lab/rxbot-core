@@ -6,7 +6,7 @@ import { convertRouteToTGRoute } from "./utils";
 
 export const renderElementHelper = (
   element: Component,
-  parser: CallbackParser,
+  parser: CallbackParser
 ): any => {
   if (!element) {
     return [""];
@@ -93,7 +93,7 @@ export const renderElementHelper = (
 
     case InstanceType.List:
       return element.children.map(
-        (item, index) => `${index + 1}. ${renderElementHelper(item, parser)}\n`,
+        (item, index) => `${index + 1}. ${renderElementHelper(item, parser)}\n`
       );
 
     case InstanceType.Menu: {
@@ -123,7 +123,7 @@ export const renderElementHelper = (
       return {
         type: "photo",
         photo: element.props.src,
-        caption: element.props.caption,
+        caption: element.props.alt,
       };
 
     default:
@@ -133,11 +133,11 @@ export const renderElementHelper = (
 
 export const renderElement = (
   element: Component,
-  parser: CallbackParser,
+  parser: CallbackParser
 ): RenderedElement => {
   const result = renderElementHelper(element, parser);
 
-  const finalResult: RenderedElement = { text: "" };
+  const finalResult: RenderedElement = { text: "", media: [] };
   const inlineKeyboardButtons: InlineKeyboardButton[][] = [];
 
   const processResult = (res: any, level = 0) => {
@@ -224,7 +224,15 @@ export const renderElement = (
       res.type &&
       (res.type === "audio" || res.type === "video" || res.type === "photo")
     ) {
-      Object.assign(finalResult, res);
+      if (res.type === "photo") {
+        finalResult.media.push({
+          type: "photo",
+          media: res.photo,
+          caption: res.caption,
+        });
+      } else {
+        Object.assign(finalResult, res);
+      }
     }
   };
 

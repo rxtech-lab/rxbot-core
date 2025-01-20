@@ -190,9 +190,13 @@ describe("renderElement", () => {
       caption: "An image",
     });
     expect(renderElement(imageElement, parser)).toEqual({
-      type: "photo",
-      photo: "image.jpg",
-      caption: "An image",
+      media: [
+        {
+          type: "photo",
+          media: "image.jpg",
+          caption: undefined,
+        },
+      ],
       text: "",
     });
   });

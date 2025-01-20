@@ -25,6 +25,7 @@ import {
   type ComponentOptions,
   Container as ContainerComponent,
   Header,
+  Image,
   LineBreak,
   Link,
   Menu,
@@ -76,6 +77,7 @@ export class ComponentBuilder implements Builder {
     [InstanceType.ItalicText]: ItalicText as unknown as Constructor<
       BaseComponent<any>
     >,
+    [InstanceType.Image]: Image as unknown as Constructor<BaseComponent<any>>,
   };
 
   /**
@@ -108,6 +110,8 @@ export class ComponentBuilder implements Builder {
     [ReactInstanceType.Code]: InstanceType.Code,
     [ReactInstanceType.Bold]: InstanceType.BoldText,
     [ReactInstanceType.Italic]: InstanceType.ItalicText,
+    [ReactInstanceType.Img]: InstanceType.Image,
+    [ReactInstanceType.Image]: InstanceType.Image,
   };
 
   build(

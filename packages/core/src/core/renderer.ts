@@ -140,7 +140,7 @@ export class Renderer<
             internalInstanceHandle: internalHandle,
             container: rootContainer,
             context: hostContext,
-            text: "Unsupported component",
+            text: "",
           });
         }
       },

@@ -8,3 +8,4 @@ export * from "./Container";
 export * from "./Menu";
 export * from "./LineBreak";
 export * from "./Internal";
+export * from "./Image";
